@@ -5,8 +5,9 @@ checking_modules = []
 CheckingFunction : TypeAlias = Callable[[ Any, dict ], dict]
 
 class CheckingModule():
-    moduleName : str # Hyphenate for multiple words
+    moduleName : str # Use underscore for multiple words
     checker : CheckingFunction
+    checkerHelp : str
 
     @classmethod
     def modules(cls):

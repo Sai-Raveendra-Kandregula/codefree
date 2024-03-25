@@ -16,7 +16,8 @@ def get_c_files(path:str) -> List[str]:
 
 def run_astyle(rootpath:str, output:dict):
     formatter = Astyle()
-    print(f'Formatted with Astyle v{formatter.version()}')
+    print("\nRunning Astyle...")
+    print(f'Using Astyle v{formatter.version()}')
     formatter.set_options(f"--mode=c")
 
     file_list = get_c_files(rootpath)
@@ -26,14 +27,18 @@ def run_astyle(rootpath:str, output:dict):
         with open(fileitem, "r") as file:
             content = file.read()
             formatCheckPassed = formatter.format(content) == content
-            print(f'{rel_name} {"needs Formatting." if not formatCheckPassed else "is okay."}')
+            # print(f'{rel_name} {"needs Formatting." if not formatCheckPassed else "is okay."}')
 
             if rel_name not in output:
                 output[rel_name] = {}
             output[rel_name]['astyle_passed'] = formatCheckPassed
 
+    print("Astyle check is done.\n")
     return output
 
 astyle_module = CheckingModule()
 astyle_module.moduleName = "astyle"
 astyle_module.checker = run_astyle
+astyle_module.checkerHelp = "Enable Astyle format checking"
+
+astyle_module.register()

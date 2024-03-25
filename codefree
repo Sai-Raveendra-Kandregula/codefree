@@ -1,0 +1,124 @@
+#! /usr/bin/python3
+
+import xml.etree.ElementTree as ET
+from subprocess import Popen, PIPE
+import os
+import sys
+from typing import List
+
+from cf_checker import *
+from cf_output import *
+from output_modules.json import json_format_obj
+import output_modules.json
+import checker_modules.astyle
+import checker_modules.cppcheck
+
+# Test Script : python3 __main__.py -p <src_file>
+# Test Configuration : 
+# {
+# }
+#
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="codefree", description="CodeFree - Code Style and Static Analyzer and Reporting Tool")
+
+    parser.add_argument(
+        "-p",
+        "--path",
+        dest="path",
+        nargs="?",
+        action="store",
+        help="Source Code Path",
+        default=os.getcwd()
+    )
+
+    checkerGroup = parser.add_argument_group('Checker Options')
+    checkerGroup.add_argument(
+        f"--enable",
+        dest=f"enableCheckers",
+        action="store",
+        choices=["all", "none"],
+        default="all",
+        help="Enable/Disable all Checkers"
+    )
+
+    checker_module : CheckingModule
+    for checker_module in CheckingModule.modules():
+        checkerGroup.add_argument(
+            f"--{checker_module.moduleName}",
+            dest=f"use_{checker_module.moduleName}",
+            action="store_const",
+            const=checker_module,
+            default=False,
+            help=checker_module.checkerHelp
+        )
+
+    parser.add_argument(
+        f"--output-file",
+        dest="outputFile",
+        action="store",
+        type=argparse.FileType(mode='w+', errors=""),
+        # type=argparse.FileType(mode='x', errors=""),
+        help="Output to File",
+        default=None
+    )
+
+    outputGroup = parser.add_argument_group('Output Format Options')
+    out_module : FormattingModule
+    for out_module in FormattingModule.modules():
+        outputGroup.add_argument(
+            f"--{out_module.formatStr}",
+            dest="formatClass",
+            action="store_const",
+            const=out_module,
+            help=out_module.formatHelp
+        )
+
+        outModuleOpts = parser.add_argument_group(f'{out_module.formatStr} Options')
+
+        option : FormatOption
+        for option in out_module.formatOptions:
+            if option.argAction == ArgActionOptions.Empty:
+                outModuleOpts.add_argument(
+                    f"--{option.option}",
+                    dest=f"{option.argDest}",
+                    action=option.argAction,
+                    help=option.argHelp,
+                    required=(f"--{out_module.formatStr}" in sys.argv)
+                )
+            else:
+                outModuleOpts.add_argument(
+                    f"--{option.option}",
+                    dest=f"{option.argDest}",
+                    action="store",
+                    const=option.argConst,
+                    default=option.default,
+                    help=option.argHelp
+                )
+    default_fmt = "json"
+    parser.set_defaults(formatClass=json_format_obj)
+    parser.set_defaults(reset=False)
+
+    args = parser.parse_args()
+
+    print("Running CodeFree Analysis on path - " + args.path)
+
+    print("\nRunning Checks...")
+    out = {}
+
+    checker_module : CheckingModule
+    for checker_module in CheckingModule.modules():
+        checker = args.__getattribute__(f"use_{checker_module.moduleName}")
+        if args.enableCheckers == "all" or checker:
+            checker_module.checker(args.path, out)
+        else:
+            print(f"Skipping {checker_module.moduleName} checks because it is disabled.")
+
+    if args.outputFile is None:
+        print("\n" + args.formatClass.formatter(args, out))
+    else:
+        args.outputFile.write(args.formatClass.formatter(args, out))
+        print(f"\nReport saved to {os.path.realpath(args.outputFile.name)} in {args.formatClass.formatStr} format.")
+    print("\nDone.")
