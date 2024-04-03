@@ -5,7 +5,6 @@ formats : List = []
 class ArgActionOptions:
     Empty : str =  "store_true"
 
-
 class FormatOption:
     option : str
     argDest : str
@@ -21,6 +20,7 @@ class FormattingModule():
     formatter : FormatFunction
     formatOptions : List[FormatOption] = []
     formatHelp: str
+    handlesOutputInternally : bool = False
 
     @classmethod
     def modules(cls):

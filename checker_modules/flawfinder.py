@@ -6,6 +6,10 @@ import csv
 
 from cf_checker import CheckingModule
 
+flawfinder_module = CheckingModule()
+flawfinder_module.moduleName = "flawfinder"
+flawfinder_module.moduleNameFriendly = "FlawFinder"
+
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
         return []
@@ -62,10 +66,10 @@ def run_flawfinder(rootpath:str, output:dict):
         if err_file not in output:
             output[err_file] = {}
 
-        if 'flawfinder' not in output[err_file]:
-            output[err_file]['flawfinder'] = []
+        if flawfinder_module.moduleNameFriendly not in output[err_file]:
+            output[err_file][flawfinder_module.moduleNameFriendly] = []
 
-        output[err_file]['flawfinder'].append(error)
+        output[err_file][flawfinder_module.moduleNameFriendly].append(error)
 
     file_list = get_c_files(rootpath)
 
@@ -73,15 +77,13 @@ def run_flawfinder(rootpath:str, output:dict):
         rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
         if rel_name not in output:
             output[rel_name] = {}
-        if 'flawfinder' not in output[rel_name]:
-            output[rel_name]['flawfinder'] = []
+        if flawfinder_module.moduleNameFriendly not in output[rel_name]:
+            output[rel_name][flawfinder_module.moduleNameFriendly] = []
 
     print("FlawFinder is done.\n")
 
     return output
 
-flawfinder_module = CheckingModule()
-flawfinder_module.moduleName = "flawfinder"
 flawfinder_module.checker = run_flawfinder
 flawfinder_module.checkerHelp = "Enable FlawFinder Code Analysis"
 flawfinder_module.register()

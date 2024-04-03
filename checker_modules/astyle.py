@@ -6,6 +6,10 @@ from astyle_py import Astyle
 
 from cf_checker import CheckingModule
 
+astyle_module = CheckingModule()
+astyle_module.moduleName = "astyle"
+astyle_module.moduleNameFriendly = "Astyle"
+
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
         return []
@@ -31,13 +35,12 @@ def run_astyle(rootpath:str, output:dict):
 
             if rel_name not in output:
                 output[rel_name] = {}
-            output[rel_name]['astyle'] = "passed" if formatCheckPassed else "failed"
+            output[rel_name][astyle_module.moduleNameFriendly] = {}
+            output[rel_name][astyle_module.moduleNameFriendly]["check"] = "passed" if formatCheckPassed else "failed"
 
     print("Astyle check is done.\n")
     return output
 
-astyle_module = CheckingModule()
-astyle_module.moduleName = "astyle"
 astyle_module.checker = run_astyle
 astyle_module.checkerHelp = "Enable Astyle format checking"
 
