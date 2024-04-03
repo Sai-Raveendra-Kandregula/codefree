@@ -75,7 +75,7 @@ def output_xlsx(args, output: dict = {}):
 xlsx_format_obj = FormattingModule()
 
 xlsx_format_obj.formatStr = "xlsx"
-xlsx_format_obj.formatHelp = "Formats Output to xlsx"
+xlsx_format_obj.formatHelp = "Formats Output to Excel Spreadsheet"
 xlsx_format_obj.formatter = output_xlsx
 xlsx_format_obj.handlesOutputInternally = True
 
