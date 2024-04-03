@@ -6,6 +6,7 @@ CheckingFunction : TypeAlias = Callable[[ Any, dict ], dict]
 
 class CheckingModule():
     moduleName : str # Use underscore for multiple words
+    moduleNameFriendly : str = None
     checker : CheckingFunction
     checkerHelp : str
 

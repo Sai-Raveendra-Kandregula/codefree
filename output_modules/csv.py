@@ -1,8 +1,6 @@
 from cf_output import FormattingModule, FormatOption, ArgActionOptions
 
 import pandas as pd
-import json
-import csv
 
 def output_csv(args, output: dict = {}):
     flattened_data = []
@@ -10,14 +8,17 @@ def output_csv(args, output: dict = {}):
     for file_name, file_output in output.items():
         file_objs = []
         file_obj = {}
-        file_obj['file_name'] = file_name
+        file_obj['File'] = file_name
 
-        # Fill in One Dimensional Values
+        # Fill in One Dimensional Values and Dicts
         for checker_field, checker_output in file_output.items():
             if type(checker_output) not in [list, dict]:
                 file_obj[checker_field] = checker_output
+            elif type(checker_output) == dict:
+                for key in checker_output.keys():
+                    file_obj[f"{checker_field}_{key}"] = checker_output[key]
 
-        # Expand Lists and Dicts
+        # Expand Lists
         for checker_field, checker_output in file_output.items():
             if type(checker_output) == list:
                 if len(checker_output) > 0:

@@ -121,8 +121,15 @@ if __name__ == "__main__":
             print(f"Skipping {checker_module.moduleName} checks because it is disabled.")
 
     if args.outputFile is None:
-        print("\n" + args.formatClass.formatter(args, out))
+        if args.formatClass.handlesOutputInternally:
+            print("Output File Missing. Will dump raw output to stdout.")
+            print("\n" + out)
+        else:
+            print("\n" + args.formatClass.formatter(args, out))
     else:
-        args.outputFile.write(args.formatClass.formatter(args, out))
+        if args.formatClass.handlesOutputInternally:
+            args.formatClass.formatter(args, out)
+        else:
+            args.outputFile.write(args.formatClass.formatter(args, out))
         print(f"\nReport saved to {os.path.realpath(args.outputFile.name)} in {args.formatClass.formatStr} format.")
     print("\nDone.")

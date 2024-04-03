@@ -19,6 +19,7 @@ docker-compose==1.29.2
 dockerpty==0.4.1
 docopt==0.6.2
 enum34==1.1.10
+et-xmlfile==1.1.0
 exceptiongroup==1.2.0
 fastapi==0.110.0
 h11==0.14.0
@@ -38,6 +39,7 @@ more-itertools==8.10.0
 netifaces==0.11.0
 numpy==1.26.4
 oauthlib==3.2.0
+openpyxl==3.1.2
 pandas==2.2.1
 ply==3.11
 pyang==2.6.0

@@ -5,6 +5,10 @@ import xml.etree.ElementTree as ET
 
 from cf_checker import CheckingModule
 
+cppcheck_module = CheckingModule()
+cppcheck_module.moduleName = "cppcheck"
+cppcheck_module.moduleNameFriendly = "CPP Check"
+
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
         return []
@@ -62,10 +66,10 @@ def run_cpp_check(rootpath:str, output:dict):
         if err_file not in output:
             output[err_file] = {}
 
-        if 'cppcheck' not in output[err_file]:
-            output[err_file]['cppcheck'] = []
+        if cppcheck_module.moduleNameFriendly not in output[err_file]:
+            output[err_file][cppcheck_module.moduleNameFriendly] = []
 
-        output[err_file]['cppcheck'].append(error)
+        output[err_file][cppcheck_module.moduleNameFriendly].append(error)
 
     file_list = get_c_files(rootpath)
 
@@ -73,15 +77,13 @@ def run_cpp_check(rootpath:str, output:dict):
         rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
         if rel_name not in output:
             output[rel_name] = {}
-        if 'cppcheck' not in output[rel_name]:
-            output[rel_name]['cppcheck'] = []
+        if cppcheck_module.moduleNameFriendly not in output[rel_name]:
+            output[rel_name][cppcheck_module.moduleNameFriendly] = []
 
     print("CppCheck is done.\n")
 
     return output
 
-cppcheck_module = CheckingModule()
-cppcheck_module.moduleName = "cppcheck"
 cppcheck_module.checker = run_cpp_check
 cppcheck_module.checkerHelp = "Enable CPPCheck Code Analysis"
 cppcheck_module.register()
