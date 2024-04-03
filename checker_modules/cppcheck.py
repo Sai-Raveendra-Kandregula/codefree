@@ -29,7 +29,7 @@ def run_cpp_check(rootpath:str, output:dict):
     if len(cppcheck_path) == 0:
         print("Bundled CPPCheck Binary not found. Skipping...")
         return output
-    process = Popen([f'{cppcheck_path}','--enable=all', '--suppress=missingIncludeSystem', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
+    process = Popen([f'{cppcheck_path}','--enable=all', '--force', '--suppress=missingIncludeSystem', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
 
     xml_out = stdout.decode()
@@ -44,9 +44,8 @@ def run_cpp_check(rootpath:str, output:dict):
 
         if file_info is not None:
             err_file = file_info.attrib["file"].removeprefix(rootpath).removeprefix("/")
-            error['location'] = {}
-            error['location']['line'] = file_info.attrib["line"]
-            error['location']['column'] = file_info.attrib["column"]
+            error['line'] = file_info.attrib["line"]
+            error['column'] = file_info.attrib["column"]
 
         error['type'] = err_elem.attrib["id"]
         error['message'] = err_elem.attrib["msg"]
@@ -61,10 +60,10 @@ def run_cpp_check(rootpath:str, output:dict):
         if err_file not in output:
             output[err_file] = {}
 
-        if 'cppcheck_errors' not in output[err_file]:
-            output[err_file]['cppcheck_errors'] = []
+        if 'cppcheck_error' not in output[err_file]:
+            output[err_file]['cppcheck_error'] = []
 
-        output[err_file]['cppcheck_errors'].append(error)
+        output[err_file]['cppcheck_error'].append(error)
 
     file_list = get_c_files(rootpath)
 
@@ -72,8 +71,8 @@ def run_cpp_check(rootpath:str, output:dict):
         rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
         if rel_name not in output:
             output[rel_name] = {}
-        if 'cppcheck_errors' not in output[rel_name]:
-            output[rel_name]['cppcheck_errors'] = []
+        if 'cppcheck_error' not in output[rel_name]:
+            output[rel_name]['cppcheck_error'] = []
 
     print("CppCheck is done.\n")
 

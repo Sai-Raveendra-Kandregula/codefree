@@ -36,7 +36,9 @@ libvirt-python==8.0.0
 lxml==5.1.0
 more-itertools==8.10.0
 netifaces==0.11.0
+numpy==1.26.4
 oauthlib==3.2.0
+pandas==2.2.1
 ply==3.11
 pyang==2.6.0
 pyangbind==0.8.5
@@ -50,7 +52,9 @@ PyJWT==2.3.0
 pyparsing==2.4.7
 pyrsistent==0.18.1
 python-apt==2.4.0+ubuntu2
+python-dateutil==2.9.0.post0
 python-dotenv==0.19.2
+pytz==2024.1
 PyYAML==6.0.1
 pyzmq==25.1.2
 regex==2023.12.25
@@ -63,6 +67,7 @@ starlette==0.36.3
 systemd-python==234
 texttable==1.6.4
 typing_extensions==4.10.0
+tzdata==2024.1
 ubuntu-advantage-tools==8001
 ufw==0.36.1
 unattended-upgrades==0.1

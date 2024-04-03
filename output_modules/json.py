@@ -8,7 +8,7 @@ def output_json(args, output: dict = {}):
 json_format_obj = FormattingModule()
 
 json_format_obj.formatStr = "json"
-json_format_obj.formatHelp = "Formats Output to JSON (default)"
+json_format_obj.formatHelp = "Formats Output to JSON"
 json_format_obj.formatter = output_json
 
 pretty_opt = FormatOption()
