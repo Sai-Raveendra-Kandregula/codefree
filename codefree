@@ -9,9 +9,8 @@ from typing import List
 from cf_checker import *
 from cf_output import *
 from output_modules.json import json_format_obj
-import output_modules.json
-import checker_modules.astyle
-import checker_modules.cppcheck
+import output_modules.all
+import checker_modules.all
 
 # Test Script : python3 __main__.py -p <src_file>
 # Test Configuration : 
@@ -22,7 +21,7 @@ import checker_modules.cppcheck
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(prog="codefree", description="CodeFree - Code Style and Static Analyzer and Reporting Tool")
+    parser = argparse.ArgumentParser(prog="codefree", description="CodeFree - Code Style Checker + Static Analysis and Reporting Tool")
 
     parser.add_argument(
         "-p",
@@ -30,11 +29,14 @@ if __name__ == "__main__":
         dest="path",
         nargs="?",
         action="store",
-        help="Source Code Path",
+        help="Source Code Path. If not specified, the tool is run on the Current Working Directory.",
         default=os.getcwd()
     )
 
     checkerGroup = parser.add_argument_group('Checker Options')
+
+    checkerGroup.description = "Set CodeFree Checker Options. CodeFree runs all checkers by default. Set --enable to none if you want to enable individual checkers."
+
     checkerGroup.add_argument(
         f"--enable",
         dest=f"enableCheckers",
@@ -61,11 +63,14 @@ if __name__ == "__main__":
         action="store",
         type=argparse.FileType(mode='w+', errors=""),
         # type=argparse.FileType(mode='x', errors=""),
-        help="Output to File",
+        help="Output to File. If not specified, output is printed to stdout.",
         default=None
     )
 
+    default_fmt = FormattingModule.modules()[0].formatStr
+    parser.set_defaults(formatClass=FormattingModule.modules()[0])
     outputGroup = parser.add_argument_group('Output Format Options')
+    outputGroup.description = f"Choose a Format for the Output. Default is {default_fmt}. If multiple options are mentioned, last specified format is used."
     out_module : FormattingModule
     for out_module in FormattingModule.modules():
         outputGroup.add_argument(
@@ -76,30 +81,29 @@ if __name__ == "__main__":
             help=out_module.formatHelp
         )
 
-        outModuleOpts = parser.add_argument_group(f'{out_module.formatStr} Options')
+        outModuleOpts = parser.add_argument_group(f'{out_module.formatStr} Output Options')
+        if (len(out_module.formatOptions) > 0):
+            outModuleOpts.description = f"These options should be used along with --{out_module.formatStr}, else they are ignored."
 
-        option : FormatOption
-        for option in out_module.formatOptions:
-            if option.argAction == ArgActionOptions.Empty:
-                outModuleOpts.add_argument(
-                    f"--{option.option}",
-                    dest=f"{option.argDest}",
-                    action=option.argAction,
-                    help=option.argHelp,
-                    required=(f"--{out_module.formatStr}" in sys.argv)
-                )
-            else:
-                outModuleOpts.add_argument(
-                    f"--{option.option}",
-                    dest=f"{option.argDest}",
-                    action="store",
-                    const=option.argConst,
-                    default=option.default,
-                    help=option.argHelp
-                )
-    default_fmt = "json"
-    parser.set_defaults(formatClass=json_format_obj)
-    parser.set_defaults(reset=False)
+            option : FormatOption
+            for option in out_module.formatOptions:
+                if option.argAction == ArgActionOptions.Empty:
+                    outModuleOpts.add_argument(
+                        f"--{option.option}",
+                        dest=f"{option.argDest}",
+                        action=option.argAction,
+                        help=option.argHelp,
+                        required=(f"--{out_module.formatStr}" in sys.argv)
+                    )
+                else:
+                    outModuleOpts.add_argument(
+                        f"--{option.option}",
+                        dest=f"{option.argDest}",
+                        action="store",
+                        const=option.argConst,
+                        default=option.default,
+                        help=option.argHelp
+                    )
 
     args = parser.parse_args()
 
