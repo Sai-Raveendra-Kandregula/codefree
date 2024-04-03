@@ -1,2 +1,3 @@
 import checker_modules.astyle
 import checker_modules.cppcheck
+import checker_modules.flawfinder

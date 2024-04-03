@@ -31,7 +31,7 @@ def run_astyle(rootpath:str, output:dict):
 
             if rel_name not in output:
                 output[rel_name] = {}
-            output[rel_name]['astyle_passed'] = formatCheckPassed
+            output[rel_name]['astyle'] = "passed" if formatCheckPassed else "failed"
 
     print("Astyle check is done.\n")
     return output

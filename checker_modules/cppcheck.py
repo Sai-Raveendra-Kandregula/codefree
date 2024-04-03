@@ -24,15 +24,17 @@ def get_cppcheck_path() -> str:
         return ""
 
 def run_cpp_check(rootpath:str, output:dict):
-    print("\nRunning CPPCheck...")
     cppcheck_path = get_cppcheck_path()
     if len(cppcheck_path) == 0:
         print("Bundled CPPCheck Binary not found. Skipping...")
         return output
-    process = Popen([f'{cppcheck_path}','--enable=all', '--force', '--suppress=missingIncludeSystem', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
+    print("\nRunning CPPCheck...")
+    process = Popen([f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
 
     xml_out = stdout.decode()
+
+    # print(xml_out)
 
     root = ET.fromstring(xml_out)
 
@@ -60,10 +62,10 @@ def run_cpp_check(rootpath:str, output:dict):
         if err_file not in output:
             output[err_file] = {}
 
-        if 'cppcheck_error' not in output[err_file]:
-            output[err_file]['cppcheck_error'] = []
+        if 'cppcheck' not in output[err_file]:
+            output[err_file]['cppcheck'] = []
 
-        output[err_file]['cppcheck_error'].append(error)
+        output[err_file]['cppcheck'].append(error)
 
     file_list = get_c_files(rootpath)
 
@@ -71,8 +73,8 @@ def run_cpp_check(rootpath:str, output:dict):
         rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
         if rel_name not in output:
             output[rel_name] = {}
-        if 'cppcheck_error' not in output[rel_name]:
-            output[rel_name]['cppcheck_error'] = []
+        if 'cppcheck' not in output[rel_name]:
+            output[rel_name]['cppcheck'] = []
 
     print("CppCheck is done.\n")
 
