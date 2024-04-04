@@ -49,12 +49,12 @@ if __name__ == "__main__":
     checker_module : CheckingModule
     for checker_module in CheckingModule.modules():
         checkerGroup.add_argument(
-            f"--{checker_module.moduleName}",
-            dest=f"use_{checker_module.moduleName}",
+            f"--{checker_module.module_name}",
+            dest=f"use_{checker_module.module_name}",
             action="store_const",
             const=checker_module,
             default=False,
-            help=checker_module.checkerHelp
+            help=checker_module.checker_help
         )
 
     parser.add_argument(
@@ -92,8 +92,7 @@ if __name__ == "__main__":
                         f"--{option.option}",
                         dest=f"{option.argDest}",
                         action=option.argAction,
-                        help=option.argHelp,
-                        required=(f"--{out_module.formatStr}" in sys.argv)
+                        help=option.argHelp
                     )
                 else:
                     outModuleOpts.add_argument(
@@ -112,23 +111,26 @@ if __name__ == "__main__":
     print("\nRunning Checks...")
     out = {}
 
+    output : List[CheckerOutput] = []
+
     checker_module : CheckingModule
     for checker_module in CheckingModule.modules():
-        checker = args.__getattribute__(f"use_{checker_module.moduleName}")
+        checker = args.__getattribute__(f"use_{checker_module.module_name}")
         if args.enableCheckers == "all" or checker:
-            checker_module.checker(args.path, out)
+            print(f"\nRunning {checker_module.module_name_friendly}...")
+            output.extend(checker_module.checker(args.path))
         else:
-            print(f"Skipping {checker_module.moduleName} checks because it is disabled.")
+            print(f"Skipping {checker_module.module_name} checks because it is disabled.")
 
     if args.outputFile is None:
         if args.formatClass.handlesOutputInternally:
             print("Output File Missing. Will dump raw output to stdout.")
-            print("\n" + out)
+            print("\n" + json_format_obj.formatter(args, out))
         else:
             print("\n" + args.formatClass.formatter(args, out))
     else:
         if args.formatClass.handlesOutputInternally:
-            args.formatClass.formatter(args, out)
+            args.formatClass.formatter(args, output)
         else:
             args.outputFile.write(args.formatClass.formatter(args, out))
         print(f"\nReport saved to {os.path.realpath(args.outputFile.name)} in {args.formatClass.formatStr} format.")
