@@ -1,3 +1,6 @@
 import checker_modules.astyle
-import checker_modules.cppcheck
-import checker_modules.flawfinder
+
+import checker_modules.cwe_cppcheck
+import checker_modules.cwe_flawfinder
+
+import checker_modules.misra_cppcheck

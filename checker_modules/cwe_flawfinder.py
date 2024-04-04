@@ -4,11 +4,12 @@ from subprocess import Popen, PIPE
 from io import StringIO
 import csv
 
-from cf_checker import CheckingModule
+from cf_checker import CheckingModule, ComplianceStandards
 
 flawfinder_module = CheckingModule()
-flawfinder_module.moduleName = "flawfinder"
-flawfinder_module.moduleNameFriendly = "FlawFinder"
+flawfinder_module.moduleName = "cwe_flawfinder"
+flawfinder_module.moduleNameFriendly = "CWE Checks with FlawFinder"
+flawfinder_module.complianceStandard = ComplianceStandards.CWE
 
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
@@ -56,11 +57,12 @@ def run_flawfinder(rootpath:str, output:dict):
         error['line'] = err_elem["Line"]
         error['column'] = err_elem["Column"]
         error["context"] = err_elem["Context"]
-        error["warning"] = err_elem["Warning"]
-        error["suggestion"] = err_elem["Suggestion"]
+        error["error"] = err_elem["Warning"]
+        error["suggested_fix"] = err_elem["Suggestion"]
         error["type"] = err_elem["Category"]
         error["symbol"] = err_elem["Name"]
-        error["cwe"] = err_elem["CWEs"]
+        error["cwe"] = int(err_elem["HelpUri"].replace("https://cwe.mitre.org/data/definitions/", "").replace(".html", ""))
+        error["cwe_all"] = err_elem["CWEs"]
         error["more_info"] = err_elem["HelpUri"]
 
         if err_file not in output:
@@ -85,5 +87,5 @@ def run_flawfinder(rootpath:str, output:dict):
     return output
 
 flawfinder_module.checker = run_flawfinder
-flawfinder_module.checkerHelp = "Enable FlawFinder Code Analysis"
+flawfinder_module.checkerHelp = "Enable CWE Compliance Checks with FlawFinder"
 flawfinder_module.register()

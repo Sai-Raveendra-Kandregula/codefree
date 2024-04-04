@@ -3,11 +3,12 @@ from typing import List
 from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
 
-from cf_checker import CheckingModule
+from cf_checker import CheckingModule, ComplianceStandards
 
 cppcheck_module = CheckingModule()
-cppcheck_module.moduleName = "cppcheck"
-cppcheck_module.moduleNameFriendly = "CPP Check"
+cppcheck_module.moduleName = "cwe_cppcheck"
+cppcheck_module.moduleNameFriendly = "CWE Checks with CPPCheck"
+cppcheck_module.complianceStandard = ComplianceStandards.CWE
 
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
@@ -55,6 +56,13 @@ def run_cpp_check(rootpath:str, output:dict):
 
         error['type'] = err_elem.attrib["id"]
         error['message'] = err_elem.attrib["msg"]
+        
+        if err_elem.attrib.keys().__contains__("cwe"):
+            error['cwe'] = err_elem.attrib["cwe"]
+            error['more_info'] = f"https://cwe.mitre.org/data/definitions/{error['cwe']}.html"
+        else:
+            error['cwe'] = None
+            error['more_info'] = None
 
         symbol_info = err_elem.find("symbol")
         if symbol_info is not None:
@@ -85,5 +93,5 @@ def run_cpp_check(rootpath:str, output:dict):
     return output
 
 cppcheck_module.checker = run_cpp_check
-cppcheck_module.checkerHelp = "Enable CPPCheck Code Analysis"
+cppcheck_module.checkerHelp = "Enable CWE Compliance Checks with CPPCheck"
 cppcheck_module.register()

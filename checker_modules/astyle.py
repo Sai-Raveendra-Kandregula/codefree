@@ -4,11 +4,12 @@ from subprocess import Popen, PIPE
 
 from astyle_py import Astyle
 
-from cf_checker import CheckingModule
+from cf_checker import CheckingModule, CheckerTypes
 
 astyle_module = CheckingModule()
 astyle_module.moduleName = "astyle"
 astyle_module.moduleNameFriendly = "Astyle"
+astyle_module.checkerType = CheckerTypes.STYLE
 
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
