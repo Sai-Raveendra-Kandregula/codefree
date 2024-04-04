@@ -1,9 +1,12 @@
+from cf_checker import *
 from cf_output import FormattingModule, FormatOption, ArgActionOptions
+
+from typing import List
 
 import json
 
-def output_json(args, output: dict = {}):
-    return json.dumps(output, indent=(2 if args.jsonUsePretty else None))
+def output_json(args, output: List[CheckerOutput] = []):
+    return json.dumps([item.dict() for item in output], indent=(2 if args.jsonUsePretty else None))
 
 json_format_obj = FormattingModule()
 

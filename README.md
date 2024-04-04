@@ -1,12 +1,12 @@
 # CodeFree
 
-Styling and Static Code Analysis + Report Generation Tool.
+Style and Static Code Analysis + Reporting Tool.
 
 ## Usage
 
 ```
-codefree [-h] [-p [PATH]] [--enable {all,none}] [--astyle] [--cppcheck] [--flawfinder] [--output-file OUTPUTFILE] [--json] [--json-pretty] [--xlsx]
-                [--csv]
+codefree [-h] [-p [PATH]] [--enable {all,none}] [--astyle] [--cwe_cppcheck] [--cwe_flawfinder] [--misra_cppcheck] [--output-file OUTPUTFILE]
+                [--json] [--json-pretty] [--xlsx] [--csv]
 
 CodeFree - Code Style Checker + Static Analysis and Reporting Tool
 
@@ -22,14 +22,15 @@ Checker Options:
 
   --enable {all,none}   Enable/Disable all Checkers
   --astyle              Enable Astyle format checking
-  --cppcheck            Enable CPPCheck Code Analysis
-  --flawfinder          Enable FlawFinder Code Analysis
+  --cwe_cppcheck        Enable CWE Compliance Checks with CPPCheck
+  --cwe_flawfinder      Enable CWE Compliance Checks with FlawFinder
+  --misra_cppcheck      Enable MISRA Compliance Checks with CPPCheck
 
 Output Format Options:
   Choose a Format for the Output. Default is json. If multiple options are mentioned, last specified format is used.
 
   --json                Formats Output to JSON
-  --xlsx                Formats Output to xlsx
+  --xlsx                Formats Output to Excel Spreadsheet
   --csv                 Formats Output to CSV
 
 json Output Options:
@@ -38,18 +39,15 @@ json Output Options:
   --json-pretty         Prints JSON with Indentation
 ```
 
-## Checkers
+## Style Checkers
 
-CodeFree currently has the following checkers:
+CodeFree currently has the following style checkers:
 
-### Style Checkers
-- `astyle`
+## Code Compliance Standard Analyzers
+- `CWE` - Checked using `cppcheck` and `flawfinder`
+- `MISRA` - Checked using `cppcheck`'s misra addon
 
-### Static Code Analyzers
-- `cppcheck`
-- `flawfinder`
-
-## Output
+## Output Formats
 
 CodeFree can currently output to the following formats:
 
@@ -57,6 +55,9 @@ CodeFree can currently output to the following formats:
 - `xlsx`
 - `csv`
 
-## Support
+## Language Support
 
-Currently Designed for C Source Code. Future Support may be added for C++ and Python.
+- `C`
+- `C++` (Untested, might not work.)
+
+<!-- Currently Designed for C Source Code. Future Support may be added for C++ and Python. -->

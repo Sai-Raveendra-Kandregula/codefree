@@ -1,43 +1,9 @@
 from cf_output import FormattingModule, FormatOption, ArgActionOptions
-
+from cf_checker import *
 import pandas as pd
 
-def output_csv(args, output: dict = {}):
-    flattened_data = []
-
-    for file_name, file_output in output.items():
-        file_objs = []
-        file_obj = {}
-        file_obj['File'] = file_name
-
-        # Fill in One Dimensional Values and Dicts
-        for checker_field, checker_output in file_output.items():
-            if type(checker_output) not in [list, dict]:
-                file_obj[checker_field] = checker_output
-            elif type(checker_output) == dict:
-                for key in checker_output.keys():
-                    file_obj[f"{checker_field}_{key}"] = checker_output[key]
-
-        # Expand Lists
-        for checker_field, checker_output in file_output.items():
-            if type(checker_output) == list:
-                if len(checker_output) > 0:
-                    for item in checker_output:
-                        expanded = file_obj.copy()
-                        if type(item) == dict:
-                            for key, val in item.items():
-                                expanded[f'{checker_field}_{key}'] = val
-                        else:
-                            expanded[checker_field] = item
-                        file_objs.append(expanded)
-        
-        # Nothing is Expanded
-        if len(file_objs) == 0:
-            file_objs.append(file_obj)
-
-        flattened_data.extend(file_objs)
-
-    csv_string = pd.DataFrame.from_dict(flattened_data,orient='columns').to_csv(index=None, index_label=None)
+def output_csv(args, output: List[CheckerOutput] = []):
+    csv_string = pd.DataFrame.from_dict([item.dict() for item in output], orient='columns').to_csv(index=None, index_label=None)
 
     return csv_string
 

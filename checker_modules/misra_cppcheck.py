@@ -3,13 +3,14 @@ from typing import List
 from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
 
-from cf_checker import CheckingModule, ComplianceStandards
+from cf_checker import *
 from checker_modules.libraries import misra_mappings, error_context
 
 misra_module = CheckingModule()
-misra_module.moduleName = "misra_cppcheck"
-misra_module.moduleNameFriendly = "MISRA Checks with CPPCheck"
-misra_module.complianceStandard = ComplianceStandards.MISRA
+misra_module.module_name = "misra_cppcheck"
+misra_module.module_name_friendly = "MISRA Checks with CPPCheck"
+misra_module.module_type = CheckerTypes.CODE
+misra_module.compliance_standard = ComplianceStandards.MISRA
 
 mappings = misra_mappings.get_misra_mapping()
 
@@ -31,61 +32,59 @@ def get_cppcheck_path() -> str:
     else:
         return ""
 
-def run_cpp_check_misra(rootpath:str, output:dict):
+def run_cpp_check_misra(rootpath:str) -> List[CheckerOutput]:
     misra_path = get_cppcheck_path()
+    out = []
+
     if len(misra_path) == 0:
         print("Bundled CPPCheck Binary not found. Skipping...")
-        return output
-    print("\nRunning MISRA Checks using CPPCheck...")
+        return out
     process = Popen([f'{misra_path}', '--addon=misra', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
 
     xml_out = stdout.decode()
 
-    # print(xml_out)
-
     root = ET.fromstring(xml_out)
 
     for err_elem in root.find("errors").findall("error"):
-        error = {}
+        error_obj = CheckerOutput(misra_module)
+
         file_info = err_elem.find("location")
 
-        err_file = 'generic'
-
         if file_info is not None:
-            err_file = file_info.attrib["file"].removeprefix(rootpath).removeprefix("/")
-            error['line'] = file_info.attrib["line"]
-            error['column'] = file_info.attrib["column"]
-            error['context'] = error_context.get_error_context(file_info.attrib["file"], int(file_info.attrib["line"]))
+            error_obj.file_name_abs = file_info.attrib["file"]
+            error_obj.file_name = file_info.attrib["file"].removeprefix(rootpath).removeprefix("/")
+            
+            error_obj.error_info.line = int(file_info.attrib["line"])
+            error_obj.error_info.column = int(file_info.attrib["column"])
+            error_obj.error_info.context = error_context.get_error_context(error_obj.file_name_abs, error_obj.error_info.line)
+            error_obj.error_info.symbol = error_context.get_error_symbol(error_obj.file_name_abs, error_obj.error_info.line, error_obj.error_info.column)
 
         misra_rule = mappings[f"Rule_{err_elem.attrib['id'].replace('misra-c', '').split('-')[1]}"]
-        error['type'] = misra_rule['rule_no']
-        error['message'] = misra_rule['description']
 
-        if err_file == 'generic':
+        error_obj.misra_info.rule_number = misra_rule['rule_no']
+        error_obj.error_info.description = misra_rule['description']
+
+        error_severity_str = misra_rule["severity"]
+
+        if error_severity_str == "mandatory":
+            error_obj.error_info.severity = CheckerSeverity.CRITICAL
+        elif error_severity_str == "required":
+            error_obj.error_info.severity = CheckerSeverity.MAJOR
+        elif error_severity_str == "advisory":
+            error_obj.error_info.severity = CheckerSeverity.MINOR
+        else:
+            error_obj.error_info.severity = CheckerSeverity.INFO
+
+        if error_obj.file_name_abs == None:
             continue
 
-        if err_file not in output:
-            output[err_file] = {}
-
-        if misra_module.moduleNameFriendly not in output[err_file]:
-            output[err_file][misra_module.moduleNameFriendly] = []
-
-        output[err_file][misra_module.moduleNameFriendly].append(error)
-
-    file_list = get_c_files(rootpath)
-
-    for fileitem in file_list:
-        rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
-        if rel_name not in output:
-            output[rel_name] = {}
-        if misra_module.moduleNameFriendly not in output[rel_name]:
-            output[rel_name][misra_module.moduleNameFriendly] = []
+        out.append(error_obj)
 
     print("MISRA is done.\n")
 
-    return output
+    return out
 
 misra_module.checker = run_cpp_check_misra
-misra_module.checkerHelp = "Enable MISRA Compliance Checks with CPPCheck"
+misra_module.checker_help = "Enable MISRA Compliance Checks with CPPCheck"
 misra_module.register()

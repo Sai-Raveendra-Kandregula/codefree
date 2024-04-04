@@ -3,13 +3,15 @@ from typing import List
 from subprocess import Popen, PIPE
 from io import StringIO
 import csv
+import re
 
-from cf_checker import CheckingModule, ComplianceStandards
+from cf_checker import *
 
 flawfinder_module = CheckingModule()
-flawfinder_module.moduleName = "cwe_flawfinder"
-flawfinder_module.moduleNameFriendly = "CWE Checks with FlawFinder"
-flawfinder_module.complianceStandard = ComplianceStandards.CWE
+flawfinder_module.module_name = "cwe_flawfinder"
+flawfinder_module.module_name_friendly = "CWE Checks with FlawFinder"
+flawfinder_module.module_type = CheckerTypes.CODE
+flawfinder_module.compliance_standard = ComplianceStandards.CWE
 
 def get_c_files(path:str) -> List[str]:
     if not os.path.exists(path=path):
@@ -29,12 +31,14 @@ def get_flawfinder_path() -> str:
     else:
         return ""
 
-def run_flawfinder(rootpath:str, output:dict):
+def run_flawfinder(rootpath:str) -> List[CheckerOutput]:
     flawfinder_path = get_flawfinder_path()
+
+    out = []
+
     if len(flawfinder_path) == 0:
         print("Bundled FlawFinder Binary not found. Skipping...")
-        return output
-    print("\nRunning FlawFinder...")
+        return out
     process = Popen([f'{flawfinder_path}', '--columns', '--csv', f'{rootpath}'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
 
@@ -51,41 +55,38 @@ def run_flawfinder(rootpath:str, output:dict):
     # print(out_arr)
 
     for err_elem in out_arr:
+        error_obj = CheckerOutput(flawfinder_module)
         # print(err_elem)
         error = {}
-        err_file = err_elem["File"].removeprefix(rootpath).removeprefix("/")
-        error['line'] = err_elem["Line"]
-        error['column'] = err_elem["Column"]
-        error["context"] = err_elem["Context"]
-        error["error"] = err_elem["Warning"]
-        error["suggested_fix"] = err_elem["Suggestion"]
-        error["type"] = err_elem["Category"]
-        error["symbol"] = err_elem["Name"]
-        error["cwe"] = int(err_elem["HelpUri"].replace("https://cwe.mitre.org/data/definitions/", "").replace(".html", ""))
-        error["cwe_all"] = err_elem["CWEs"]
-        error["more_info"] = err_elem["HelpUri"]
+        error_obj.file_name_abs = err_elem["File"]
+        error_obj.file_name = err_elem["File"].removeprefix(rootpath).removeprefix("/")
+        
+        error_obj.error_info.line = int(err_elem["Line"])
+        error_obj.error_info.column = int(err_elem["Column"])
+        error_obj.error_info.context = err_elem["Context"]
+        error_obj.error_info.description = err_elem["Warning"]
+        error_obj.error_info.suggestion = err_elem["Suggestion"]
+        error_obj.error_info.type = err_elem["Category"]
+        error_obj.error_info.symbol = err_elem["Name"]
+        error_obj.cwe_info.primary_cwe = int(int(err_elem["HelpUri"].replace("https://cwe.mitre.org/data/definitions/", "").replace(".html", "")))
+        error_obj.cwe_info.cwe_list = [int(val) for val in re.findall(r'[0-9]+', err_elem["CWEs"])]
+        error_obj.cwe_info.additional_info = err_elem["HelpUri"]
 
-        if err_file not in output:
-            output[err_file] = {}
+        out.append(error_obj)
 
-        if flawfinder_module.moduleNameFriendly not in output[err_file]:
-            output[err_file][flawfinder_module.moduleNameFriendly] = []
+    # file_list = get_c_files(rootpath)
 
-        output[err_file][flawfinder_module.moduleNameFriendly].append(error)
-
-    file_list = get_c_files(rootpath)
-
-    for fileitem in file_list:
-        rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
-        if rel_name not in output:
-            output[rel_name] = {}
-        if flawfinder_module.moduleNameFriendly not in output[rel_name]:
-            output[rel_name][flawfinder_module.moduleNameFriendly] = []
+    # for fileitem in file_list:
+    #     rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
+    #     if rel_name not in output:
+    #         output[rel_name] = {}
+    #     if flawfinder_module.module_name_friendly not in output[rel_name]:
+    #         output[rel_name][flawfinder_module.module_name_friendly] = []
 
     print("FlawFinder is done.\n")
 
-    return output
+    return out
 
 flawfinder_module.checker = run_flawfinder
-flawfinder_module.checkerHelp = "Enable CWE Compliance Checks with FlawFinder"
+flawfinder_module.checker_help = "Enable CWE Compliance Checks with FlawFinder"
 flawfinder_module.register()
