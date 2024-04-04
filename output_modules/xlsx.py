@@ -21,7 +21,7 @@ def output_xlsx(args, output: List[CheckerOutput] = []):
         for item in output:
             module : CheckingModule = CheckingModule.get_module(item.module_name)
 
-            if module.module_type == CheckerTypes.CODE and module.compliance_standard == ComplianceStandards.NONE:
+            if module.module_type != CheckerTypes.CODE or module.compliance_standard == ComplianceStandards.NONE:
                     if module.module_type.name not in sheets:
                         sheets[module.module_type.name] = []
                     sheets[module.module_type.name].append(item)
