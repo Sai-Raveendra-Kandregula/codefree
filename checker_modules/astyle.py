@@ -5,6 +5,7 @@ from subprocess import Popen, PIPE
 from astyle_py import Astyle
 
 from cf_checker import *
+import cf_output
 
 astyle_module = CheckingModule()
 astyle_module.module_name = "astyle"
@@ -19,10 +20,13 @@ def get_c_files(path:str) -> List[str]:
     stdout, stderr = process.communicate()
     return stdout.decode().splitlines()
 
-def run_astyle(rootpath:str) -> List[CheckerOutput]:
+def run_astyle(args, rootpath:str) -> List[CheckerOutput]:
+    progress_printer = cf_output.get_progress_printer(args=args)
+    error_printer = cf_output.get_error_printer(args=args)
+
     formatter = Astyle()
     out = []
-    print(f'Using Astyle v{formatter.version()}')
+    progress_printer(f'Using Astyle v{formatter.version()}')
     # formatter.set_options(f"--mode=c")
 
     file_list = get_c_files(rootpath)
@@ -36,13 +40,13 @@ def run_astyle(rootpath:str) -> List[CheckerOutput]:
             formatCheckPassed = formatter.format(content) == content
             # print(f'{rel_name} {"needs Formatting." if not formatCheckPassed else "is okay."}')
 
-            style_obj.style_info.passed = "passed" if formatCheckPassed else "failed"
+            style_obj.style_info.passed = formatCheckPassed
             out.append(style_obj)
 
-    print("Astyle check is done.\n")
+    progress_printer("Astyle check is done.")
     return out
 
 astyle_module.checker = run_astyle
 astyle_module.checker_help = "Enable Astyle format checking"
 
-astyle_module.register()
+CheckingModule.register(astyle_module)

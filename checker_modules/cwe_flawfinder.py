@@ -6,9 +6,10 @@ import csv
 import re
 
 from cf_checker import *
+import cf_output
 
 flawfinder_module = CheckingModule()
-flawfinder_module.module_name = "cwe_flawfinder"
+flawfinder_module.module_name = "flawfinder"
 flawfinder_module.module_name_friendly = "CWE Checks with FlawFinder"
 flawfinder_module.module_type = CheckerTypes.CODE
 flawfinder_module.compliance_standard = ComplianceStandards.CWE
@@ -31,16 +32,23 @@ def get_flawfinder_path() -> str:
     else:
         return ""
 
-def run_flawfinder(rootpath:str) -> List[CheckerOutput]:
+def run_flawfinder(args, rootpath:str) -> List[CheckerOutput]:
+    progress_printer = cf_output.get_progress_printer(args=args)
+    error_printer = cf_output.get_error_printer(args=args)
+
     flawfinder_path = get_flawfinder_path()
 
     out = []
 
     if len(flawfinder_path) == 0:
-        print("Bundled FlawFinder Binary not found. Skipping...")
+        error_printer("Bundled FlawFinder Binary not found. Skipping...")
         return out
     process = Popen([f'{flawfinder_path}', '--columns', '--csv', f'{rootpath}'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
+    
+    run_err = stderr.decode()
+    if len(run_err.strip()) > 0:
+        error_printer(run_err)
 
     csv_out = stdout.decode()
 
@@ -74,19 +82,10 @@ def run_flawfinder(rootpath:str) -> List[CheckerOutput]:
 
         out.append(error_obj)
 
-    # file_list = get_c_files(rootpath)
-
-    # for fileitem in file_list:
-    #     rel_name = fileitem.removeprefix(rootpath).removeprefix("/")
-    #     if rel_name not in output:
-    #         output[rel_name] = {}
-    #     if flawfinder_module.module_name_friendly not in output[rel_name]:
-    #         output[rel_name][flawfinder_module.module_name_friendly] = []
-
-    print("FlawFinder is done.\n")
+    progress_printer("FlawFinder is done.")
 
     return out
 
 flawfinder_module.checker = run_flawfinder
 flawfinder_module.checker_help = "Enable CWE Compliance Checks with FlawFinder"
-flawfinder_module.register()
+CheckingModule.register(flawfinder_module)
