@@ -3,11 +3,12 @@ from typing import List
 from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
 
+import cf_output
 from cf_checker import *
 from checker_modules.libraries import misra_mappings, error_context
 
 misra_module = CheckingModule()
-misra_module.module_name = "misra_cppcheck"
+misra_module.module_name = "cppcheck"
 misra_module.module_name_friendly = "MISRA Checks with CPPCheck"
 misra_module.module_type = CheckerTypes.CODE
 misra_module.compliance_standard = ComplianceStandards.MISRA
@@ -32,15 +33,22 @@ def get_cppcheck_path() -> str:
     else:
         return ""
 
-def run_cpp_check_misra(rootpath:str) -> List[CheckerOutput]:
+def run_cpp_check_misra(args, rootpath:str) -> List[CheckerOutput]:
+    progress_printer = cf_output.get_progress_printer(args=args)
+    error_printer = cf_output.get_error_printer(args=args)
+
     misra_path = get_cppcheck_path()
     out = []
 
     if len(misra_path) == 0:
-        print("Bundled CPPCheck Binary not found. Skipping...")
+        error_printer("Bundled CPPCheck Binary not found. Skipping...")
         return out
     process = Popen([f'{misra_path}', '--addon=misra', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
+    
+    run_err = stderr.decode()
+    if len(run_err.strip()) > 0:
+        error_printer(run_err)
 
     xml_out = stdout.decode()
 
@@ -81,10 +89,10 @@ def run_cpp_check_misra(rootpath:str) -> List[CheckerOutput]:
 
         out.append(error_obj)
 
-    print("MISRA is done.\n")
+    progress_printer("MISRA is done.")
 
     return out
 
 misra_module.checker = run_cpp_check_misra
 misra_module.checker_help = "Enable MISRA Compliance Checks with CPPCheck"
-misra_module.register()
+CheckingModule.register(misra_module)

@@ -6,7 +6,8 @@ from typing import List
 import json
 
 def output_json(args, output: List[CheckerOutput] = []):
-    return json.dumps([item.dict() for item in output], indent=(2 if args.jsonUsePretty else None))
+    json_string = json.dumps([item.dict() for item in output], indent=(2 if args.jsonUsePretty else None))
+    args.outputFile.write(json_string)
 
 json_format_obj = FormattingModule()
 
@@ -23,4 +24,5 @@ pretty_opt.argHelp = "Prints JSON with Indentation"
 
 json_format_obj.formatOptions.append(pretty_opt)
 
-json_format_obj.register()
+FormattingModule.register(json_format_obj)
+FormattingModule.set_default(json_format_obj)

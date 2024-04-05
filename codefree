@@ -1,86 +1,122 @@
 #! /usr/bin/python3
 
-import xml.etree.ElementTree as ET
-from subprocess import Popen, PIPE
 import os
-import sys
 from typing import List
+import pandas as pd
 
 from cf_checker import *
 from cf_output import *
-from output_modules.json import json_format_obj
-import output_modules.all
-import checker_modules.all
+from output_modules import *
+from checker_modules import *
 
-# Test Script : python3 __main__.py -p <src_file>
-# Test Configuration : 
-# {
-# }
-#
+import json
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(prog="codefree", description="CodeFree - Code Style Checker + Static Analysis and Reporting Tool")
 
+    class LoadCodePath (argparse.Action):
+        def __call__ (self, parser, namespace, values, option_string = None):
+            if os.path.exists(values):
+                if os.path.isdir(values):
+                    os.chdir(values)
+                else:
+                    os.chdir(os.path.dirname(values))
+                setattr(namespace, self.dest, values)
+
+    class LoadFromFile (argparse.Action):
+        def __call__ (self, parser, namespace, values, option_string = None):
+            if values == ".codefreerc":
+                values = os.path.join(os.getcwd(), ".codefreerc")
+            if os.path.exists(values):
+                with open(values, "r") as f:
+                    # parse arguments in the file and store them in the target namespace
+                    parser.parse_args(f.read().split(), namespace)
+                setattr(namespace, self.dest, values)
+
+
     parser.add_argument(
         "-p",
         "--path",
         dest="path",
         nargs="?",
-        action="store",
+        action=LoadCodePath,
         help="Source Code Path. If not specified, the tool is run on the Current Working Directory.",
-        default=os.getcwd()
+        default=os.getcwd(),
     )
 
     checkerGroup = parser.add_argument_group('Checker Options')
 
     checkerGroup.description = "Set CodeFree Checker Options. CodeFree runs all checkers by default. Set --enable to none if you want to enable individual checkers."
 
+    checker_options = ["all"]
+    checker_options.extend([checker_type.name.lower() for checker_type in CheckerTypes ])
+
     checkerGroup.add_argument(
-        f"--enable",
+        f"--enable-checker",
         dest=f"enableCheckers",
-        action="store",
-        choices=["all", "none"],
-        default="all",
-        help="Enable/Disable all Checkers"
+        action="append",
+        choices=checker_options,
+        default=[],
+        help="Enable/disable various types of code checks. All types of checks are enabled by default."
     )
 
-    checker_module : CheckingModule
-    for checker_module in CheckingModule.modules():
-        checkerGroup.add_argument(
-            f"--{checker_module.module_name}",
-            dest=f"use_{checker_module.module_name}",
-            action="store_const",
-            const=checker_module,
-            default=False,
-            help=checker_module.checker_help
-        )
+    compliance_options = ["all"]
+    compliance_options.extend([ComplianceStandards.CWE.name.lower(), ComplianceStandards.MISRA.name.lower()])
+    compliance_options.sort()
 
-    parser.add_argument(
+    checkerGroup.add_argument(
+        f"--code-standard",
+        dest=f"enableComplianceCheckers",
+        action="append",
+        choices=compliance_options,
+        default=[],
+        help=f"Enable/disable code standard compliance checks. All compliance checks are enabled by default (--{CheckerTypes.CODE.name.lower()} checker has to be enabled)."
+    )
+    
+    default_formatter = FormattingModule.get_default()
+    parser.set_defaults(formatClass=default_formatter.formatStr)
+    outputGroup = parser.add_argument_group('Output Options')
+    outputGroup.description = f"Set Output Format and other options. If multiple formats are mentioned, last specified format is used."
+    
+    outputGroup.add_argument(
         f"--output-file",
         dest="outputFile",
         action="store",
         type=argparse.FileType(mode='w+', errors=""),
         # type=argparse.FileType(mode='x', errors=""),
-        help="Output to File. If not specified, output is printed to stdout.",
-        default=None
+        help="Output to File. If not specified, raw output is printed to stdout.",
+        default=None,
+        metavar="<path_to_output>"
     )
+    
+    format_modules = FormattingModule.modules()
 
-    default_fmt = FormattingModule.modules()[0].formatStr
-    parser.set_defaults(formatClass=FormattingModule.modules()[0])
-    outputGroup = parser.add_argument_group('Output Format Options')
-    outputGroup.description = f"Choose a Format for the Output. Default is {default_fmt}. If multiple options are mentioned, last specified format is used."
-    out_module : FormattingModule
-    for out_module in FormattingModule.modules():
-        outputGroup.add_argument(
-            f"--{out_module.formatStr}",
-            dest="formatClass",
-            action="store_const",
-            const=out_module,
-            help=out_module.formatHelp
+    outputGroup.add_argument(
+            f"--quiet",
+            dest="printProgress",
+            action="store_false",
+            help=f"Do not print progress messages."
+        )
+    
+    outputGroup.add_argument(
+            f"--no-stats",
+            dest="calculateStats",
+            action="store_false",
+            help=f"Do not calculate Issue Statistics."
         )
 
+    outputGroup.add_argument(
+            f"--format",
+            dest="formatClass",
+            action="store",
+            choices=[module.formatStr for module in format_modules],
+            help=f"Output Format. If not specified, raw object is dumped to stdout."
+        )
+
+    out_module : FormattingModule
+    for out_module in format_modules:
         outModuleOpts = parser.add_argument_group(f'{out_module.formatStr} Output Options')
         if (len(out_module.formatOptions) > 0):
             outModuleOpts.description = f"These options should be used along with --{out_module.formatStr}, else they are ignored."
@@ -104,34 +140,65 @@ if __name__ == "__main__":
                         help=option.argHelp
                     )
 
+    optionsFileAction = parser.add_argument(
+        '--options-file', 
+        type=str, 
+        dest='optionsFile',
+        action=LoadFromFile, 
+        default=None,
+        metavar="<path_to_options_file>",
+        help="Options File. If not provided, CodeFree will attempt to use the .codefreerc file in the provided path, if it exists.",
+        )
+    
     args = parser.parse_args()
+    if args.optionsFile == None:
+        optionsFileAction.__call__(parser=parser, namespace=args, values=".codefreerc")
 
-    print("Running CodeFree Analysis on path - " + args.path)
+    progress_printer = get_progress_printer(args=args)
+    error_printer = get_error_printer(args=args)
 
-    print("\nRunning Checks...")
-    out = {}
+    progress_printer("Path : " + args.path)
+    if args.optionsFile != None:
+        progress_printer("Using Options File from : " + args.path)
+    if args.outputFile is not None:
+        progress_printer("Output File : " + os.path.realpath(args.outputFile.name))
+        progress_printer("Output Format : " + args.formatClass)
+    else:
+        progress_printer("Output File : stdout")
+        progress_printer("Output Format : JSON")
+
+    progress_printer("Running CodeFree Analysis...")
 
     output : List[CheckerOutput] = []
 
     checker_module : CheckingModule
     for checker_module in CheckingModule.modules():
-        checker = args.__getattribute__(f"use_{checker_module.module_name}")
-        if args.enableCheckers == "all" or checker:
-            print(f"\nRunning {checker_module.module_name_friendly}...")
-            output.extend(checker_module.checker(args.path))
-        else:
-            print(f"Skipping {checker_module.module_name} checks because it is disabled.")
+        enabled_checkers = args.__getattribute__(f"enableCheckers")
+        if ("all" in enabled_checkers or len(enabled_checkers) == 0 
+            or checker_module.module_type.name.lower() in enabled_checkers):
+            enabled_compliance_checkers = args.__getattribute__(f"enableComplianceCheckers")
+            if (checker_module.module_type == CheckerTypes.STYLE or 
+                (checker_module.module_type == CheckerTypes.CODE and 
+                 ("all" in enabled_compliance_checkers or len(enabled_compliance_checkers) == 0 
+                  or checker_module.compliance_standard.name.lower() in enabled_compliance_checkers))):
+                progress_printer(f"Running {checker_module.module_name_friendly}...")
+                output.extend(checker_module.checker(args, args.path))
+
+    if args.calculateStats:
+        for output_item in output:
+            output_module = output_item._module
+            CheckerStats.count_item(output_item)
+        stats = CheckerStats.get_stats()
+        stats_table_str = pd.DataFrame.from_dict(stats).to_string(index=None, float_format=lambda x: str(int(x)), index_names=None, na_rep=0, line_width=80)
+        print("-"*stats_table_str.index("\n"))
+        print("Count of Issues found by CodeFree : ")
+        print("-"*stats_table_str.index("\n"))
+        print(stats_table_str)
+        print("-"*stats_table_str.index("\n"))
 
     if args.outputFile is None:
-        if args.formatClass.handlesOutputInternally:
-            print("Output File Missing. Will dump raw output to stdout.")
-            print("\n" + json_format_obj.formatter(args, output))
-        else:
-            print("\n" + args.formatClass.formatter(args, output))
+        print(json.dumps([item.dict() for item in output], indent=2))
     else:
-        if args.formatClass.handlesOutputInternally:
-            args.formatClass.formatter(args, output)
-        else:
-            args.outputFile.write(args.formatClass.formatter(args, output))
-        print(f"\nReport saved to {os.path.realpath(args.outputFile.name)} in {args.formatClass.formatStr} format.")
-    print("\nDone.")
+        format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
+        format_module.formatter(args, output)
+    progress_printer("Done.")

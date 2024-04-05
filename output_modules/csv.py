@@ -5,7 +5,7 @@ import pandas as pd
 def output_csv(args, output: List[CheckerOutput] = []):
     csv_string = pd.DataFrame.from_dict([item.dict() for item in output], orient='columns').to_csv(index=None, index_label=None)
 
-    return csv_string
+    args.outputFile.write(csv_string)
 
 csv_format_obj = FormattingModule()
 
@@ -23,4 +23,4 @@ csv_format_obj.formatter = output_csv
 csv_format_obj.formatOptions = []
 # csv_format_obj.formatOptions.append(pretty_opt)
 
-csv_format_obj.register()
+FormattingModule.register(csv_format_obj)

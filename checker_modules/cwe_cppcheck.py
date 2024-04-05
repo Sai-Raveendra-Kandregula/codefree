@@ -5,9 +5,10 @@ import xml.etree.ElementTree as ET
 
 from checker_modules.libraries import error_context
 from cf_checker import *
+import cf_output
 
 cppcheck_module = CheckingModule()
-cppcheck_module.module_name = "cwe_cppcheck"
+cppcheck_module.module_name = "cppcheck"
 cppcheck_module.module_name_friendly = "CWE Checks with CPPCheck"
 cppcheck_module.module_type = CheckerTypes.CODE
 cppcheck_module.compliance_standard = ComplianceStandards.CWE
@@ -30,14 +31,21 @@ def get_cppcheck_path() -> str:
     else:
         return ""
 
-def run_cpp_check(rootpath:str):
+def run_cpp_check(args, rootpath:str):
+    progress_printer = cf_output.get_progress_printer(args=args)
+    error_printer = cf_output.get_error_printer(args=args)
+
     cppcheck_path = get_cppcheck_path()
     out = []
     if len(cppcheck_path) == 0:
-        print("Bundled CPPCheck Binary not found. Skipping...")
+        error_printer("Bundled CPPCheck Binary not found. Skipping...")
         return out
     process = Popen([f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
+
+    run_err = stderr.decode()
+    if len(run_err.strip()) > 0:
+        error_printer(run_err)
 
     xml_out = stdout.decode()
 
@@ -83,10 +91,10 @@ def run_cpp_check(rootpath:str):
 
         out.append(error_obj)
 
-    print("CPPCheck is done.\n")
+    progress_printer("CPPCheck is done.")
 
     return out
 
 cppcheck_module.checker = run_cpp_check
 cppcheck_module.checker_help = "Enable CWE Compliance Checks with CPPCheck"
-cppcheck_module.register()
+CheckingModule.register(cppcheck_module)

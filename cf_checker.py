@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Dict, List, Callable, Any, TypeAlias
-
-checking_modules = {}
+from argparse import Namespace
 
 class CheckerSeverity(Enum):
     INFO = 0
@@ -19,28 +18,29 @@ class ComplianceStandards(Enum):
     MISRA = 2
 
 
-CheckingFunction : TypeAlias = Callable[[ Any ], List[Any]]
+CheckingFunction : TypeAlias = Callable[[ Namespace, str ], List[Any]]
 
 class CheckingModule():
+    __checking_modules = []
+
     module_name : str # Use underscore for multiple words
     module_name_friendly : str = None
     module_type : CheckerTypes = None
     checker : CheckingFunction
     checker_help : str
     compliance_standard : ComplianceStandards = ComplianceStandards.NONE
-
-    @classmethod
-    def get_module(cls, module_name):
-        if module_name in checking_modules:
-            return checking_modules[module_name]
-        return None
     
     @classmethod
     def modules(cls):
-        return [ value for key, value in checking_modules.items() ]
+        return cls.__checking_modules
     
-    def register(self):
-        checking_modules[self.module_name] = self
+    @classmethod
+    def register(cls, module):
+        cls.__checking_modules.append(module)
+
+    @classmethod
+    def run_checks(cls, args : Namespace):
+        pass
 
 
 class ErrorInfo():
@@ -83,6 +83,11 @@ class StyleInfo():
         self.passed = True
         pass
 
+    def dict(self) -> dict:
+        return{
+            "Check Passed" : "Passed" if self.passed else "Failed"
+        }
+
 class CWEInfo():
     primary_cwe : int = None
     cwe_list : list[int] = []
@@ -117,9 +122,6 @@ class MISRAInfo():
         }
 
 class CheckerOutput():
-    module_name : str = None
-    module_type : CheckerTypes
-    module_compliance : ComplianceStandards = ComplianceStandards.NONE
     file_name : str = None
     file_name_abs : str = None
     style_info : StyleInfo = None
@@ -129,33 +131,73 @@ class CheckerOutput():
 
     # module is supposed to be of type CheckingModule
     def __init__(self, module : CheckingModule) -> None:
-        self.module_name = module.module_name
-        self.module_type = module.module_type
-        self.module_compliance = module.compliance_standard
+        self._module = module
 
-        if self.module_type == CheckerTypes.STYLE:
+        if self._module.module_type == CheckerTypes.STYLE:
             self.style_info = StyleInfo()
-        elif self.module_type == CheckerTypes.CODE:
+        elif self._module.module_type == CheckerTypes.CODE:
             self.error_info = ErrorInfo()
-            if self.module_compliance == ComplianceStandards.CWE:
+            if self._module.compliance_standard == ComplianceStandards.CWE:
                 self.cwe_info = CWEInfo()
-            elif self.module_compliance == ComplianceStandards.MISRA:
+            elif self._module.compliance_standard == ComplianceStandards.MISRA:
                 self.misra_info = MISRAInfo()
 
     def dict(self) -> dict:
         out = {}
         out['File Name'] = self.file_name
-        out['Module Name'] = self.module_name
-        if self.module_type == CheckerTypes.STYLE:
-            out['Check Passed'] = "Passed" if self.style_info.passed else "Failed"
-        elif self.module_type == CheckerTypes.CODE:
+        out['Module Name'] = self._module.module_name
+        if self._module.module_type == CheckerTypes.STYLE:
+            for key, value in self.style_info.dict().items():
+                out[key] = value
+        elif self._module.module_type == CheckerTypes.CODE:
             for key, value in self.error_info.dict().items():
                 out[key] = value
-            if self.module_compliance == ComplianceStandards.CWE:
+            if self._module.compliance_standard == ComplianceStandards.CWE:
                 for key, value in self.cwe_info.dict().items():
                     out[key] = value 
-            elif self.module_compliance == ComplianceStandards.MISRA:
+            elif self._module.compliance_standard == ComplianceStandards.MISRA:
                 for key, value in self.misra_info.dict().items():
                     out[key] = value 
 
         return out
+
+class CheckerStats():
+    __instances : Dict[str, Dict[str, int]] = {}
+
+    @classmethod
+    def get_instances(cls):
+        return cls.__instances
+    
+    @classmethod
+    def get_stats(cls):
+        out = []
+
+        instances = cls.get_instances()
+
+        count_info : Dict[str, int]
+
+        for file_name, count_info in instances.items():
+            stat_obj={}
+            stat_obj["File Name"] = file_name
+            for module_name, count in count_info.items():
+                stat_obj[f"{module_name}"] = count
+            out.append(stat_obj)
+
+        return out
+    
+    @classmethod
+    def count_item(cls, output_item:CheckerOutput):
+        file_name = output_item.file_name
+
+        module : CheckingModule = output_item._module
+        module_name = module.module_type.name
+        if module.module_type == CheckerTypes.CODE and module.compliance_standard != ComplianceStandards.NONE:
+            module_name = module.compliance_standard.name
+
+        if file_name not in cls.__instances:
+            cls.__instances[file_name] = {}
+        
+        if module_name in cls.get_instances()[file_name]:
+            cls.__instances[file_name][module_name] += 1
+        elif module.module_type != CheckerTypes.STYLE or not output_item.style_info.passed:
+            cls.__instances[file_name][module_name] = 1
