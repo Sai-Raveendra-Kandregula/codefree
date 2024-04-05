@@ -54,6 +54,14 @@ class ErrorInfo():
     suggestion : str = None
 
     def __init__(self) -> None:
+        self.line : int = None
+        self.column : int = None
+        self.context : str = None
+        self.symbol : str = None
+        self.type : str = None
+        self.severity : CheckerSeverity = CheckerSeverity.INFO
+        self.description : str = None
+        self.suggestion : str = None
         pass
 
     def dict(self) -> dict:
@@ -72,6 +80,7 @@ class StyleInfo():
     passed : bool = True
 
     def __init__(self) -> None:
+        self.passed = True
         pass
 
 class CWEInfo():
@@ -80,12 +89,15 @@ class CWEInfo():
     additional_info : str = None
 
     def __init__(self) -> None:
+        self.primary_cwe = None
+        self.cwe_list = []
+        self.additional_info = None
         pass
 
     def dict(self) -> dict:
         return {
             "Primary CWE" : self.primary_cwe,
-            "CWE List" : self.cwe_list,
+            "CWE List" : ", ".join([str(cwe) for cwe in self.cwe_list]),
             "Additional Info" : self.additional_info,
         }
 
@@ -94,6 +106,8 @@ class MISRAInfo():
     additional_info : str = None
 
     def __init__(self) -> None:
+        self.rule_number = None
+        self.additional_info = None
         pass
 
     def dict(self) -> dict:
