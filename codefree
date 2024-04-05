@@ -125,13 +125,13 @@ if __name__ == "__main__":
     if args.outputFile is None:
         if args.formatClass.handlesOutputInternally:
             print("Output File Missing. Will dump raw output to stdout.")
-            print("\n" + json_format_obj.formatter(args, out))
+            print("\n" + json_format_obj.formatter(args, output))
         else:
-            print("\n" + args.formatClass.formatter(args, out))
+            print("\n" + args.formatClass.formatter(args, output))
     else:
         if args.formatClass.handlesOutputInternally:
             args.formatClass.formatter(args, output)
         else:
-            args.outputFile.write(args.formatClass.formatter(args, out))
+            args.outputFile.write(args.formatClass.formatter(args, output))
         print(f"\nReport saved to {os.path.realpath(args.outputFile.name)} in {args.formatClass.formatStr} format.")
     print("\nDone.")
