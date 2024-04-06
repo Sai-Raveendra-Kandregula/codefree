@@ -43,7 +43,12 @@ def run_cppcheck_misra(args, rootpath:str) -> List[CheckerOutput]:
     if len(cppcheck_path) == 0:
         error_printer("Bundled CPPCheck Binary not found. Skipping...")
         return out
-    process = Popen([f'{cppcheck_path}', '--enable=all', '--addon=misra', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
+    
+    popen_cmd = [f'{cppcheck_path}', '--enable=all', '--addon=misra', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout']
+    for includePath in args.includePaths:
+        popen_cmd.append(f'-I{includePath}')
+
+    process = Popen(popen_cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
     
     run_err = stderr.decode()

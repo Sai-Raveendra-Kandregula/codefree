@@ -2,6 +2,9 @@ from enum import Enum
 from typing import Dict, List, Callable, Any, TypeAlias
 from argparse import Namespace
 
+import fnmatch
+import re
+
 from cf_output import get_progress_printer, get_error_printer
 import pandas as pd
 
@@ -59,7 +62,21 @@ class CheckingModule():
                     ("all" in enabled_compliance_checkers or len(enabled_compliance_checkers) == 0 
                     or checker_module.compliance_standard.name.lower() in enabled_compliance_checkers))):
                     progress_printer(f"Running {checker_module.module_name_friendly}...")
-                    cls.__checker_output.extend(checker_module.checker(args, args.path))
+                    checker_output = checker_module.checker(args, args.path)
+                    out_item : CheckerOutput
+                    for out_item in checker_output:
+                        filepath = out_item.file_name
+                        ignore = False
+                        if len(args.ignorePaths) > 0:
+                            for ignorepath in args.ignorePaths:
+                                matchpattern = fnmatch.translate(ignorepath)
+                                reg_obj = re.compile(matchpattern)
+                                if reg_obj.match(filepath):
+                                    ignore = True
+                                    break
+                        if not ignore:
+                            cls.__checker_output.append(out_item)
+
 
         return cls.__checker_output
     
@@ -226,6 +243,8 @@ class CheckerStats():
             cls.__instances[file_name][module_name] += 1
         elif module.module_type != CheckerTypes.STYLE or not output_item.style_info.passed:
             cls.__instances[file_name][module_name] = 1
+        elif module.module_type == CheckerTypes.STYLE and output_item.style_info.passed:
+            cls.__instances[file_name][module_name] = 0
 
     @classmethod
     def calculateStats(cls, args):
@@ -238,11 +257,17 @@ class CheckerStats():
     def printStats(cls, args):
         if args.calculateStats:
             stats = CheckerStats.get_stats()
-            stats_table_str = pd.DataFrame.from_dict(stats).to_string(index=None, float_format=lambda x: str(int(x)), index_names=None, na_rep=0, line_width=80)
+            df = pd.DataFrame.from_dict(stats)
+            # append sums to the data frame
+            stats_table_str = df.to_string(index=None, float_format=lambda x: str(int(x)), index_names=None, na_rep=0, line_width=80)
+            print("")
             print("-"*stats_table_str.index("\n"))
-            print("Count of Issues found by CodeFree : ")
+            print("Issues found by CodeFree : ")
             print("-"*stats_table_str.index("\n"))
             print(stats_table_str)
             print("-"*stats_table_str.index("\n"))
-
-        
+            checkers = list(stats[0].keys())[1:]
+            sum_series = df[list(stats[0].keys())[1:]].sum()
+            for checker in checkers:
+                print(f"Total # of Issues in {checker} : {int(sum_series.loc[checker])}")
+            print("-"*stats_table_str.index("\n"), end="\n\n")

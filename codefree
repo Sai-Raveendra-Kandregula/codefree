@@ -22,6 +22,8 @@ if __name__ == "__main__":
     progress_printer("Path : " + args.path)
     if args.optionsFile != None:
         progress_printer("Using Options File from : " + args.path)
+    if len(args.includePaths) > 0:
+        progress_printer("Include Paths : " + " : ".join(args.includePaths))
     if args.outputFile is not None:
         progress_printer("Output File : " + os.path.realpath(args.outputFile.name))
         progress_printer("Output Format : " + args.formatClass)
@@ -29,9 +31,12 @@ if __name__ == "__main__":
         progress_printer("Output File : stdout")
         progress_printer("Output Format : JSON")
 
-    progress_printer("Running CodeFree Analysis...")
+    progress_printer("\nRunning CodeFree Analysis...")
 
-    CheckingModule.run_checks(args=args)
+    try:
+        CheckingModule.run_checks(args=args)
+    except KeyboardInterrupt:
+        print("Recieved Interrupt, Partials Results will be written to Output.")
 
     CheckerStats.calculateStats(args=args)
     CheckerStats.printStats(args=args)

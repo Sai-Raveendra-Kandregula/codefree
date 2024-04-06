@@ -3,8 +3,10 @@ from cf_output import *
 from output_modules import *
 from checker_modules import *
 
+import re
 import os
 import argparse
+import fnmatch
 
 def load_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="codefree", description="CodeFree - Code Style Checker + Static Analysis and Reporting Tool")
@@ -25,9 +27,12 @@ def load_args() -> argparse.Namespace:
             if os.path.exists(values):
                 with open(values, "r") as f:
                     # parse arguments in the file and store them in the target namespace
-                    parser.parse_args(f.read().split(), namespace)
-                setattr(namespace, self.dest, values)
-
+                    file_parsed_args : Namespace = parser.parse_args(f.read().split(), namespace)
+                    for arg in file_parsed_args.__dict__.keys():
+                        attr = getattr(namespace, arg)
+                        if attr is None:
+                            print(arg)
+                            setattr(namespace, arg, attr)
 
     parser.add_argument(
         "-p",
@@ -39,8 +44,27 @@ def load_args() -> argparse.Namespace:
         default=os.getcwd(),
     )
 
-    checkerGroup = parser.add_argument_group('Checker Options')
+    parser.add_argument(
+        "-i",
+        "--ignore",
+        dest="ignorePaths",
+        nargs="?",
+        action="append",
+        help="Ignore Specific Files. Use Multiple times to ignore multiple files. Supports Regex.",
+        default=[],
+    )
 
+    parser.add_argument(
+        "-I",
+        "--include",
+        dest="includePaths",
+        nargs="?",
+        action="append",
+        help="Specify Include Path. If not specified, the include directory in the code path will be attempted to use.",
+        default=[],
+    )
+
+    checkerGroup = parser.add_argument_group('Checker Options')
     checkerGroup.description = "Set CodeFree Checker Options. CodeFree runs all checkers by default. Set --enable to none if you want to enable individual checkers."
 
     checker_options = ["all"]
@@ -137,14 +161,33 @@ def load_args() -> argparse.Namespace:
         '--options-file', 
         type=str, 
         dest='optionsFile',
-        action=LoadFromFile, 
+        action="store", 
         default=None,
         metavar="<path_to_options_file>",
-        help="Options File. If not provided, CodeFree will attempt to use the .codefreerc file in the provided path, if it exists.",
+        help="Specify an Options File. CLI Options hold more priority. If not provided, CodeFree will attempt to use the .codefreerc file in the provided path, if it exists.",
         )
     
     args = parser.parse_args()
-    if args.optionsFile == None:
-        optionsFileAction.__call__(parser=parser, namespace=args, values=".codefreerc")
+    if args.optionsFile == ".codefreerc" or args.optionsFile == None:
+        args.optionsFile = os.path.join(os.getcwd(), ".codefreerc")
+    if os.path.exists(args.optionsFile):
+        with open(args.optionsFile, "r") as f:
+            # parse arguments in the file and store them in the target namespace
+            file_parsed_args : Namespace = parser.parse_args(f.read().split(), args)
+            for arg in file_parsed_args.__dict__.keys():
+                attr = getattr(args, arg)
+                if attr is None:
+                    print(arg)
+                    setattr(args, arg, attr)
+    
+    if len(args.includePaths) < 1:
+        args.includePaths.append(f"{args.path}/include")
+    else:
+        val : str
+        for ind, val in enumerate(args.includePaths):
+            if not val.startswith("/"):
+                args.includePaths[ind] = os.path.join(args.path, val)
+            if not val.endswith("/"):
+                args.includePaths[ind] = val + "/"
 
     return args
