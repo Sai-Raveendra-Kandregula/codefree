@@ -2,6 +2,9 @@ from enum import Enum
 from typing import Dict, List, Callable, Any, TypeAlias
 from argparse import Namespace
 
+from cf_output import get_progress_printer, get_error_printer
+import pandas as pd
+
 class CheckerSeverity(Enum):
     INFO = 0
     MINOR = 1,
@@ -23,6 +26,8 @@ CheckingFunction : TypeAlias = Callable[[ Namespace, str ], List[Any]]
 class CheckingModule():
     __checking_modules = []
 
+    __checker_output : List[Any] = []
+
     module_name : str # Use underscore for multiple words
     module_name_friendly : str = None
     module_type : CheckerTypes = None
@@ -39,8 +44,28 @@ class CheckingModule():
         cls.__checking_modules.append(module)
 
     @classmethod
-    def run_checks(cls, args : Namespace):
-        pass
+    def run_checks(cls, args : Namespace) -> List[Any]:
+        progress_printer = get_progress_printer(args=args)
+        error_printer = get_error_printer(args=args)
+
+        checker_module : CheckingModule
+        for checker_module in CheckingModule.modules():
+            enabled_checkers = args.__getattribute__(f"enableCheckers")
+            if ("all" in enabled_checkers or len(enabled_checkers) == 0 
+                or checker_module.module_type.name.lower() in enabled_checkers):
+                enabled_compliance_checkers = args.__getattribute__(f"enableComplianceCheckers")
+                if (checker_module.module_type == CheckerTypes.STYLE or 
+                    (checker_module.module_type == CheckerTypes.CODE and 
+                    ("all" in enabled_compliance_checkers or len(enabled_compliance_checkers) == 0 
+                    or checker_module.compliance_standard.name.lower() in enabled_compliance_checkers))):
+                    progress_printer(f"Running {checker_module.module_name_friendly}...")
+                    cls.__checker_output.extend(checker_module.checker(args, args.path))
+
+        return cls.__checker_output
+    
+    @classmethod
+    def get_output(cls):
+        return cls.__checker_output
 
 
 class ErrorInfo():
@@ -201,3 +226,23 @@ class CheckerStats():
             cls.__instances[file_name][module_name] += 1
         elif module.module_type != CheckerTypes.STYLE or not output_item.style_info.passed:
             cls.__instances[file_name][module_name] = 1
+
+    @classmethod
+    def calculateStats(cls, args):
+        output = CheckingModule.get_output()
+        if args.calculateStats:
+            for output_item in output:
+                CheckerStats.count_item(output_item)
+    
+    @classmethod
+    def printStats(cls, args):
+        if args.calculateStats:
+            stats = CheckerStats.get_stats()
+            stats_table_str = pd.DataFrame.from_dict(stats).to_string(index=None, float_format=lambda x: str(int(x)), index_names=None, na_rep=0, line_width=80)
+            print("-"*stats_table_str.index("\n"))
+            print("Count of Issues found by CodeFree : ")
+            print("-"*stats_table_str.index("\n"))
+            print(stats_table_str)
+            print("-"*stats_table_str.index("\n"))
+
+        
