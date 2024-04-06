@@ -24,14 +24,14 @@ def get_c_files(path:str) -> List[str]:
 def get_cppcheck_path() -> str:
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    cppcheck_path = os.path.join(dir_path, 'binaries', 'cppcheck')
+    cppcheck_path = os.path.join(dir_path, 'binaries', 'cppcheck', 'cppcheck')
 
     if os.path.exists(cppcheck_path):
         return cppcheck_path
     else:
         return ""
 
-def run_cpp_check(args, rootpath:str):
+def run_cppcheck_cwe(args, rootpath:str):
     progress_printer = cf_output.get_progress_printer(args=args)
     error_printer = cf_output.get_error_printer(args=args)
 
@@ -40,7 +40,13 @@ def run_cpp_check(args, rootpath:str):
     if len(cppcheck_path) == 0:
         error_printer("Bundled CPPCheck Binary not found. Skipping...")
         return out
-    process = Popen([f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout', f'-I{rootpath}/include'], stdout=PIPE, stderr=PIPE)
+    
+    popen_cmd = [f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout']
+
+    for includePath in args.includePaths:
+        popen_cmd.append(f'-I{includePath}')
+
+    process = Popen(popen_cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
 
     run_err = stderr.decode()
@@ -70,12 +76,16 @@ def run_cpp_check(args, rootpath:str):
             continue
 
 
-        error_severity_str = err_elem.attrib["severity"]
+        error_severity_str = err_elem.attrib["severity"].lower()
 
         if error_severity_str == "error":
+            error_obj.error_info.severity = CheckerSeverity.CRITICAL
+        if error_severity_str == "warning":
             error_obj.error_info.severity = CheckerSeverity.MAJOR
-        else:
+        if error_severity_str in ["style", "performance", "portability"]:
             error_obj.error_info.severity = CheckerSeverity.MINOR
+        else:
+            error_obj.error_info.severity = CheckerSeverity.INFO
 
         error_obj.error_info.type = err_elem.attrib["id"]
         error_obj.error_info.description = err_elem.attrib["msg"]
@@ -91,10 +101,10 @@ def run_cpp_check(args, rootpath:str):
 
         out.append(error_obj)
 
-    progress_printer("CPPCheck is done.")
+    progress_printer("CWE Compliance Checks with CPPCheck are done.")
 
     return out
 
-cppcheck_module.checker = run_cpp_check
+cppcheck_module.checker = run_cppcheck_cwe
 cppcheck_module.checker_help = "Enable CWE Compliance Checks with CPPCheck"
 CheckingModule.register(cppcheck_module)

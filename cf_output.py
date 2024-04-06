@@ -1,8 +1,6 @@
 from typing import Dict, List, Callable, Any, TypeAlias
 import sys
 
-from cf_checker import CheckerOutput
-
 class ArgActionOptions:
     Empty : str =  "store_true"
 
@@ -14,7 +12,7 @@ class FormatOption:
     argConst : Any = None
     default : Any = None
 
-FormatFunction : TypeAlias = Callable[[ Any, List[CheckerOutput] ], str]
+FormatFunction : TypeAlias = Callable[[ Any, List[Any] ], str]
 
 def get_error_printer(args):
     error_printer = lambda *fmt: print(*fmt, file=sys.stderr)
@@ -59,4 +57,15 @@ class FormattingModule():
     @classmethod
     def register(cls, module):
         cls.__modules[module.formatStr] = module
+
+    @classmethod
+    def generate_output(cls, args):
+        import cf_checker
+        import json
+        output = cf_checker.CheckingModule.get_output()
+        if args.outputFile is None:
+            print(json.dumps([item.dict() for item in output], indent=2))
+        else:
+            format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
+            format_module.formatter(args, output)
 

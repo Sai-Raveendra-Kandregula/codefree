@@ -76,13 +76,23 @@ def run_flawfinder(args, rootpath:str) -> List[CheckerOutput]:
         error_obj.error_info.suggestion = err_elem["Suggestion"]
         error_obj.error_info.type = err_elem["Category"]
         error_obj.error_info.symbol = err_elem["Name"]
+        level = int(err_elem["Level"])
+        
+        if level <= 1:
+            error_obj.error_info.severity = CheckerSeverity.MINOR
+        elif level <= 3:
+            error_obj.error_info.severity = CheckerSeverity.MAJOR
+        elif level <= 5:
+            error_obj.error_info.severity = CheckerSeverity.CRITICAL
+        
+
         error_obj.cwe_info.primary_cwe = int(int(err_elem["HelpUri"].replace("https://cwe.mitre.org/data/definitions/", "").replace(".html", "")))
         error_obj.cwe_info.cwe_list = [int(val) for val in re.findall(r'[0-9]+', err_elem["CWEs"])]
         error_obj.cwe_info.additional_info = err_elem["HelpUri"]
 
         out.append(error_obj)
 
-    progress_printer("FlawFinder is done.")
+    progress_printer("CWE Compliance Checks with FlawFinder are done.")
 
     return out
 
