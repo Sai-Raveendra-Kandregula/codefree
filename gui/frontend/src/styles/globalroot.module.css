@@ -1,0 +1,59 @@
+.appHeader {
+    background-color: var(--brand-color);
+    box-sizing: border-box;
+    height: var(--header-height);
+    padding: 0 var(--header-padding);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    font-size: calc(10px + 1vmin);
+    color: white;
+}
+
+.appHeaderLeft,
+.appHeaderCenter,
+.appHeaderRight {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.appHeaderLeft {
+    justify-content: flex-start;
+}
+
+.appHeaderCenter {
+    justify-content: center;
+    padding: 0 var(--header-padding);
+}
+
+.appHeaderRight {
+    justify-content: flex-end;
+}
+
+.appContent {
+    display: flex;
+    box-sizing: border-box;
+    height: calc(100vh - var(--header-height));
+}
+
+.appSidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 250px;
+    height: calc(100vh - var(--header-height));
+    max-height: calc(100vh - var(--header-height));
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 10px;
+    border-right: 1px solid var(--border-color);
+}
+
+.outletWrapper {
+    flex: 1;
+    box-sizing: border-box;
+    height: calc(100vh - var(--header-height));
+    max-height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+}

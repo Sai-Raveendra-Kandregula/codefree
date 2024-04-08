@@ -1,0 +1,36 @@
+:root{
+  --header-height : 60px;
+  --header-padding : 20px;
+  --border-color : #AFAFAF;
+  --brand-color : #001515;
+}
+
+a{
+  text-decoration: none;
+}
+
+a:hover{
+  text-decoration: underline;
+}
+
+hr{
+  appearance: none;
+  height: 1px;
+  background: var(--border-color);
+  border: none;
+}
+
+.App {
+  height: 100vh;
+  max-height: 100vh;
+}
+
+.projectTitle{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.projectTitle .projectID{
+  opacity: 0.25;
+}
