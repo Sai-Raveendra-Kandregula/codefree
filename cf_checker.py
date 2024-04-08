@@ -186,12 +186,14 @@ class CheckerOutput():
 
     def dict(self) -> dict:
         out = {}
+        out['Module Type'] = self._module.module_type.name.lower()
         out['File Name'] = self.file_name
         out['Module Name'] = self._module.module_name
         if self._module.module_type == CheckerTypes.STYLE:
             for key, value in self.style_info.dict().items():
                 out[key] = value
         elif self._module.module_type == CheckerTypes.CODE:
+            out['Compliance Standard'] = self._module.compliance_standard.name.lower()
             for key, value in self.error_info.dict().items():
                 out[key] = value
             if self._module.compliance_standard == ComplianceStandards.CWE:

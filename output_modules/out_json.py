@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from cf_checker import *
 from cf_output import FormattingModule, FormatOption, ArgActionOptions
 
@@ -6,7 +7,10 @@ from typing import List
 import json
 
 def output_json(args, output: List[CheckerOutput] = []):
-    json_string = json.dumps([item.dict() for item in output], indent=(2 if args.jsonUsePretty else None))
+    out_obj = {}
+    out_obj['timestamp'] = str(datetime.now(timezone.utc))
+    out_obj['data'] = [item.dict() for item in output]
+    json_string = json.dumps(out_obj, indent=(2 if args.jsonUsePretty else None))
     args.outputFile.write(json_string)
 
 json_format_obj = FormattingModule()
