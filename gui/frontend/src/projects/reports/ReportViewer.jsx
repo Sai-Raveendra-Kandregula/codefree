@@ -93,11 +93,11 @@ function ReportViewer() {
             padding: '20px',
             paddingTop: 0
         }}>
-            Report #{pathParams.reportid} {" | "}
+            Report #{pathParams.reportid}{", "}
             {
                 reportData &&
                 <span>
-                    Timestamp : {
+                    Generated On : {
                         new Date(reportData['report']['timestamp'])
                             .toLocaleString(navigator.languages[navigator.languages.length - 1], {
                                 year: 'numeric',

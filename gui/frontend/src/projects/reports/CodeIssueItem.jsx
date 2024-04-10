@@ -70,6 +70,16 @@ function CodeIssueItem({
                 </h4>
             }
             {
+                groupedBy != "Module Name" &&
+                issue["Module Name"] &&
+                <h4>
+                    Reported By :&nbsp;
+                    <span style={{
+                        fontWeight: 400
+                    }}>{issue["Module Name"]}</span>
+                </h4>
+            }
+            {
                 groupedBy != "Severity" &&
                 <h4>
                     Severity :&nbsp;
@@ -88,9 +98,10 @@ function CodeIssueItem({
             {
                 issue["Compliance Standard"] == "MISRA" && issue["MISRA Rule Number"] &&
                 <h4>
+                    Violated MISRA Rule :&nbsp;
                     <span style={{
                         fontWeight: 400
-                    }}>Violated MISRA Rule : </span>{issue["MISRA Rule Number"]}
+                    }}>{issue["MISRA Rule Number"]}</span>
                 </h4>
             }
              {
