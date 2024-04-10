@@ -1,0 +1,92 @@
+/* Report Viewer */
+
+.viewTypeCarousel{
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.viewTypeButton{
+    position: relative;
+    box-sizing: border-box;
+    height: 35px;
+    width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px 15px;
+    padding-bottom: 7px;
+    border: none;
+    border-radius: 0;
+    background: none;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all linear 0.1s;
+
+}
+
+.viewTypeButton:hover, .viewTypeButton.selected{
+    background: var(--button-overlay);
+}
+
+.viewTypeButton::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    top: calc(100%);
+    height: 2px;
+    background-color: var(--border-color);
+    transition: top linear 0.1s;
+}
+
+.viewTypeButton:hover::after{
+    top: calc(100% - 2px); 
+}
+
+.viewTypeButton.selected::after{
+    top: calc(100% - 2px); 
+    background-color: var(--theme-color);
+}
+
+/* Issue Item */
+
+.issueItemAccordian{
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--card-background);
+    font-size: 0.9em;
+}
+
+.issueItemAccordian summary{
+    position: relative;
+    padding: 0 20px 0 15px;
+    cursor: pointer;
+    
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-weight: 600;
+
+}
+
+.issueItemAccordian[open] summary{
+    border-bottom: 1px solid var(--border-color);
+}
+
+.issueItemAccordian summary svg{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all linear 0.1s;
+    scale: 1.15;
+}
+
+.issueItemAccordian[open] summary svg{
+    transform: rotateZ(90deg);
+}

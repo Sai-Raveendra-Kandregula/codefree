@@ -1,12 +1,57 @@
 :root{
   --header-height : 60px;
   --header-padding : 20px;
-  --border-color : #AFAFAF;
-  --brand-color : #001515;
+  --border-radius : 5px;
+  --background : #FFFFFF;
+  --foreground : #010101;
+  --border-color : #cdcdcd;
+  --header-color : #0d0d0d;
+  --theme-color : #006c6c;
+  --card-background : rgba(0,0,0,0.025);
+  --button-overlay : rgba(0,0,0,0.05);
+}
+
+:root.dark{
+  --background : #010101;
+  --foreground : #FEFEFE;
+  --border-color : #191919;
+  --header-color : #030303;
+  --card-background : rgba(255,255,255,0.05);
+  --button-overlay : rgba(255,255,255,0.05);
+}
+
+*{
+  color: inherit;
+  font-family: inherit;
+}
+
+select{
+  position: relative;
+  appearance: none;
+  height: 30px;
+  border-radius: var(--border-radius);
+  padding-left: 10px;
+  padding-right: 30px;
+  border: 1px solid var(--border-color);
+  font-family: inherit;
+  background-color: var(--card-background);
+  background-image: url('./assets/ChevronDownBlack.svg');
+  background-size: 16px 16px;
+  background-position: calc(100% - 7px) 7px;
+  background-repeat: no-repeat;
+}
+
+option{
+  color: initial;
+}
+
+.dark select{
+  background-image: url('./assets/ChevronDownWhite.svg');
 }
 
 a{
   text-decoration: none;
+  color: #0062ff;
 }
 
 a:hover{
@@ -20,9 +65,34 @@ hr{
   border: none;
 }
 
+pre, code, div.preBlock {
+  /* width: 100%; */
+  background-color: var(--button-overlay);
+  padding:5px;
+  margin: 5px;
+  overflow-x: auto;
+  border-radius: var(--border-radius);
+  font-family: Courier, monospace;
+  white-space: pre;
+  font-weight: 500;
+ }
+
+ div.preBlock {
+  display: flex;
+  gap: 10px;
+ }
+
+ span.preBlockLineNumber{
+  opacity: 0.75;
+  /* padding: 0 10px; */
+  padding-left: 5px;
+ }
+
 .App {
   height: 100vh;
   max-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .projectTitle{
@@ -32,5 +102,6 @@ hr{
 }
 
 .projectTitle .projectID{
+  color: inherit;
   opacity: 0.25;
 }

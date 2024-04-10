@@ -1,0 +1,16 @@
+.buttonBase{
+    border-radius: var(--border-radius);
+    border: none;
+    aspect-ratio: 1;
+    font-size: 1.25em;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all linear 0.1s;
+}
+
+.buttonBase:hover{
+    background: rgba(125,125,125,0.2);
+}
