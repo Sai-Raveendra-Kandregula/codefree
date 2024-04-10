@@ -8,7 +8,7 @@ from cf_checker import *
 import cf_output
 
 astyle_module = CheckingModule()
-astyle_module.module_name = "astyle"
+astyle_module.module_name = "AStyle"
 astyle_module.module_name_friendly = "Astyle"
 astyle_module.module_type = CheckerTypes.STYLE
 

@@ -8,7 +8,7 @@ from cf_checker import *
 from checker_modules.libraries import misra_mappings, error_context
 
 misra_module = CheckingModule()
-misra_module.module_name = "cppcheck"
+misra_module.module_name = "CPPCheck"
 misra_module.module_name_friendly = "MISRA Checks with CPPCheck"
 misra_module.module_type = CheckerTypes.CODE
 misra_module.compliance_standard = ComplianceStandards.MISRA

@@ -31,7 +31,7 @@ class CheckingModule():
 
     __checker_output : List[Any] = []
 
-    module_name : str # Use underscore for multiple words
+    module_name : str # Will be used for Reporting
     module_name_friendly : str = None
     module_type : CheckerTypes = None
     checker : CheckingFunction
@@ -193,7 +193,7 @@ class CheckerOutput():
             for key, value in self.style_info.dict().items():
                 out[key] = value
         elif self._module.module_type == CheckerTypes.CODE:
-            out['Compliance Standard'] = self._module.compliance_standard.name.lower()
+            out['Compliance Standard'] = self._module.compliance_standard.name
             for key, value in self.error_info.dict().items():
                 out[key] = value
             if self._module.compliance_standard == ComplianceStandards.CWE:

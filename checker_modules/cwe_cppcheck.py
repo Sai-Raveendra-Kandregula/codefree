@@ -8,7 +8,7 @@ from cf_checker import *
 import cf_output
 
 cppcheck_module = CheckingModule()
-cppcheck_module.module_name = "cppcheck"
+cppcheck_module.module_name = "CPPCheck"
 cppcheck_module.module_name_friendly = "CWE Checks with CPPCheck"
 cppcheck_module.module_type = CheckerTypes.CODE
 cppcheck_module.compliance_standard = ComplianceStandards.CWE

@@ -9,7 +9,7 @@ from cf_checker import *
 import cf_output
 
 flawfinder_module = CheckingModule()
-flawfinder_module.module_name = "flawfinder"
+flawfinder_module.module_name = "FlawFinder"
 flawfinder_module.module_name_friendly = "CWE Checks with FlawFinder"
 flawfinder_module.module_type = CheckerTypes.CODE
 flawfinder_module.compliance_standard = ComplianceStandards.CWE
