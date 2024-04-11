@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { CiLight, CiDark } from "react-icons/ci";
+import { GoProject, GoHome } from "react-icons/go";
 
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
+import SideBarLink from './Components/SideBarLink';
 
 function GlobalRoot() {
   const navigate = useNavigate();
@@ -14,12 +16,18 @@ function GlobalRoot() {
   useEffect(() => {
     if (activeTheme){
       window.localStorage.setItem("app-theme", activeTheme)
+      if (activeTheme == "dark"){
+        document.querySelector(":root").classList.add("dark")
+      }
+      else{
+        document.querySelector(":root").classList.remove("dark")
+      }
     }
   }, [activeTheme])
   
 
   return (
-    <div>
+    <React.Fragment>
         <header className={`${GlobalRootStyles.appHeader}`}>
             <div className={`${GlobalRootStyles.appHeaderLeft}`}>
 
@@ -29,7 +37,7 @@ function GlobalRoot() {
             </div>
             <div className={`${GlobalRootStyles.appHeaderRight}`}>
               <IconButton title="Toggle Theme" Icon={activeTheme == "dark" ? CiLight : CiDark} onClick={(e) => {
-                if (document.querySelector(":root").classList.toggle("dark")){
+                if (activeTheme == "light"){
                   setActiveTheme("dark")
                 }
                 else{
@@ -40,16 +48,15 @@ function GlobalRoot() {
         </header>
         <div className={`${GlobalRootStyles.appContent}`}>
           <nav className={`${GlobalRootStyles.appSidebar}`}>
-            <a href="/projects" onClick={(e)=>{
-              e.preventDefault()
-              navigate(e.target.getAttribute("href"))
-            }}>Projects</a>
+            <SideBarLink to={'/home'} title={'Home'} icon={<GoHome />} />
+            <SideBarLink to={'/projects'} title={'Projects'} icon={<GoProject />} />
+            <SideBarLink to={'/projects'} title={'Projects Long long long long'} icon={<GoProject />} />
           </nav>
         <div className={`${GlobalRootStyles.outletWrapper}`}>
             <Outlet />
           </div>
         </div>
-    </div>
+    </React.Fragment>
   )
 }
 

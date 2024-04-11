@@ -126,6 +126,7 @@ function ReportViewer() {
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 gap: '10px',
+                                borderBottom: '1px solid var(--border-color)'
                             }}>
                             <div className={`${reportViewerStyles.viewTypeCarousel}`}>
                                 {
@@ -142,9 +143,12 @@ function ReportViewer() {
                                 whiteSpace: 'nowrap',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '5px'
+                                gap: '10px'
                             }}>
-                                Group By :
+                                <span style={{
+                                    fontSize: '0.85rem',
+                                    fontWeight: '500'
+                                }}>Group By :</span>
                                 <select name="groupIssues" id="groupIssuesBySelector" onChange={(e) => {
                                     setGroupBy(e.target.value)
                                 }}

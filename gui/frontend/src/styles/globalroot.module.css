@@ -1,5 +1,5 @@
 .appHeader {
-    background: var(--header-color);
+    background: var(--header-background);
     box-sizing: border-box;
     height: var(--header-height);
     padding: 0 var(--header-padding);
@@ -8,6 +8,8 @@
     font-size: calc(10px + 1vmin);
     color: white;
     border-bottom: 1px solid var(--border-color);
+
+    backdrop-filter: blur(10px) brightness(75%);
 }
 
 .appHeaderLeft,
@@ -42,7 +44,9 @@
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    width: 250px;
+    gap: 5px;
+
+    width: clamp(150px, 20%, 250px);
     height: calc(100vh - var(--header-height));
     max-height: calc(100vh - var(--header-height));
     overflow: auto;

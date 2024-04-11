@@ -1,15 +1,18 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 function ProjectsList() {
   return (
     <div>
-        <h2>
+        <h2 style={{
+          'padding': '0px 20px'
+        }}>
           Projects List
         </h2>
         <hr />
         <ul>
             <li>
-                <a href="/projects/01">01</a>
+              <Link to="/projects/01">01</Link>
             </li>
         </ul>
     </div>

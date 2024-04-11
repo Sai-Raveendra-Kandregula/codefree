@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 
 function ProjectHome() {
@@ -13,14 +13,9 @@ function ProjectHome() {
       Home for Project ID : {routeParams.projectid}
 
       <div>
-        <a href={`/projects/${routeParams.projectid}/reports`}
-          onClick={(e) => {
-            e.preventDefault()
-            navigate(`/projects/${routeParams.projectid}/reports`)
-          }}
-        >
+        <Link to={`/projects/${routeParams.projectid}/reports`}>
           Reports
-        </a>
+        </Link>
       </div>
     </div>
   )

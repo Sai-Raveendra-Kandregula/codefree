@@ -5,7 +5,6 @@
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .viewTypeButton{
@@ -24,11 +23,14 @@
     font-weight: 600;
     cursor: pointer;
     transition: all linear 0.1s;
-
 }
 
-.viewTypeButton:hover, .viewTypeButton.selected{
-    background: var(--button-overlay);
+.viewTypeButton.selected{
+    background: linear-gradient(0deg, var(--button-overlay), transparent);
+}
+
+.viewTypeButton:hover{
+    background: linear-gradient(0deg, var(--button-overlay), var(--button-overlay));
 }
 
 .viewTypeButton::after{
@@ -89,4 +91,8 @@
 
 .issueItemAccordian[open] summary svg{
     transform: rotateZ(90deg);
+}
+
+.issueItemAccordian h4:last-child {
+    margin-bottom: 0;
 }
