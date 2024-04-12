@@ -1,7 +1,8 @@
 FROM ubuntu:jammy-20240227
 
 RUN apt update
-RUN apt -y install curl wget python3.10 python3-pip
+RUN apt -y install curl wget python3.10 python3-pip apache2
+RUN a2enmod rewrite
 RUN ln -sf /usr/bin/python3.10 /usr/bin/python
 
 # Install NodeJS - For Development
@@ -22,6 +23,10 @@ RUN pip install -r /codefree/requirements.txt
 RUN ln -sf /codefree/codefree /usr/bin/codefree
 
 RUN mkdir /code # Prefer mounting your code directories under this directory
+
+# COPY Apache Configuration
+COPY ./apache2/apache2.conf /etc/apache2/
+COPY ./apache2/000-default.conf /etc/apache2/sites-available/
 
 WORKDIR /codefree/gui/frontend
 RUN npm install
