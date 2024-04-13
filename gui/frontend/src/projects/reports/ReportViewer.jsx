@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import IssuesList from './IssuesList';
 import reportViewerStyles from '../../styles/reportViewer.module.css'
 
@@ -8,16 +8,16 @@ function ReportViewer() {
     const pathParams = useParams()
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // const SERVER = `http://${window.location.hostname}:8080`
-    const SERVER = ``
-    
+    const SERVER = `http://${window.location.hostname}:9000`
+    // const SERVER = ``
+
     const groupingMapping = {
         "code": ["Severity", "Compliance Standard", "File Name", "Module Name"],
         "style": ["Check Passed", "File Name", "Module Name"]
     }
-    
+
     const [viewType, setViewType] = useState(searchParams.get("viewType") || Object.keys(groupingMapping)[0])
-    const [groupBy, setGroupBy] = useState(() => { 
+    const [groupBy, setGroupBy] = useState(() => {
         return searchParams.get("groupBy") || groupingMapping[viewType][0]
     });
     const [reportData, setReportData] = useState(null)
@@ -45,7 +45,7 @@ function ReportViewer() {
         searchParams.set("viewType", (viewType || Object.keys(groupingMapping)[0]))
         setSearchParams(searchParams)
 
-        if (!(groupingMapping[viewType].includes(groupBy))){
+        if (!(groupingMapping[viewType].includes(groupBy))) {
             setGroupBy(groupingMapping[viewType][0])
         }
     }, [viewType])
@@ -91,52 +91,56 @@ function ReportViewer() {
             height: '100%',
             maxHeight: '100%',
             overflowY: 'hidden',
-            padding: '20px',
-            paddingTop: 0
         }}>
-            Report #{pathParams.reportid}{", "}
-            {
-                reportData &&
-                <span>
-                    Generated On : {
-                        new Date(reportData['report']['timestamp'])
-                            .toLocaleString(navigator.languages[navigator.languages.length - 1], {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                            })
-                            .replace(/T/, ' ') // Replace 'T' with a space
-                            .replace(/\..+/, '')
-                    }
-                </span>
-            }
+            <div style={{
+                padding: '20px'
+            }}>
+                Report #{pathParams.reportid}{", "}
+                {
+                    reportData &&
+                    <span>
+                        Generated On : {
+                            new Date(reportData['report']['timestamp'])
+                                .toLocaleString(navigator.languages[navigator.languages.length - 1], {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                })
+                                .replace(/T/, ' ') // Replace 'T' with a space
+                                .replace(/\..+/, '')
+                        }
+                    </span>
+                }
+            </div>
             {
                 reportData ?
                     <div style={{
                         display: 'flex',
                         flexDirection: 'column',
                         height: '100%',
-                        maxHeight: '100%',
-                        paddingTop : '20px'
+                        maxHeight: '100%'
                     }}>
                         <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '10px',
-                                borderBottom: '1px solid var(--border-color)'
-                            }}>
-                            <div className={`${reportViewerStyles.viewTypeCarousel}`}>
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            boxSizing: 'content-box',
+                        }}>
+                            <div className={`viewTypeCarousel`}>
                                 {
                                     Object.keys(groupingMapping).map((val) => {
-                                        return <button className={`${reportViewerStyles.viewTypeButton} ${viewType == val ? reportViewerStyles.selected : ""}`} onClick={() => {
+                                        return <Link 
+                                        className={`viewTypeButton ${viewType == val ? "selected" : ""}`} 
+                                        onClick={(e) => {
+                                            e.preventDefault()
                                             setViewType(val)
                                         }}>
-                                            {val.toUpperCase()}
-                                        </button>
+                                            {val}
+                                        </Link>
                                     })
                                 }
                             </div>
@@ -144,10 +148,10 @@ function ReportViewer() {
                                 whiteSpace: 'nowrap',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '10px'
+                                gap: '10px',
+                                paddingRight: '20px'
                             }}>
                                 <span style={{
-                                    fontSize: '0.85rem',
                                     fontWeight: '500'
                                 }}>Group By :</span>
                                 <select name="groupIssues" id="groupIssuesBySelector" onChange={(e) => {
@@ -166,18 +170,17 @@ function ReportViewer() {
                                     }
                                 </select>
                             </div>
-
                         </div>
                         <div style={{
                             overflowY: 'auto',
-                            padding: '20px 20px 40px 20px',
-                            marginLeft: '-20px',
-                            marginRight: '-20px',
+                            boxSizing: 'border-box',
+                            padding: '20px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'stretch',
-                            justifyContent:'flex-start',
-                            gap: '5px'
+                            justifyContent: 'flex-start',
+                            gap: '5px',
+                            marginBottom: '60px'
                         }}>
                             {
                                 viewType &&

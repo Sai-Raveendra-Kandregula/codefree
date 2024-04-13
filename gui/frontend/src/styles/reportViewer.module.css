@@ -1,58 +1,3 @@
-/* Report Viewer */
-
-.viewTypeCarousel{
-    display: flex;
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-
-.viewTypeButton{
-    position: relative;
-    box-sizing: border-box;
-    height: 35px;
-    width: 90px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 5px 15px;
-    padding-bottom: 7px;
-    border: none;
-    border-radius: 0;
-    background: none;
-    text-transform: uppercase;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all linear 0.1s;
-}
-
-.viewTypeButton.selected{
-    background: linear-gradient(0deg, var(--button-overlay), transparent);
-}
-
-.viewTypeButton:hover{
-    background: linear-gradient(0deg, var(--button-overlay), var(--button-overlay));
-}
-
-.viewTypeButton::after{
-    content: '';
-    position: absolute;
-    left: 0;
-    width: 100%;
-    top: calc(100%);
-    height: 2px;
-    background-color: var(--border-color);
-    transition: top linear 0.1s;
-}
-
-.viewTypeButton:hover::after{
-    top: calc(100% - 2px); 
-}
-
-.viewTypeButton.selected::after{
-    top: calc(100% - 2px); 
-    background-color: var(--theme-color);
-}
-
 /* Issue Item */
 
 .issueItemAccordian{
@@ -60,7 +5,10 @@
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background: var(--card-background);
-    font-size: 0.9em;
+}
+
+.issueItemAccordian:last-child{
+    margin-bottom: 20px;
 }
 
 .issueItemAccordian summary{

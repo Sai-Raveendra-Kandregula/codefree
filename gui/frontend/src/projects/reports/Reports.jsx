@@ -14,7 +14,9 @@ function Reports() {
         <a className='projectID' href={`/projects/${pathParams.projectid}/reports/1`} onClick={
           (e) => {
             e.preventDefault()
-            navigate(`/projects/${pathParams.projectid}/reports/1`)
+            navigate(`/projects/${pathParams.projectid}/reports/1`, {
+              replace: false
+            })
           }
         }>
           01

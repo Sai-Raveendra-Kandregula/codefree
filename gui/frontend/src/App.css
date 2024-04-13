@@ -6,6 +6,7 @@
   --header-padding : 20px;
   --border-radius : 5px;
   --background : #FFFFFF;
+  --background : radial-gradient(circle, #fff8f3 0%, rgb(255, 255, 255) 100%);
   --foreground : #010101;
   --border-color : #cdcdcd;
   --header-background : #0d0d0d;
@@ -106,16 +107,15 @@ pre, code, div.preBlock {
   max-height: 100vh;
   background: var(--background);
   color: var(--foreground);
+  font-size: 0.9rem;
 
   transition: all linear 0.1s;
 }
 
 .sideBarLink {
   box-sizing: border-box;
-  height: 35px;
+  height: 40px;
   padding: 0 10px;
-
-  font-size: 0.9rem;
 
   display: flex;
   flex-direction: row;

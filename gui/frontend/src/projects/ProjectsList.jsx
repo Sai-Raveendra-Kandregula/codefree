@@ -12,7 +12,7 @@ function ProjectsList() {
         <hr />
         <ul>
             <li>
-              <Link to="/projects/01">01</Link>
+              <Link to="/projects/1">1</Link>
             </li>
         </ul>
     </div>

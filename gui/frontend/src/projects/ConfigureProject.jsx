@@ -2,11 +2,11 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 
 
-function Settings() {
+function ConfigureProject() {
     const routeParams = useParams()
   return (
-    <div>Settings for Project ID : {routeParams.projectid}</div>
+    <div>Configure Project ID : {routeParams.projectid}</div>
   )
 }
 
-export default Settings
+export default ConfigureProject

@@ -46,7 +46,7 @@
     justify-content: flex-start;
     gap: 5px;
 
-    width: clamp(150px, 20%, 250px);
+    width: clamp(200px, 20%, 300px);
     height: calc(100vh - var(--header-height));
     max-height: calc(100vh - var(--header-height));
     overflow: auto;

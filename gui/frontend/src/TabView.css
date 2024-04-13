@@ -1,0 +1,63 @@
+
+.viewTypeCarousel{
+    box-sizing: content-box;
+    display: flex;
+    height: 35px;
+    min-height: 35px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.viewTypeButton{
+    position: relative;
+    box-sizing: border-box;
+    height: 35px;
+    min-height: 35px;
+    min-width: 90px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 15px;
+    color: var(--foreground);
+    border: none;
+    border-radius: 0;
+    background: none;
+    text-transform:capitalize;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all linear 0.1s;
+}
+
+.viewTypeButton.selected{
+    background: linear-gradient(0deg, var(--button-overlay), transparent);
+}
+
+.viewTypeButton:hover{
+    background: linear-gradient(0deg, var(--button-overlay), var(--button-overlay));
+    text-decoration: none;
+}
+
+.viewTypeButton::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    bottom: -2px;
+    background-color: var(--border-color);
+    transition: bottom linear 0.1s;
+}
+
+.viewTypeButton:hover::after{
+    bottom: 0;
+}
+
+.viewTypeButton.selected::after{
+    bottom: 0;
+    background-color: var(--theme-color);
+}
