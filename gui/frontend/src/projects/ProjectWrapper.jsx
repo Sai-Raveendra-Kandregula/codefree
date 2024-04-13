@@ -6,7 +6,8 @@ function ProjectWrapper() {
 
     const pathParams = useParams()
 
-    const SERVER = `http://${window.location.hostname}:8080`
+    // const SERVER = `http://${window.location.hostname}:8080`
+    const SERVER = ``
 
     const [projectInfo, setProjectInfo] = useState(null)
 

@@ -8,7 +8,8 @@ function ReportViewer() {
     const pathParams = useParams()
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const SERVER = `http://${window.location.hostname}:8080`
+    // const SERVER = `http://${window.location.hostname}:8080`
+    const SERVER = ``
     
     const groupingMapping = {
         "code": ["Severity", "Compliance Standard", "File Name", "Module Name"],

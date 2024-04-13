@@ -1,9 +1,6 @@
 #!/bin/sh
 
-cd /codefree/gui/frontend
-npm install
-npm run build
-cp -rf build /var/www/html
+service apache2 start || exit 1
+echo "Apache Webserver Running on 0.0.0.0:8080"
 
-cd /codefree/gui
-python3 main.py
+python3 /codefree/gui/main.py

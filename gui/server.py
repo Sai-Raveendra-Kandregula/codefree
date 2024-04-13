@@ -25,4 +25,4 @@ app = FastAPI(middleware=middleware)
 
 path_to_react_app_build_dir = "./frontend/build"
 app = serve_codefree_backend(app)
-app = serve_react_app(app, path_to_react_app_build_dir)
+# app = serve_react_app(app, path_to_react_app_build_dir)

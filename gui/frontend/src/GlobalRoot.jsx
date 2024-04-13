@@ -50,7 +50,6 @@ function GlobalRoot() {
           <nav className={`${GlobalRootStyles.appSidebar}`}>
             <SideBarLink to={'/home'} title={'Home'} icon={<GoHome />} />
             <SideBarLink to={'/projects'} title={'Projects'} icon={<GoProject />} />
-            <SideBarLink to={'/projects'} title={'Projects Long long long long'} icon={<GoProject />} />
           </nav>
         <div className={`${GlobalRootStyles.outletWrapper}`}>
             <Outlet />
