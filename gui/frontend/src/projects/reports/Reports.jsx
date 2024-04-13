@@ -7,7 +7,7 @@ function Reports() {
   const navigate = useNavigate()
   return (
     <div style={{
-      padding: '0 20px'
+      padding: '20px'
     }}>
       Reports for Project ID : {pathParams.projectid}
       <div>

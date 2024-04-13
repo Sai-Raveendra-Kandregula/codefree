@@ -6,18 +6,17 @@ function ProjectWrapper() {
 
     const pathParams = useParams()
 
-    const SERVER = `http://${window.location.hostname}:9000`
-    // const SERVER = ``
+    const SERVER = process.env.REACT_APP_SERVER_BASE_URL || ''
 
     const subPages = {
-        "Overview" : {
-            "to" : `/projects/${pathParams.projectid}/overview`
+        "Overview": {
+            "to": `/projects/${pathParams.projectid}/overview`
         },
-        "Reports" : {
-            "to" : `/projects/${pathParams.projectid}/reports`
+        "Reports": {
+            "to": `/projects/${pathParams.projectid}/reports`
         },
-        "Configure" : {
-            "to" : `/projects/${pathParams.projectid}/configure`
+        "Configure": {
+            "to": `/projects/${pathParams.projectid}/configure`
         }
     }
 
@@ -49,37 +48,52 @@ function ProjectWrapper() {
             display: 'flex',
             flexDirection: 'column'
         }}>
-            <h2 className='projectTitle' style={{
-                padding: '0 20px'
+            <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                gap: '20px',
+                borderBottom: '1px solid var(--border-color)',
             }}>
-                {
-                    projectInfo && projectInfo['project_name']
-                }
-                <a className='projectID' href={`/projects/${pathParams.projectid}`} onClick={
-                    (e) => {
-                        e.preventDefault()
-                        navigate(`/projects/${pathParams.projectid}`, {
-                          replace: false  
+                <h2 className='projectTitle' style={{
+                    padding: '0 20px',
+                    whiteSpace: 'nowrap',
+                    minWidth: '10%',
+                    maxWidth: '30%',
+                    margin: '1rem 0.5rem',
+                }}>
+                    {
+                        projectInfo && projectInfo['project_name']
+                    }
+                    <a className='projectID' href={`/projects/${pathParams.projectid}`} onClick={
+                        (e) => {
+                            e.preventDefault()
+                            navigate(`/projects/${pathParams.projectid}/overview`, {
+                                replace: false
+                            })
+                        }
+                    }>
+                        {
+                            "#" + pathParams.projectid
+                        }
+                    </a>
+                </h2>
+                <div className={`viewTypeCarousel`} style={{
+                    border: 'none',
+                    height: '100%'
+                }}>
+                    {
+                        Object.keys(subPages).map((val) => {
+                            return <Link
+                                className={`viewTypeButton ${window.location.pathname.startsWith(subPages[val]['to']) ? "selected" : ""}`}
+                                to={subPages[val]['to']}
+                                replace={false}
+                            >
+                                {val}
+                            </Link>
                         })
                     }
-                }>
-                    {
-                        "#" + pathParams.projectid
-                    }
-                </a>
-            </h2>
-            <div className={`viewTypeCarousel`}>
-                {
-                    Object.keys(subPages).map((val) => {
-                        return <Link 
-                        className={`viewTypeButton ${window.location.pathname.startsWith(subPages[val]['to']) ? "selected" : ""}`} 
-                            to={subPages[val]['to']} 
-                            replace={false}
-                        >
-                            {val}
-                        </Link>
-                    })
-                }
+                </div>
             </div>
             <Outlet />
         </div>

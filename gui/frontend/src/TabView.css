@@ -13,8 +13,8 @@
 .viewTypeButton{
     position: relative;
     box-sizing: border-box;
-    height: 35px;
-    min-height: 35px;
+    height: 100%;
+    min-height: 100%;
     min-width: 90px;
     max-width: 150px;
     overflow: hidden;

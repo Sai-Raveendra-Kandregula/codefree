@@ -5,7 +5,11 @@ import { useParams } from 'react-router-dom'
 function ConfigureProject() {
     const routeParams = useParams()
   return (
-    <div>Configure Project ID : {routeParams.projectid}</div>
+    <div style={{
+      padding: '20px'
+  }}>
+    Configure Project ID : {routeParams.projectid}
+  </div>
   )
 }
 

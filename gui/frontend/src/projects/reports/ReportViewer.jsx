@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import IssuesList from './IssuesList';
+import IconButton from '../../Components/IconButton'
 import reportViewerStyles from '../../styles/reportViewer.module.css'
 
+import { IoArrowBack } from "react-icons/io5";
 
 function ReportViewer() {
+    const navigate = useNavigate()
     const pathParams = useParams()
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams()
 
-    const SERVER = `http://${window.location.hostname}:9000`
-    // const SERVER = ``
+    const SERVER = process.env.REACT_APP_SERVER_BASE_URL || ''
 
     const groupingMapping = {
         "code": ["Severity", "Compliance Standard", "File Name", "Module Name"],
@@ -93,8 +95,15 @@ function ReportViewer() {
             overflowY: 'hidden',
         }}>
             <div style={{
-                padding: '20px'
+                padding: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                gap: '10px'
             }}>
+                <IconButton Icon={IoArrowBack} onClick={(e)=>{
+                    navigate(`/projects/${pathParams.projectid}/reports`)
+                }} />
                 Report #{pathParams.reportid}{", "}
                 {
                     reportData &&

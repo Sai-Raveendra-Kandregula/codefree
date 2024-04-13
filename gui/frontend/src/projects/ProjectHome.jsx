@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-
+import LinkButton from '../Components/LinkButton'
 
 function ProjectHome() {
     const routeParams = useParams()
@@ -8,14 +8,16 @@ function ProjectHome() {
 
   return (
     <div style={{
-      padding: '0 20px'
+      padding: '20px'
   }}>
-      Home for Project ID : {routeParams.projectid}
 
-      <div>
-        <Link to={`/projects/${routeParams.projectid}/reports`}>
-          Reports
-        </Link>
+      <div className='appPanel' style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px'
+      }}>
+        Home for Project ID : {routeParams.projectid}
+        <LinkButton to={`/projects/${routeParams.projectid}/lastReport`} title={"View Last Report"} />
       </div>
     </div>
   )

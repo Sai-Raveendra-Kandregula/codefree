@@ -25,7 +25,7 @@
   --theme-color : #00457d;
   --card-background : rgba(255,255,255,0.05);
   --select-background : rgba(255,255,255,0.05);
-  --button-overlay : rgba(255,255,255,0.03);
+  --button-overlay : rgba(255,255,255,0.04);
   --control-overlay-bg : radial-gradient(circle at 100% 100%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.03) 100%);
 }
 
@@ -139,6 +139,31 @@ pre, code, div.preBlock {
   width: 20px;
 }
 
+.linkButton {
+  box-sizing: border-box;
+  height: 35px;
+  width: min-content;
+  padding: 5px 15px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  color: var(--foreground);
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  background: var(--button-overlay);
+}
+
+.linkButton:hover{
+  text-decoration: none;
+  border: 1px solid var(--button-overlay);
+}
+
 .projectTitle{
   display: flex;
   align-items: center;
@@ -148,4 +173,14 @@ pre, code, div.preBlock {
 .projectTitle .projectID{
   color: inherit;
   opacity: 0.25;
+}
+
+.appPanel{
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+
+  box-sizing: border-box;
+  padding: 20px;
+  backdrop-filter: blur(30px);
 }

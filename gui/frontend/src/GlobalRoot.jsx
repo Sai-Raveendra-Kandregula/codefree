@@ -24,6 +24,17 @@ function GlobalRoot() {
       }
     }
   }, [activeTheme])
+
+  function AuthHeader(){
+    return <div style={{
+      padding: '5px 10px',
+      borderRadius: 'var(--border-radius)'
+    }}>
+      <Link>
+        Sign In
+      </Link>
+    </div>
+  }
   
 
   return (
@@ -44,6 +55,8 @@ function GlobalRoot() {
                   setActiveTheme("light")
                 }
               }} />
+
+              <AuthHeader />
             </div>
         </header>
         <div className={`${GlobalRootStyles.appContent}`}>

@@ -9,7 +9,7 @@
     color: white;
     border-bottom: 1px solid var(--border-color);
 
-    backdrop-filter: blur(10px) brightness(75%);
+    backdrop-filter: blur(10px) brightness(50%);
 }
 
 .appHeaderLeft,

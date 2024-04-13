@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import ProjectsRoot from './projects';
 import { useState, lazy, Suspense } from 'react';
 import Loading from './Loading';
+import ErrorPage from './ErrorPage';
 
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
 const ProjectWrapper = lazy(() => import('./projects/ProjectWrapper'));
@@ -25,6 +26,7 @@ function App() {
             <BrowserRouter>
                 <Suspense fallback={<Loading />}>
                     <Routes>
+                        <Route path='*' element={<ErrorPage error='404' />} /> 
                         <Route path='/' element={<GlobalRoot />}>
                             <Route path='/' element={<Navigate to={'/home'} replace={false} />} />
                             <Route path='/home' element={<Navigate to={'/projects'} replace={false} />} />
