@@ -30,7 +30,7 @@ function GlobalRoot() {
       padding: '5px 10px',
       borderRadius: 'var(--border-radius)'
     }}>
-      <Link>
+      <Link replace={false}>
         Sign In
       </Link>
     </div>
