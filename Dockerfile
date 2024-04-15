@@ -34,11 +34,10 @@ RUN a2enmod proxy
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
 WORKDIR /codefree/gui/frontend
-RUN npm config set registry http://registry.npmjs.org/
-RUN npm install --verbose
-RUN npm run build
+RUN npm install --global yarn
+RUN yarn
+RUN yarn build
 RUN apt-get purge -y nodejs
-RUN rm -r /etc/apt/sources.list.d/nodesource.list && rm -r /etc/apt/keyrings/nodesource.gpg
 
 RUN cp -rf /codefree/gui/frontend/build /var/www/html
 COPY ./apache2/.htaccess /var/www/html/build
