@@ -55,7 +55,8 @@ def serve_codefree_backend(app:FastAPI):
     
     @app.post("/api/user/sign-out")
     async def del_session(response: Response, session_id: UUID = Depends(cookie)):
-        await backend.delete(session_id)
+        if (await backend.read(session_id=session_id) is not None):
+            await backend.delete(session_id)
         cookie.delete_from_response(response)
         return {
             "message" : f"User Signed Out"

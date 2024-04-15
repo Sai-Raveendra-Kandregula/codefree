@@ -15,6 +15,7 @@
   --select-background : rgba(0,0,0,0.025);
   --button-overlay : rgba(0,0,0,0.075);
   --control-overlay-bg : rgba(0,0,0,0.03);
+  --bg-blur-panel : blur(30px);
 }
 
 :root.dark{
@@ -125,7 +126,7 @@ pre, code, div.preBlock {
 
   border: 1px solid transparent;
   border-radius: var(--border-radius);
-  color: var(--foreground);
+  color: inherit;
   font-weight: 500;
 }
 
@@ -164,9 +165,75 @@ pre, code, div.preBlock {
   border: 1px solid var(--button-overlay);
 }
 
+.headerButton {
+  font-size: 0.9rem;
+  position: relative;
+  overflow-y: visible;
+}
+
+.headerButtonDropdownSummary{
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 10px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  color: inherit;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.headerButtonDropdownSummary:hover{
+  background: rgba(125,125,125,0.2);
+  text-decoration: none;
+}
+
+.headerButtonDropdownSummary svg {
+  height: 20px;
+  width: 20px;
+}
+
+.headerButtonDropDown{
+  z-index: 15;
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 5px;
+  border-radius: calc(var(--border-radius) + 5px);
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+
+  top: calc(100% + 15px);
+  min-width: 100%;
+  color: var(--foreground);
+}
+
+.headerButtonDropDown .sideBarLink{
+  height: 30px;
+}
+
+.headerButtonDropDown.show{
+  display: flex;
+}
+
 .projectTitle{
   display: flex;
+  width: max-content;
+  justify-content: center;
   align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 50px;
+  max-width: 200px;
   gap: 10px;
 }
 
@@ -182,5 +249,5 @@ pre, code, div.preBlock {
 
   box-sizing: border-box;
   padding: 20px;
-  backdrop-filter: blur(30px);
+  backdrop-filter: var(--bg-blur-panel);
 }

@@ -1,4 +1,7 @@
 .appHeader {
+    position: relative;
+    z-index: 10;
+
     background: var(--header-background);
     box-sizing: border-box;
     height: var(--header-height);
@@ -34,6 +37,9 @@
 }
 
 .appContent {
+    position: relative;
+    z-index: 1;
+
     display: flex;
     box-sizing: border-box;
     height: calc(100vh - var(--header-height));

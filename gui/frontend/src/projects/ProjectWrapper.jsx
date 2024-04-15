@@ -56,11 +56,8 @@ function ProjectWrapper() {
                 borderBottom: '1px solid var(--border-color)',
             }}>
                 <h2 className='projectTitle' style={{
-                    padding: '0 20px',
-                    whiteSpace: 'nowrap',
-                    minWidth: '10%',
-                    maxWidth: '30%',
-                    margin: '1rem 0.5rem',
+                    boxSizing: 'border-box',
+                    padding: '0 0 0 20px'
                 }}>
                     {
                         projectInfo && projectInfo['project_name']

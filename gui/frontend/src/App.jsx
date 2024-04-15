@@ -5,7 +5,9 @@ import ProjectsRoot from './projects';
 import { useState, lazy, Suspense } from 'react';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
+import SignOut from './SignOut';
 
+const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
 const ProjectWrapper = lazy(() => import('./projects/ProjectWrapper'));
 const ProjectsList = lazy(() => import('./projects/ProjectsList'));
@@ -18,6 +20,8 @@ function setTitle(title = ""){
     window.title = `${title} | CodeFree`;
 }
 
+const SERVER_BASE_URL = process.env.REACT_APP_SERVER_BASE_URL.replace(/\/$/, "") || '' // Get Base url from env and remove any trailing slashes
+
 function App() {
     const [showHeader, setShowHeader] = useState(false)
 
@@ -26,6 +30,8 @@ function App() {
             <BrowserRouter>
                 <Suspense fallback={<Loading />}>
                     <Routes>
+                        <Route path='/sign-in' element={<SignIn />} />
+                        <Route path='/sign-out' element={<SignOut />} />
                         <Route path='*' element={<ErrorPage error='404' />} /> 
                         <Route path='/' element={<GlobalRoot />}>
                             <Route path='/' element={<Navigate to={'/home'} replace={false} />} />
@@ -50,5 +56,6 @@ function App() {
 
 export default App;
 export {
-    setTitle
+    setTitle,
+    SERVER_BASE_URL
 };

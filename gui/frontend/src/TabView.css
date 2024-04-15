@@ -4,7 +4,7 @@
     display: flex;
     height: 35px;
     min-height: 35px;
-    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     border-bottom: 1px solid var(--border-color);
