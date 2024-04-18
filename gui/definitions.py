@@ -7,6 +7,7 @@ class SessionData(BaseModel):
 class UserData(BaseModel):
     username: str
     password: str
+    keepSignedIn : bool = False
 
 class USER_ROLES(Enum):
     VIEWER = 0,

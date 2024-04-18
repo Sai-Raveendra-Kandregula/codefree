@@ -43,6 +43,10 @@ def serve_codefree_backend(app:FastAPI):
         sessiondata = SessionData(username=userdata.username)
 
         await backend.create(session, sessiondata)
+        if not userdata.keepSignedIn:
+            cookie.cookie_params.max_age = (24 * 3600) # One day if user does not want to stay signed in
+        else:
+            cookie.cookie_params.max_age = (399 * 24 * 3600) # If user wants to stay signed in, set maximum max-age (400 days)
         cookie.attach_to_response(response, session)
 
         return {
@@ -62,16 +66,28 @@ def serve_codefree_backend(app:FastAPI):
             "message" : f"User Signed Out"
         }
     
+    @app.get("/api/projects/all-projects")
+    def get_all_projects(request : Request, response : Response):
+        return [{
+            "project_id" : '1',
+            "project_name" : "Test Project"
+        }]
+    
     @app.get("/api/projects/get-project")
     def get_project(project:str, request : Request, response : Response):
         return {
             "project_id" : project,
-            "project_name" : "Test Project",
-            "gitlab_integration" : {},
-            "checker_options" : []
+            "project_name" : "Test Project"
         }
     
-    @app.get("/api/projects/get-report")
+    @app.get("/api/reports/all-reports")
+    def get_project_all_reports(project:str, request : Request, response : Response):
+        return [{
+            "project_id" : project,
+            "report_id" : 1,
+        }]
+    
+    @app.get("/api/reports/get-report")
     def get_project_report(project:str, report:str, request : Request, response : Response):
         try:
             with open(os.path.join(DATA_PATH, "report.json")) as fp:
@@ -79,7 +95,7 @@ def serve_codefree_backend(app:FastAPI):
                 report_data = json.load(fp)
                 return {
                     "project_id" : project,
-                    "report_id" : report,
+                    "report_id" : report if report != "lastReport" else "02",
                     "tags" : [],
                     "report" : report_data
                 }

@@ -8,7 +8,7 @@ from cf_gui_backend import serve_codefree_backend
 
 app = FastAPI()
 
-origins = ["*"]
+origins = ["localhost:3000"]
 
 middleware = [
     Middleware(
