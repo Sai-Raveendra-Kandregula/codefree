@@ -8,15 +8,7 @@ RUN a2enmod rewrite
 RUN ln -sf /usr/bin/python3.10 /usr/bin/python
 
 # Copy CodeFree
-COPY ./gui/ /codefree/gui
-COPY ./checker_modules/ /codefree/checker_modules
-COPY ./output_modules/ /codefree/output_modules
-COPY ./cf_args.py /codefree
-COPY ./cf_checker.py /codefree
-COPY ./cf_output.py /codefree
-COPY ./codefree /codefree
-COPY ./requirements.txt /codefree
-COPY ./docker-entrypoint.sh /codefree
+COPY ./ /codefree/
 RUN pip install -r /codefree/requirements.txt
 RUN ln -sf /codefree/codefree /usr/bin/codefree
 
@@ -35,9 +27,8 @@ RUN a2enmod proxy
 # Install NodeJS - For Building Frontend
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
-WORKDIR /codefree/gui/frontend
 RUN npm install --global yarn
-RUN yarn --cwd /codefree/gui/frontend
+RUN yarn --cwd /codefree/frontend
 
 EXPOSE 8080
 

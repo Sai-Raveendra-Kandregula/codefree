@@ -1,48 +1,63 @@
 @import url(./Roboto.css);
 @import url(./RobotoMono.css);
 
-:root{
-  --header-height : 60px;
-  --header-padding : 20px;
-  --border-radius : 5px;
-  --background : #FFFFFF;
-  --background : radial-gradient(circle, #fff8f3 0%, rgb(255, 255, 255) 100%);
-  --foreground : #010101;
-  --border-color : #cdcdcd;
-  --header-background : #0d0d0d;
-  --theme-color : #00457d;
-  --card-background : rgba(0,0,0,0.025);
-  --select-background : rgba(0,0,0,0.025);
-  --button-overlay : rgba(0,0,0,0.075);
-  --control-overlay-bg : rgba(0,0,0,0.03);
-  --bg-blur-panel : blur(30px);
+:root {
+  --header-height: 60px;
+  --header-padding: 20px;
+  --border-radius: 5px;
+  --background: #FFFFFF;
+  --background: radial-gradient(circle, #fff8f3 0%, rgb(255, 255, 255) 100%);
+  --foreground: #010101;
+  --border-color: #cdcdcd;
+  --control-border-color: #cdcdcd;
+  --header-background: #0d0d0d;
+  --theme-color: #00457d;
+  --card-background: rgba(0, 0, 0, 0.025);
+  --select-background: rgba(0, 0, 0, 0.025);
+  --button-overlay: rgba(0, 0, 0, 0.075);
+  --control-overlay-bg: rgba(0, 0, 0, 0.03);
+  --bg-blur-panel: blur(30px);
 }
 
-:root.dark{
-  --background : radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(0,0,0,1) 100%);
-  --foreground : #FEFEFE;
-  --border-color : #191919;
-  --header-background : transparent;
-  --theme-color : #00457d;
-  --card-background : rgba(255,255,255,0.05);
-  --select-background : rgba(255,255,255,0.05);
-  --button-overlay : rgba(255,255,255,0.04);
-  --control-overlay-bg : radial-gradient(circle at 100% 100%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.03) 100%);
+:root.dark {
+  --background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(0, 0, 0, 1) 100%);
+  --foreground: #FEFEFE;
+  --border-color: #191919;
+  --control-border-color: #3d3d3d;
+  --header-background: transparent;
+  --theme-color: #00457d;
+  --card-background: rgba(255, 255, 255, 0.05);
+  --select-background: rgba(255, 255, 255, 0.05);
+  --button-overlay: rgba(255, 255, 255, 0.075);
+  --control-overlay-bg: radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.03) 100%);
 }
 
-*{
+* {
   color: inherit;
   font-family: 'Roboto';
 }
 
-select{
+input[type=text],
+input[type=email],
+input[type=password] {
+  height: 30px;
+  background-color: var(--select-background);
+  border: 1px solid var(--control-border-color);
+  border-radius: var(--border-radius);
+  padding: 0 10px;
+  min-width: 200px;
+  width: 100%;
+  max-height: 400px;
+}
+
+select {
   position: relative;
   appearance: none;
   height: 30px;
   border-radius: var(--border-radius);
   padding-left: 10px;
   padding-right: 30px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--control-border-color);
   font-family: inherit;
   background-color: var(--select-background);
   background-image: url('./assets/ChevronDownBlack.svg');
@@ -51,57 +66,59 @@ select{
   background-repeat: no-repeat;
 }
 
-option{
+option {
   color: initial;
 }
 
-.dark select{
+.dark select {
   background-image: url('./assets/ChevronDownWhite.svg');
 }
 
-a{
+a {
   text-decoration: none;
   color: #0062ff;
 }
 
-a:hover{
+a:hover {
   text-decoration: underline;
 }
 
-hr{
+hr {
   appearance: none;
   height: 1px;
   background: var(--border-color);
   border: none;
 }
 
-pre, code, div.preBlock {
+pre,
+code,
+div.preBlock {
   /* width: 100%; */
   background: var(--control-overlay-bg);
-  padding:5px;
+  padding: 5px;
   margin: 5px;
   overflow-x: auto;
   border-radius: var(--border-radius);
   font-family: 'Roboto Mono', monospace;
   white-space: pre;
   font-weight: 400;
- }
+}
 
- div.preBlock * {
+div.preBlock * {
   font-family: inherit;
- }
+}
 
- div.preBlock {
+div.preBlock {
   display: flex;
   gap: 10px;
- }
+}
 
- span.preBlockLineNumber{
+span.preBlockLineNumber {
   opacity: 0.75;
   /* padding: 0 10px; */
   padding-left: 5px;
   font-family: 'Roboto Mono', monospace;
- }
+}
 
 .App {
   height: 100vh;
@@ -128,14 +145,19 @@ pre, code, div.preBlock {
   border-radius: var(--border-radius);
   color: inherit;
   font-weight: 500;
+  
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.sideBarLink.active, .sideBarLink:hover{
-  border: 1px solid var(--border-color);
+.sideBarLink.active,
+.sideBarLink:hover {
+  border: 1px solid var(--control-border-color);
   background: var(--control-overlay-bg);
 }
 
-.sideBarLink > svg {
+.sideBarLink>svg {
   height: 20px;
   width: 20px;
 }
@@ -156,13 +178,14 @@ pre, code, div.preBlock {
   border-radius: var(--border-radius);
   color: var(--foreground);
   font-weight: 500;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--control-border-color);
   background: var(--button-overlay);
+  background: var(--select-background);
 }
 
-.linkButton:hover{
+.linkButton:hover {
   text-decoration: none;
-  border: 1px solid var(--button-overlay);
+  background: var(--button-overlay);
 }
 
 .headerButton {
@@ -171,7 +194,7 @@ pre, code, div.preBlock {
   overflow-y: visible;
 }
 
-.headerButtonDropdownSummary{
+.headerButtonDropdownSummary {
   box-sizing: border-box;
   height: 40px;
   padding: 0 10px;
@@ -190,8 +213,8 @@ pre, code, div.preBlock {
   cursor: pointer;
 }
 
-.headerButtonDropdownSummary:hover{
-  background: rgba(125,125,125,0.2);
+.headerButtonDropdownSummary:hover {
+  background: rgba(125, 125, 125, 0.2);
   text-decoration: none;
 }
 
@@ -200,7 +223,7 @@ pre, code, div.preBlock {
   width: 20px;
 }
 
-.headerButtonDropDown{
+.headerButtonDropDown {
   z-index: 15;
   position: absolute;
   display: none;
@@ -216,15 +239,76 @@ pre, code, div.preBlock {
   color: var(--foreground);
 }
 
-.headerButtonDropDown .sideBarLink{
+.headerButtonDropDown .sideBarLink {
   height: 30px;
 }
 
-.headerButtonDropDown.show{
+.headerButtonDropDown.show {
   display: flex;
 }
 
-.projectTitle{
+.dropdownButton {
+  font-size: 0.9rem;
+  position: relative;
+  overflow-y: visible;
+}
+
+.dropdownButtonDropdownSummary {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 10px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  color: inherit;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.dropdownButtonDropdownSummary:hover {
+  background: rgba(125, 125, 125, 0.2);
+  text-decoration: none;
+}
+
+.dropdownButtonDropdownSummary svg {
+  height: 20px;
+  width: 20px;
+}
+
+.dropdownButtonDropDown {
+  z-index: 15;
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 5px;
+  border-radius: calc(var(--border-radius) + 5px);
+  border: 1px solid var(--border-color);
+  background: var(--background);
+
+  top: calc(100% + 5px);
+  min-width: 100%;
+  width: min-content;
+  max-width: 300px;
+  color: var(--foreground);
+}
+
+.dropdownButtonDropDown .sideBarLink {
+  height: 30px;
+}
+
+.dropdownButtonDropDown.show {
+  display: flex;
+}
+
+.projectTitle {
   display: flex;
   width: max-content;
   justify-content: center;
@@ -237,12 +321,12 @@ pre, code, div.preBlock {
   gap: 10px;
 }
 
-.projectTitle .projectID{
+.projectTitle .projectID {
   color: inherit;
   opacity: 0.25;
 }
 
-.appPanel{
+.appPanel {
   background: var(--card-background);
   border-radius: var(--border-radius);
   border: 1px solid var(--border-color);

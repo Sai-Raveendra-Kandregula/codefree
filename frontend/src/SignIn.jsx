@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { SERVER_BASE_URL } from './App'
+import LinkButton from './Components/LinkButton'
 
 function SignIn() {
   const navigate = useNavigate()
@@ -30,11 +31,34 @@ function SignIn() {
   }
 
   return (
-    <div>
-      <div>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      maxHeight: '100%',
+    }}>
+      <div className='appPanel' style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
+        padding: '50px',
+        width: 'clamp(300px, 40% ,600px)'
+      }}>
+        <h3>
+          Sign in to CodeFree
+        </h3>
         <input id='username' type="text" placeholder='Username' />
         <input id='password' type="password" placeholder='Password' />
-        <button onClick={(e) => {
+        <div>
+          <input type="checkbox" name="Keep Signed In" id="keepSignedIn" />
+          <label htmlFor="keepSignedIn">Keep Me Signed In</label>
+        </div>
+        <LinkButton to={"#"} onClick={(e) => {
+          e.preventDefault()
           setErrorMessage("")
           fetch(`${SERVER_BASE_URL}/api/user/sign-in`, {
             method: "post",
@@ -45,6 +69,7 @@ function SignIn() {
             body: JSON.stringify({
               'username': document.getElementById('username').value,
               'password': document.getElementById('password').value,
+              'keepSignedIn' : document.getElementById('keepSignedIn').checked
             }),
             credentials: "include",
             mode: 'cors'
@@ -60,9 +85,7 @@ function SignIn() {
               }
             }
           })
-        }}>
-          Submit
-        </button>
+        }} title={"Submit"} />
         {errorMessage}
       </div>
     </div>

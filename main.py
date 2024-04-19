@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
             # Build Frontend
             logging.info("Building Web App...")
-            process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/gui/frontend', 'build'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
+            process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/frontend', 'build'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
             stdout, stderr = process.communicate()
             if(process.returncode == 0):
                 logging.debug(stdout)
@@ -69,8 +69,7 @@ if __name__ == "__main__":
             # Start Frontend Dev Server
             logging.info("Starting Web App Dev Server...")
             
-            # pid = os.spawnv(os.P_NOWAIT, "/bin/bash", ["-c \"yarn --cwd /codefree/gui/frontend start\""])
-            process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/gui/frontend', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
+            process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/frontend', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
             
             # Wait for 2 Seconds for Dev Server to start
             time.sleep(2) 

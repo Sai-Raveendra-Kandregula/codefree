@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python3 /codefree/gui/main.py
+python3 /codefree/main.py

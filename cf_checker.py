@@ -1,3 +1,4 @@
+from __future__ import annotations
 from enum import Enum
 from typing import Dict, List, Callable, Any, TypeAlias
 from argparse import Namespace
@@ -172,17 +173,71 @@ class CheckerOutput():
     misra_info : MISRAInfo = None
 
     # module is supposed to be of type CheckingModule
-    def __init__(self, module : CheckingModule) -> None:
-        self._module = module
+    def __init__(self, module : CheckingModule = None, dict_data : dict = None) -> None:
+        if module is not None:
+            self._module = module
 
-        if self._module.module_type == CheckerTypes.STYLE:
-            self.style_info = StyleInfo()
-        elif self._module.module_type == CheckerTypes.CODE:
-            self.error_info = ErrorInfo()
-            if self._module.compliance_standard == ComplianceStandards.CWE:
-                self.cwe_info = CWEInfo()
-            elif self._module.compliance_standard == ComplianceStandards.MISRA:
-                self.misra_info = MISRAInfo()
+            if self._module.module_type == CheckerTypes.STYLE:
+                self.style_info = StyleInfo()
+            elif self._module.module_type == CheckerTypes.CODE:
+                self.error_info = ErrorInfo()
+                if self._module.compliance_standard == ComplianceStandards.CWE:
+                    self.cwe_info = CWEInfo()
+                elif self._module.compliance_standard == ComplianceStandards.MISRA:
+                    self.misra_info = MISRAInfo()
+        elif dict_data is not None:
+            self.file_name = dict_data['File Name']
+
+            module = CheckingModule()
+            module.module_name = dict_data['Module Name']
+            module.module_type = getattr(CheckerTypes, dict_data['Module Type'].upper())
+            module.compliance_standard = getattr(ComplianceStandards, dict_data['Compliance Standard'].upper()) if 'Compliance Standard' in dict_data else ComplianceStandards.NONE
+            self._module = module
+
+            if self._module.module_type == CheckerTypes.STYLE:
+                self.style_info = StyleInfo()
+                self.style_info.passed = (dict_data["Check Passed"] == "Passed")
+            elif self._module.module_type == CheckerTypes.CODE:
+                self.error_info = ErrorInfo()
+                """
+                "Severity" : self.severity.name.title(),
+                "Line" : self.line,
+                "Column" : self.column,
+                "Context" : self.context,
+                "Description" : self.description,
+                "Symbol" : self.symbol,
+                "Type" : self.type,
+                "Suggestion" : self.suggestion,
+                """
+                self.error_info.severity = getattr(CheckerSeverity, dict_data['Severity'].upper())
+                self.error_info.line = dict_data['Line']
+                self.error_info.column = dict_data['Column']
+                self.error_info.context = dict_data['Context']
+                self.error_info.description = dict_data['Description']
+                self.error_info.symbol = dict_data['Symbol']
+                self.error_info.type = dict_data['Type']
+                self.error_info.suggestion = dict_data['Suggestion']
+
+                if self._module.compliance_standard == ComplianceStandards.CWE:
+                    """
+                    "Primary CWE" : self.primary_cwe,
+                    "CWE List" : ", ".join([str(cwe) for cwe in self.cwe_list]),
+                    "Additional Info" : self.additional_info,
+                    """
+                    self.cwe_info = CWEInfo()
+                    self.cwe_info.primary_cwe = dict_data['Primary CWE']
+                    self.cwe_info.cwe_list = dict_data['CWE List'].split(", ")
+                    self.cwe_info.additional_info = dict_data['Additional Info']
+                elif self._module.compliance_standard == ComplianceStandards.MISRA:
+                    """
+                    "MISRA Rule Number" : self.rule_number,
+                    "Additional Info" : self.additional_info,
+                    """
+                    self.misra_info = MISRAInfo()
+                    self.misra_info.rule_number = dict_data['MISRA Rule Number']
+                    self.misra_info.additional_info = dict_data['Additional Info']
+
+
 
     def dict(self) -> dict:
         out = {}

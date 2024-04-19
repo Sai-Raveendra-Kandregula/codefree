@@ -17,7 +17,8 @@ function StyleIssueItem({
       <div style={{
           boxSizing: 'border-box',
           margin: '0 20px',
-          paddingBottom: '20px'
+          paddingBottom: '20px',
+          borderBottom: '1px solid var(--border-color)',
       }}>
           {
               groupedBy != "File Name" &&

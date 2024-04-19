@@ -4,14 +4,19 @@ import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
 import reportViewerStyles from '../../styles/reportViewer.module.css'
 
+import { IoCloudDownloadOutline } from "react-icons/io5";
+import { VscJson } from "react-icons/vsc";
+import { TbCsv } from "react-icons/tb";
+import { RiFileExcel2Line } from "react-icons/ri";
 import { IoArrowBack } from "react-icons/io5";
+import { SERVER_BASE_URL } from '../../App';
+import DropdownButton from '../../Components/Dropdown';
+import LinkButton from '../../Components/LinkButton';
 
 function ReportViewer() {
     const navigate = useNavigate()
     const pathParams = useParams()
     const [searchParams, setSearchParams] = useSearchParams()
-
-    const SERVER = process.env.REACT_APP_SERVER_BASE_URL || ''
 
     const groupingMapping = {
         "code": ["Severity", "Compliance Standard", "File Name", "Module Name"],
@@ -26,7 +31,7 @@ function ReportViewer() {
     const [transformedReportData, setTransformedReportData] = useState({})
 
     function getReportData() {
-        fetch(`${SERVER}/api/projects/get-report?project=${pathParams.projectid}&report=${pathParams.reportid}`).then(
+        fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${pathParams.projectid}&report=${pathParams.reportid}`).then(
             (resp) => {
                 if (resp.status == 200) {
                     return resp.json()
@@ -98,31 +103,83 @@ function ReportViewer() {
                 padding: '20px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'flex-start',
+                justifyContent: 'space-between',
                 gap: '10px'
             }}>
-                <IconButton Icon={IoArrowBack} onClick={(e)=>{
-                    navigate(`/projects/${pathParams.projectid}/reports`)
-                }} />
-                Report #{pathParams.reportid}{", "}
-                {
-                    reportData &&
-                    <span>
-                        Generated On : {
-                            new Date(reportData['report']['timestamp'])
-                                .toLocaleString(navigator.languages[navigator.languages.length - 1], {
-                                    year: 'numeric',
-                                    month: '2-digit',
-                                    day: '2-digit',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    second: '2-digit',
-                                })
-                                .replace(/T/, ' ') // Replace 'T' with a space
-                                .replace(/\..+/, '')
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px'
+                }}>
+                    <IconButton Icon={IoArrowBack} title={"Go back to Reports"} onClick={(e) => {
+                        navigate(`/projects/${pathParams.projectid}/reports`)
+                    }} />
+                    Report #{reportData && reportData['report_id']}{", "}
+                    {
+                        reportData &&
+                        <span>
+                            Generated On : {
+                                new Date(reportData['report']['timestamp'])
+                                    .toLocaleString(navigator.languages[navigator.languages.length - 1], {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                    })
+                                    .replace(/T/, ' ') // Replace 'T' with a space
+                                    .replace(/\..+/, '')
+                            }
+                        </span>
+                    }
+                </div>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px'
+                }}>
+                    <DropdownButton icon={<IoCloudDownloadOutline />} title={"Download Report"} showOnlyIcon={true}>
+                        {
+                            ({ closeDropdown }) => {
+                                return <React.Fragment>
+                                    <a className='sideBarLink' title={"Export as XLSX"}
+                                        href={`/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=xlsx`}
+                                        download={true}
+                                        onClick={() => {
+                                            closeDropdown()
+                                        }}
+                                    >
+                                        <RiFileExcel2Line />
+                                        Export as XLSX
+                                    </a>
+                                    <a className='sideBarLink' title={"Export as CSV"}
+                                        href={`/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=csv`}
+                                        download={true}
+                                        onClick={() => {
+                                            closeDropdown()
+                                        }}
+                                    >
+                                        <TbCsv />
+                                        Export as CSV
+                                    </a>
+                                    <a className='sideBarLink' title={"Export as JSON"}
+                                        href={`/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=json`}
+                                        download={true}
+                                        onClick={() => {
+                                            closeDropdown()
+                                        }}
+                                    >
+                                        <VscJson />
+                                        Export as JSON
+                                    </a>
+                                </React.Fragment>
+                            }
                         }
-                    </span>
-                }
+                    </DropdownButton>
+                </div>
             </div>
             {
                 reportData ?
@@ -139,15 +196,17 @@ function ReportViewer() {
                             gap: '10px',
                             boxSizing: 'content-box',
                         }}>
-                            <div className={`viewTypeCarousel`}>
+                            <div className={`viewTypeCarousel`} style={{
+                                width: '100%'
+                            }}>
                                 {
                                     Object.keys(groupingMapping).map((val) => {
-                                        return <Link 
-                                        className={`viewTypeButton ${viewType == val ? "selected" : ""}`} 
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            setViewType(val)
-                                        }}>
+                                        return <Link
+                                            className={`viewTypeButton ${viewType == val ? "selected" : ""}`}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setViewType(val)
+                                            }}>
                                             {val}
                                         </Link>
                                     })
