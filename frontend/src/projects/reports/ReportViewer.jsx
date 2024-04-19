@@ -4,7 +4,7 @@ import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
 import reportViewerStyles from '../../styles/reportViewer.module.css'
 
-import { IoCloudDownloadOutline } from "react-icons/io5";
+import { IoCloudDownloadOutline, IoInformationCircleOutline } from "react-icons/io5";
 import { VscJson } from "react-icons/vsc";
 import { TbCsv } from "react-icons/tb";
 import { RiFileExcel2Line } from "react-icons/ri";
@@ -12,6 +12,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { SERVER_BASE_URL } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
 import LinkButton from '../../Components/LinkButton';
+import ToolTip from '../../Components/ToolTip';
 
 function ReportViewer() {
     const navigate = useNavigate()
@@ -100,40 +101,70 @@ function ReportViewer() {
             overflowY: 'hidden',
         }}>
             <div style={{
-                padding: '20px',
+                margin: '0 20px',
                 display: 'flex',
+                flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '10px'
+                gap: '20px',
+                borderBottom: '1px solid var(--border-color)',
             }}>
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
-                    gap: '10px'
+                    gap: '10px',
                 }}>
                     <IconButton Icon={IoArrowBack} title={"Go back to Reports"} onClick={(e) => {
                         navigate(`/projects/${pathParams.projectid}/reports`)
                     }} />
-                    Report #{reportData && reportData['report_id']}{", "}
+                    <h3>
+                        Report #{reportData && reportData['report_id']}
+                    </h3>
+                </div>
+                <div className={`viewTypeCarousel`} style={{
+                    border: 'none',
+                    alignSelf: 'stretch',
+                    minHeight: '100%',
+                    flex: 1
+                }}>
                     {
-                        reportData &&
-                        <span>
-                            Generated On : {
-                                new Date(reportData['report']['timestamp'])
-                                    .toLocaleString(navigator.languages[navigator.languages.length - 1], {
-                                        year: 'numeric',
-                                        month: '2-digit',
-                                        day: '2-digit',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                    })
-                                    .replace(/T/, ' ') // Replace 'T' with a space
-                                    .replace(/\..+/, '')
-                            }
-                        </span>
+                        Object.keys(groupingMapping).map((val) => {
+                            return <Link
+                                className={`viewTypeButton ${viewType == val ? "selected" : ""}`}
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    setViewType(val)
+                                }}>
+                                {val}
+                            </Link>
+                        })
                     }
+                </div>
+                <div style={{
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    paddingRight: '20px'
+                }}>
+                    <span style={{
+                        fontWeight: '500'
+                    }}>Group By :</span>
+                    <select name="groupIssues" id="groupIssuesBySelector" onChange={(e) => {
+                        setGroupBy(e.target.value)
+                    }}
+                        value={groupBy}
+                    >
+                        {
+                            (viewType in groupingMapping) &&
+                            groupingMapping[viewType].map((groupingParam) => {
+                                return <option key={`groupby_${groupingParam}`} value={groupingParam}
+                                >
+                                    {groupingParam}
+                                </option>
+                            })
+                        }
+                    </select>
                 </div>
                 <div style={{
                     display: 'flex',
@@ -143,13 +174,13 @@ function ReportViewer() {
                 }}>
                     <DropdownButton icon={<IoCloudDownloadOutline />} title={"Download Report"} showOnlyIcon={true}>
                         {
-                            ({ closeDropdown }) => {
+                            ({ open, close, isOpen }) => {
                                 return <React.Fragment>
                                     <a className='sideBarLink' title={"Export as XLSX"}
                                         href={`/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=xlsx`}
                                         download={true}
                                         onClick={() => {
-                                            closeDropdown()
+                                            close()
                                         }}
                                     >
                                         <RiFileExcel2Line />
@@ -159,7 +190,7 @@ function ReportViewer() {
                                         href={`/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=csv`}
                                         download={true}
                                         onClick={() => {
-                                            closeDropdown()
+                                            close()
                                         }}
                                     >
                                         <TbCsv />
@@ -169,7 +200,7 @@ function ReportViewer() {
                                         href={`/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=json`}
                                         download={true}
                                         onClick={() => {
-                                            closeDropdown()
+                                            close()
                                         }}
                                     >
                                         <VscJson />
@@ -179,6 +210,47 @@ function ReportViewer() {
                             }
                         }
                     </DropdownButton>
+                    <ToolTip popup={
+                        reportData &&
+                        <table style={{
+                            whiteSpace: 'nowrap',
+                            overflowX:'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '300px'
+                        }}>
+                            <tr><td>Generated On :</td>
+                                <td>
+                                    {
+                                        new Date(reportData['report']['timestamp'])
+                                            .toLocaleString(navigator.languages[navigator.languages.length - 1], {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                            })
+                                            .replace(/T/, ' ') // Replace 'T' with a space
+                                            .replace(/\..+/, '')
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    }>
+                        {
+                            ({ open, close, isOpen }) => {
+                                return <IconButton Icon={IoInformationCircleOutline} title={"Report Info"} onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (isOpen) {
+                                        close()
+                                    }
+                                    else {
+                                        open()
+                                    }
+                                }} />
+                            }
+                        }
+                    </ToolTip>
                 </div>
             </div>
             {
@@ -189,56 +261,6 @@ function ReportViewer() {
                         height: '100%',
                         maxHeight: '100%'
                     }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '10px',
-                            boxSizing: 'content-box',
-                        }}>
-                            <div className={`viewTypeCarousel`} style={{
-                                width: '100%'
-                            }}>
-                                {
-                                    Object.keys(groupingMapping).map((val) => {
-                                        return <Link
-                                            className={`viewTypeButton ${viewType == val ? "selected" : ""}`}
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                setViewType(val)
-                                            }}>
-                                            {val}
-                                        </Link>
-                                    })
-                                }
-                            </div>
-                            <div style={{
-                                whiteSpace: 'nowrap',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                paddingRight: '20px'
-                            }}>
-                                <span style={{
-                                    fontWeight: '500'
-                                }}>Group By :</span>
-                                <select name="groupIssues" id="groupIssuesBySelector" onChange={(e) => {
-                                    setGroupBy(e.target.value)
-                                }}
-                                    value={groupBy}
-                                >
-                                    {
-                                        (viewType in groupingMapping) &&
-                                        groupingMapping[viewType].map((groupingParam) => {
-                                            return <option key={`groupby_${groupingParam}`} value={groupingParam}
-                                            >
-                                                {groupingParam}
-                                            </option>
-                                        })
-                                    }
-                                </select>
-                            </div>
-                        </div>
                         <div style={{
                             overflowY: 'auto',
                             boxSizing: 'border-box',

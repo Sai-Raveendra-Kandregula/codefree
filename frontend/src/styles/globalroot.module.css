@@ -11,8 +11,6 @@
     font-size: calc(10px + 1vmin);
     color: white;
     border-bottom: 1px solid var(--border-color);
-
-    backdrop-filter: blur(10px) brightness(50%);
 }
 
 .appHeaderLeft,

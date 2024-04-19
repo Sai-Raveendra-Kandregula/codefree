@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import ActivityRings from "react-activity-rings"
+import Chart from "react-apexcharts";
 
 import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
@@ -13,6 +14,12 @@ function ProjectHome() {
   const [reportData, setReportData] = useState(null)
   const [issueData, setIssueData] = useState({})
   const [issueDataAgg, setIssueDataAgg] = useState({})
+  const [issueDataFileGrouped, setIssueDataFileGrouped] = useState({})
+  const [theme, setTheme] = useState(window.localStorage.getItem('app-theme') || 'light')
+
+  window.addEventListener('theme-update', () => {
+    setTheme((window.localStorage.getItem('app-theme') == "dark") ? "dark" : "light")
+  })
 
   function getLatestReportData() {
     fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${pathParams.projectid}&report=lastReport`).then(
@@ -68,8 +75,13 @@ function ProjectHome() {
       }
     })
 
-    console.log(tempdata)
-    console.log(issueDataTmp)
+    // console.log(tempdata)
+    // console.log(issueDataTmp)
+
+    setIssueDataFileGrouped(reportData["report"]["data"].reduce((finalObject, object) => {
+      (finalObject[object['File Name']] = finalObject[object['File Name']] || []).push(object);
+      return finalObject;
+    }, {}))
 
     setIssueData(tempdata)
     setIssueDataAgg(issueDataTmp)
@@ -87,49 +99,114 @@ function ProjectHome() {
     ringSize: vmin(1.5)
   }
 
+  const chartOptions = {
+    theme: {
+      mode: theme,
+      palette: 'palette1'
+    },
+    chart: {
+      id: "basic-bar"
+    },
+    xaxis: {
+      categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+    },
+    plotOptions: {
+      line: {
+        background: 'transparent',
+      }
+    },
+  }
+  const chartSeries = [
+    {
+      name: "test-series",
+      data: [30, 40, 45, 50, 49, 60, 70, 91]
+    }
+  ]
+
   return (
     <div style={{
-      padding: '20px'
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px',
+      maxHeight: '100%',
+      overflowY: 'auto'
     }}>
-
       <div className='appPanel' style={{
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '10px',
+        gap: '50px',
       }}>
         {/* Home for Project ID : {routeParams.projectid} */}
-        <div>
-          <LinkButton to={`/projects/${pathParams.projectid}/reports/lastReport`} title={"View Last Report"} />
+        
+        <div style={{
+          width: '100%',
+          paddingLeft: '30px'
+        }}>
+          <h1>
+            Issues found in {Object.keys(issueDataFileGrouped).length} file{Object.keys(issueDataFileGrouped).length > 1 && "s"}.
+          </h1>
+          <LinkButton to={`/projects/${pathParams.projectid}/reports/lastReport`} title={"View Latest Report"} />
         </div>
-        <div className=''>
-            {
-              Object.keys(issueDataAgg).length > 0 ?
-                <ActivityRings data={
-                  Object.keys(issueDataAgg).map((key) => {
-                    var color = '#1c59ca'
-                    if (key == 'Critical Code Issues') {
-                      color = '#ff0029'
+        <div>
+          <Chart
+            width="400px"
+            type='donut'
+            series={Object.values(issueData)}
+            options={{
+              theme: {
+                mode: theme,
+                palette: 'palette1'
+              },
+              chart: {
+                id: "issues-count"
+              },
+              labels: Object.keys(issueData),
+              dataLabels: {
+                enabled: true,
+              },
+              plotOptions: {
+                pie: {
+                  background: 'transparent',
+                  donut: {
+                    background: 'transparent',
+                    labels: {
+                      show: true,
+                      total: {
+                        show: true,
+                        showAlways: true,
+                        label: 'Issues Found'
+                      }
                     }
-                    else if (key == 'Major Code Issues') {
-                      color = '#e2a24a'
-                    }
-                    else if (key == 'Minor Code Issues') {
-                      color = '#9acc00'
-                    }
-
-                    return {
-                      label: key,
-                      value: issueDataAgg[key],
-                      color: color,
-                      backgroundColor: color
-                    }
-                  })
-                } config={activityConfig} />
-                :
-                "No Issues Found. Well Done!"
-            }
+                  }
+                }
+              },
+            }}
+          />
+        </div>
+      </div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '10px'
+      }}>
+        <div className='appPanel' style={{
+          flex: '1'
+        }}>
+          <h2 style={{
+            marginTop: '0'
+          }}>
+            Progression of Issues over Time
+          </h2>
+          <Chart
+            options={chartOptions}
+            series={chartSeries}
+            type="line"
+            width="100%"
+            height="400px"
+          />
         </div>
       </div>
     </div>

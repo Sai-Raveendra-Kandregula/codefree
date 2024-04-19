@@ -46,6 +46,7 @@ function GlobalRoot() {
   useEffect(() => {
     if (activeTheme) {
       window.localStorage.setItem("app-theme", activeTheme)
+      window.dispatchEvent(new Event("theme-update"));
       if (activeTheme == "dark") {
         document.querySelector(":root").classList.add("dark")
       }
