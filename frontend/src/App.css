@@ -6,7 +6,6 @@
   --header-padding: 20px;
   --border-radius: 5px;
   --background: #FFFFFF;
-  --background: radial-gradient(circle, #fff8f3 0%, rgb(255, 255, 255) 100%);
   --foreground: #010101;
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
@@ -16,20 +15,18 @@
   --select-background: rgba(0, 0, 0, 0.025);
   --button-overlay: rgba(0, 0, 0, 0.075);
   --control-overlay-bg: rgba(0, 0, 0, 0.03);
-  --bg-blur-panel: blur(30px);
 }
 
 :root.dark {
-  --background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(0, 0, 0, 1) 100%);
+  --background: rgb(7, 7, 12);
   --foreground: #FEFEFE;
-  --border-color: #191919;
+  --border-color: #393939;
   --control-border-color: #3d3d3d;
-  --header-background: transparent;
   --theme-color: #00457d;
-  --card-background: rgba(255, 255, 255, 0.05);
-  --select-background: rgba(255, 255, 255, 0.05);
+  --card-background: rgba(255, 255, 255, 0.075);
+  --select-background: rgba(255, 255, 255, 0.1);
   --button-overlay: rgba(255, 255, 255, 0.075);
-  --control-overlay-bg: radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.03) 100%);
+  --control-overlay-bg: rgba(255, 255, 255, 0.075);
 }
 
 * {
@@ -138,7 +135,7 @@ span.preBlockLineNumber {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
 
   border: 1px solid transparent;
@@ -153,8 +150,11 @@ span.preBlockLineNumber {
 
 .sideBarLink.active,
 .sideBarLink:hover {
-  border: 1px solid var(--control-border-color);
   background: var(--control-overlay-bg);
+}
+
+.sideBarLink:hover {
+  border: 1px solid var(--control-border-color);
 }
 
 .sideBarLink>svg {
@@ -180,12 +180,11 @@ span.preBlockLineNumber {
   font-weight: 500;
   border: 1px solid var(--control-border-color);
   background: var(--button-overlay);
-  background: var(--select-background);
 }
 
 .linkButton:hover {
   text-decoration: none;
-  background: var(--button-overlay);
+  background: var(--select-background);
 }
 
 .headerButton {
@@ -247,67 +246,6 @@ span.preBlockLineNumber {
   display: flex;
 }
 
-.dropdownButton {
-  font-size: 0.9rem;
-  position: relative;
-  overflow-y: visible;
-}
-
-.dropdownButtonDropdownSummary {
-  box-sizing: border-box;
-  height: 40px;
-  padding: 0 10px;
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  border: 1px solid transparent;
-  border-radius: var(--border-radius);
-  color: inherit;
-  font-weight: 500;
-
-  cursor: pointer;
-}
-
-.dropdownButtonDropdownSummary:hover {
-  background: rgba(125, 125, 125, 0.2);
-  text-decoration: none;
-}
-
-.dropdownButtonDropdownSummary svg {
-  height: 20px;
-  width: 20px;
-}
-
-.dropdownButtonDropDown {
-  z-index: 15;
-  position: absolute;
-  display: none;
-  flex-direction: column;
-  box-sizing: border-box;
-  padding: 5px;
-  border-radius: calc(var(--border-radius) + 5px);
-  border: 1px solid var(--border-color);
-  background: var(--background);
-
-  top: calc(100% + 5px);
-  min-width: 100%;
-  width: min-content;
-  max-width: 300px;
-  color: var(--foreground);
-}
-
-.dropdownButtonDropDown .sideBarLink {
-  height: 30px;
-}
-
-.dropdownButtonDropDown.show {
-  display: flex;
-}
-
 .projectTitle {
   display: flex;
   width: max-content;
@@ -333,5 +271,19 @@ span.preBlockLineNumber {
 
   box-sizing: border-box;
   padding: 20px;
-  backdrop-filter: var(--bg-blur-panel);
+}
+
+.activityRingsWrapper p{
+  font-weight: 600;
+  display: flex;
+  gap: 5px;
+}
+
+.activityRingsWrapper p span{
+  font-weight: 400;
+  color: var(--foreground) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 100px;
 }

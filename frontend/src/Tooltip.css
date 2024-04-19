@@ -1,0 +1,55 @@
+.tooltip {
+    position: relative;
+    overflow-y: visible;
+}
+
+.tooltipPopupSummary {
+    box-sizing: border-box;
+    height: 40px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    color: inherit;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.tooltipPopupSummary svg {
+    height: 20px;
+    width: 20px;
+}
+
+.tooltipPopup {
+    z-index: 15;
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: calc(var(--border-radius) + 5px);
+    border: 1px solid var(--border-color);
+    background: var(--background);
+
+    top: calc(100% + 5px);
+    min-width: 100%;
+    width: min-content;
+    max-width: 300px;
+    color: var(--foreground);
+
+    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.tooltipPopup .sideBarLink {
+    height: 30px;
+}
+
+.tooltipPopup.show {
+    display: flex;
+}

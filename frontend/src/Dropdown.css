@@ -1,0 +1,60 @@
+
+.dropdownButton {
+    position: relative;
+    overflow-y: visible;
+  }
+  
+  .dropdownButtonDropdownSummary {
+    box-sizing: border-box;
+    height: 40px;
+    padding: 0 10px;
+  
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    color: inherit;
+    font-weight: 500;
+  
+    cursor: pointer;
+  }
+  
+  .dropdownButtonDropdownSummary:hover {
+    background: rgba(125, 125, 125, 0.2);
+    text-decoration: none;
+  }
+  
+  .dropdownButtonDropdownSummary svg {
+    height: 20px;
+    width: 20px;
+  }
+  
+  .dropdownButtonDropDown {
+    z-index: 15;
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 5px;
+    border-radius: calc(var(--border-radius) + 5px);
+    border: 1px solid var(--border-color);
+    background: var(--background);
+  
+    top: calc(100% + 5px);
+    min-width: 100%;
+    width: min-content;
+    max-width: 300px;
+    color: var(--foreground);
+  }
+  
+  .dropdownButtonDropDown .sideBarLink {
+    height: 30px;
+  }
+  
+  .dropdownButtonDropDown.show {
+    display: flex;
+  }
