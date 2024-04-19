@@ -25,7 +25,7 @@ def check_pid(pid):
 if __name__ == "__main__":
 
 
-    logging.basicConfig(format="%(levelname)-9s : %(message)s", level=logging.NOTSET)
+    logging.basicConfig(format="%(levelname)-9s : %(message)s", level=logging.NOTSET if dev_env else logging.INFO)
 
     # Disable Uvicorn Logging
     logging.getLogger("uvicorn.error").handlers = []
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
             # Build Frontend
             logging.info("Building Web App...")
-            process = Popen(['yarn', '--cwd /codefree/gui/frontend', 'build'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
+            process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/gui/frontend', 'build'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
             stdout, stderr = process.communicate()
             if(process.returncode == 0):
                 logging.debug(stdout)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
                 os.system("a2ensite 001-frontend.conf") == 0):
                 logging.info("Done.")
             else:
-                logging.error("Error COnfiguring Apache.")
+                logging.error("Error Configuring Apache.")
                 exit(1)
 
         else:
