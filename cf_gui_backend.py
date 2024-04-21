@@ -7,10 +7,10 @@ from datetime import datetime, timezone
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi import FastAPI, Request, Response, status, Depends
-from output_modules import out_xlsx
-from output_modules import out_csv
-from cf_checker import CheckerStats, CheckerOutput
-import cf_output
+from modules.output import out_xlsx
+from modules.output import out_csv
+from modules.cf_checker import CheckerStats, CheckerOutput
+from modules import cf_output
 
 from uuid import UUID, uuid4
 
