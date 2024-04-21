@@ -6,3 +6,7 @@
 .apexchartsissues-count > svg path {
     stroke-width: 0;
 }
+
+.apexcharts-datalabels-group text:nth-child(2){
+    font-weight: 600 !important;
+}
