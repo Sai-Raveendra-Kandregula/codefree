@@ -56,7 +56,7 @@ def get_project_report(project:str, report:str, request : Request, response : Re
         return {}
 
 
-@projectsRouter.get("/api/reports/export-report")
+@projectsRouter.get("/reports/export-report")
 def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
     formats = [ "json", "csv", "xlsx" ]
     if format.lower() not in formats:
