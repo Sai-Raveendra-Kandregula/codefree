@@ -23,7 +23,7 @@ function ProjectWrapper() {
     const [projectInfo, setProjectInfo] = useState(null)
 
     function getProjectInfo() {
-        fetch(`${SERVER}/api/projects/get-project?project_id=${pathParams.projectid}`).then(
+        fetch(`${SERVER}/api/projects/get-project?slug=${pathParams.projectid}`).then(
             (resp) => {
                 if (resp.status == 200) {
                     return resp.json()

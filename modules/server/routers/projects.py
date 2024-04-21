@@ -18,7 +18,7 @@ from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
 projectsRouter = APIRouter()
 
-projects = [ProjectData(id=1, name="Logger")]
+projects = [ProjectData(id=1, name="Logger", slug="logger")]
 
 @projectsRouter.post("/projects/create-project")
 def create_project(project : ProjectData, request : Request, response : Response):
@@ -35,8 +35,8 @@ def get_all_projects(request : Request, response : Response):
     return projects
 
 @projectsRouter.get("/projects/get-project")
-def get_project(project_id:int, request : Request, response : Response):
-    project = [ pro for pro in projects if pro.id == project_id ][0]
+def get_project(slug:str, request : Request, response : Response):
+    project = [ pro for pro in projects if pro.slug == slug ][0]
     return project
 
 @projectsRouter.get("/reports/all-reports")

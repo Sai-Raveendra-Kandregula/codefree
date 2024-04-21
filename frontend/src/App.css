@@ -23,6 +23,7 @@
   --foreground: #FEFEFE;
   --border-color: #393939;
   --control-border-color: #3d3d3d;
+  --header-background: rgb(0, 0, 8);
   --theme-color: #00457d;
 
   --card-background: rgba(255, 255, 255, 0.075);
@@ -88,6 +89,7 @@ hr {
   height: 1px;
   background: var(--border-color);
   border: none;
+  width: 100%;
 }
 
 pre,

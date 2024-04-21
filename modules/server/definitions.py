@@ -12,6 +12,7 @@ class UserData(BaseModel):
 
 class ProjectData(BaseModel):
     id : Optional[int] = Field(None, description="Project ID")
+    slug : str
     name : str
 
 class User_Permission():
