@@ -7,6 +7,8 @@ import subprocess
 import dotenv
 import uvicorn.logging
 
+from uvicorn.supervisors import ChangeReload, Multiprocess
+
 dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 
 PORT=9000
@@ -96,5 +98,13 @@ if __name__ == "__main__":
             exit(1)
 
     
+    if uvicorn_conf.should_reload:
+        sock = uvicorn_conf.bind_socket()
+        ChangeReload(uvicorn_conf, target=server.run, sockets=[sock]).run()
+    elif uvicorn_conf.workers > 1:
+        sock = uvicorn_conf.bind_socket()
+        Multiprocess(uvicorn_conf, target=server.run, sockets=[sock]).run()
+    else:
+        server.run()
     # uvicorn.run("modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
     server.run()
