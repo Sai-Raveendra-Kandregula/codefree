@@ -113,6 +113,7 @@ function ReportViewer() {
                     alignItems: 'center',
                     justifyContent: 'flex-start',
                     gap: '10px',
+                    paddingRight: '10px'
                 }}>
                     <IconButton Icon={IoArrowBack} title={"Go back to Reports"} onClick={(e) => {
                         navigate(`/projects/${pathParams.projectid}/reports`)
@@ -145,7 +146,6 @@ function ReportViewer() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    paddingRight: '20px'
                 }}>
                     <span style={{
                         fontWeight: '500'

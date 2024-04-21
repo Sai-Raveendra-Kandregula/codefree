@@ -5,16 +5,17 @@
   --header-height: 60px;
   --header-padding: 20px;
   --border-radius: 5px;
-  --background: #FFFFFF;
+  --background: #eaecf1;
   --foreground: #010101;
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
   --header-background: #0d0d0d;
   --theme-color: #00457d;
-  --card-background: rgba(0, 0, 0, 0.025);
-  --select-background: rgba(0, 0, 0, 0.025);
-  --button-overlay: rgba(0, 0, 0, 0.075);
-  --control-overlay-bg: rgba(0, 0, 0, 0.03);
+  
+  --card-background: rgba(255, 255, 255, 0.5);
+  --select-background: rgba(255, 255, 255, 0.5);
+  --button-overlay: rgba(255, 255, 255, 0.5);
+  --control-overlay-bg: rgba(255, 255, 255, 0.5);
 }
 
 :root.dark {
@@ -23,6 +24,7 @@
   --border-color: #393939;
   --control-border-color: #3d3d3d;
   --theme-color: #00457d;
+
   --card-background: rgba(255, 255, 255, 0.075);
   --select-background: rgba(255, 255, 255, 0.1);
   --button-overlay: rgba(255, 255, 255, 0.075);
@@ -32,6 +34,15 @@
 * {
   color: inherit;
   font-family: 'Roboto';
+}
+
+a {
+  text-decoration: none;
+  color: #0062ff;
+}
+
+a:hover > * {
+  text-decoration: underline;
 }
 
 input[type=text],
@@ -69,15 +80,6 @@ option {
 
 .dark select {
   background-image: url('./assets/ChevronDownWhite.svg');
-}
-
-a {
-  text-decoration: none;
-  color: #0062ff;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 hr {
@@ -150,11 +152,8 @@ span.preBlockLineNumber {
 
 .sideBarLink.active,
 .sideBarLink:hover {
-  background: var(--control-overlay-bg);
-}
-
-.sideBarLink:hover {
   border: 1px solid var(--control-border-color);
+  background: var(--control-overlay-bg);
 }
 
 .sideBarLink>svg {
@@ -273,17 +272,33 @@ span.preBlockLineNumber {
   padding: 20px;
 }
 
-.activityRingsWrapper p{
-  font-weight: 600;
+.listItem{
+  position: relative;
+  padding: 10px 20px;
+  cursor: pointer;
   display: flex;
-  gap: 5px;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 30px;
+  gap: 15px;
+  font-weight: 600;
+
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+
+  color: var(--foreground);
 }
 
-.activityRingsWrapper p span{
-  font-weight: 400;
-  color: var(--foreground) !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 100px;
+.initialsCircle{
+  height: 2.5rem;
+  width:  2.5rem;
+  border-radius: 50%;
+  background: var(--button-overlay);
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
 }

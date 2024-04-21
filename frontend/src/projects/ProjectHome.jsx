@@ -6,6 +6,8 @@ import Chart from "react-apexcharts";
 import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { vmin } from '../Helpers'
+import { BiArrowFromLeft } from 'react-icons/bi';
+import { GoArrowRight } from 'react-icons/go';
 
 function ProjectHome() {
   const pathParams = useParams()
@@ -20,6 +22,13 @@ function ProjectHome() {
   window.addEventListener('theme-update', () => {
     setTheme((window.localStorage.getItem('app-theme') == "dark") ? "dark" : "light")
   })
+
+  const keys_ordered = [
+    "Style Issues",
+    "Minor Code Issues",
+    "Major Code Issues",
+    "Critical Code Issues",
+  ]
 
   function getLatestReportData() {
     fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${pathParams.projectid}&report=lastReport`).then(
@@ -60,14 +69,6 @@ function ProjectHome() {
     });
 
     var issueDataTmp = {}
-
-
-    const keys_ordered = [
-      "Critical Code Issues",
-      "Major Code Issues",
-      "Minor Code Issues",
-      "Style Issues",
-    ]
 
     keys_ordered.forEach((key) => {
       if (key in tempdata) {
@@ -140,7 +141,7 @@ function ProjectHome() {
         gap: '50px',
       }}>
         {/* Home for Project ID : {routeParams.projectid} */}
-        
+
         <div style={{
           width: '100%',
           paddingLeft: '30px'
@@ -148,13 +149,24 @@ function ProjectHome() {
           <h1>
             Issues found in {Object.keys(issueDataFileGrouped).length} file{Object.keys(issueDataFileGrouped).length > 1 && "s"}.
           </h1>
-          <LinkButton to={`/projects/${pathParams.projectid}/reports/lastReport`} title={"View Latest Report"} />
+          <LinkButton to={`/projects/${pathParams.projectid}/reports/lastReport`} title={"View the Latest Report"}
+            content={<React.Fragment>
+              View the Latest Report
+              <GoArrowRight style={{
+                fontSize: '1.25rem'
+              }} />
+            </React.Fragment>} />
         </div>
         <div>
           <Chart
-            width="400px"
+            width="500px"
             type='donut'
-            series={Object.values(issueData)}
+            series={Object.keys(issueData).sort((a, b) => {
+              return keys_ordered.indexOf(a) - keys_ordered.indexOf(b)
+            }).map((key) => {
+              return issueData[key]
+            })
+            }
             options={{
               theme: {
                 mode: theme,
@@ -163,7 +175,9 @@ function ProjectHome() {
               chart: {
                 id: "issues-count"
               },
-              labels: Object.keys(issueData),
+              labels: Object.keys(issueData).sort((a, b) => {
+                return keys_ordered.indexOf(a) - keys_ordered.indexOf(b)
+              }),
               dataLabels: {
                 enabled: true,
               },

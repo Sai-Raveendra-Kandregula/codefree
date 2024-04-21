@@ -7,6 +7,7 @@ function LinkButton({
   to,
   icon,
   title,
+  content = null,
   ...props
 }) {
   return (<React.Fragment>
@@ -22,7 +23,12 @@ function LinkButton({
         overflowX: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
-      }}>{title}</span>
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px'
+      }}>{content ? content : title}</span>
     </Link>
   </React.Fragment>
   )

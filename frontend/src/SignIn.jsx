@@ -30,6 +30,19 @@ function SignIn() {
     }
   }
 
+  async function ValidateUser(redirect=true){
+      const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
+        credentials: "include"
+      })
+      if(resp.status == 200){
+        redirectToTarget()
+      }
+    }
+
+    useEffect(() => {
+      ValidateUser()
+    }, [])
+
   return (
     <div style={{
       display: 'flex',
