@@ -14,7 +14,7 @@ from modules import cf_output
 from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
 from modules.server.definitions import UserData, SessionData
 
-from modules.server.common import logger, DATA_PATH, APP_DATA_PATH
+from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
 projectsRouter = APIRouter()
 
