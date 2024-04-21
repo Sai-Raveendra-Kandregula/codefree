@@ -5,8 +5,8 @@ from io import StringIO
 import csv
 import re
 
-from cf_checker import *
-import cf_output
+from modules.cf_checker import *
+from modules import cf_output
 
 flawfinder_module = CheckingModule()
 flawfinder_module.module_name = "FlawFinder"

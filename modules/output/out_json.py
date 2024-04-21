@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from cf_checker import *
-from cf_output import FormattingModule, FormatOption, ArgActionOptions
+from modules.cf_checker import *
+from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
 
 from typing import List
 

@@ -3,12 +3,12 @@
 import os
 from typing import List
 
-import cf_args
+from modules import cf_args
 
-from cf_checker import *
-from cf_output import *
-from output_modules import *
-from checker_modules import *
+from modules.cf_checker import *
+from modules.cf_output import *
+from modules.output import *
+from modules.checker import *
 
 import json
 

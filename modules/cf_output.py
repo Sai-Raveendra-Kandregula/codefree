@@ -60,7 +60,7 @@ class FormattingModule():
 
     @classmethod
     def generate_output(cls, args):
-        import cf_checker
+        from modules import cf_checker
         import json
         output = cf_checker.CheckingModule.get_output()
         if args.outputFile is None:

@@ -4,8 +4,8 @@ from subprocess import Popen, PIPE
 
 from astyle_py import Astyle
 
-from cf_checker import *
-import cf_output
+from modules.cf_checker import *
+from modules import cf_output
 
 astyle_module = CheckingModule()
 astyle_module.module_name = "AStyle"

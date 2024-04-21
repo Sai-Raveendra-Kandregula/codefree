@@ -6,7 +6,7 @@ from argparse import Namespace
 import fnmatch
 import re
 
-from cf_output import get_progress_printer, get_error_printer
+from modules.cf_output import get_progress_printer, get_error_printer
 import pandas as pd
 
 class CheckerSeverity(Enum):

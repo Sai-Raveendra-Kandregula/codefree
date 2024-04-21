@@ -3,9 +3,9 @@ from typing import List
 from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
 
-import cf_output
-from cf_checker import *
-from checker_modules.libraries import misra_mappings, error_context
+from modules.checker.libraries import misra_mappings, error_context
+from modules import cf_output
+from modules.cf_checker import *
 
 misra_module = CheckingModule()
 misra_module.module_name = "CPPCheck"

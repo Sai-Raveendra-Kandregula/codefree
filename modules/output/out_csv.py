@@ -1,5 +1,5 @@
-from cf_output import FormattingModule, FormatOption, ArgActionOptions
-from cf_checker import *
+from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
+from modules.cf_checker import *
 import pandas as pd
 
 def output_csv(args, output: List[CheckerOutput] = []):
