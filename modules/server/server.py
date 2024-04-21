@@ -4,7 +4,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
-from cf_gui_backend import serve_codefree_backend
+from modules.server.cf_gui_backend import serve_codefree_backend
 
 app = FastAPI()
 

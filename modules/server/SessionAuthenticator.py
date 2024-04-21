@@ -10,12 +10,12 @@ from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 
-from definitions import SessionData, UserData, USER_ROLES
+from modules.server.definitions import SessionData, UserData, User_Role
 
 USER_DATA = {
     "admin" : {
         "password" : "admin@123",
-        "role" : USER_ROLES.SYSTEM_ADMIN
+        "role" : User_Role.SYSTEM_ADMIN
     }
 }
 

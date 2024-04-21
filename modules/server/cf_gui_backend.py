@@ -14,8 +14,8 @@ from modules import cf_output
 
 from uuid import UUID, uuid4
 
-from SessionAuthenticator import authenticate_user, verifier, cookie, backend
-from definitions import UserData, SessionData
+from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
+from modules.server.definitions import UserData, SessionData
 
 def mkdir_p(path): # mkdir -p implementation
     try:
@@ -31,7 +31,7 @@ APP_NAME = "CodeFree GUI"
 AUTHOR = "Sai Raveendra Kandregula"
 CONTACT_EMAIL = "sairaveendrakandregula@gmail.com"
 
-logging.basicConfig(format="%(levelname)-9s : %(message)s", level=logging.NOTSET)
+logger = logging.getLogger('uvicorn.error')
 
 APP_DATA_PATH = "/tmp"
 if os.path.exists(os.path.join(os.path.dirname(__file__), '.env')):
@@ -40,7 +40,7 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), '.env')):
 if os.environ.get('DATA_PATH') is not None:
     APP_DATA_PATH = os.environ['DATA_PATH']
 
-logging.info("Data Path : " + APP_DATA_PATH)
+logger.info("Data Path : " + APP_DATA_PATH)
 
 def serve_codefree_backend(app:FastAPI):
     @app.get("/api/greetings")
@@ -171,16 +171,16 @@ def serve_codefree_backend(app:FastAPI):
 
                         
                     except Exception as e:
-                        logging.error( "Report formatting Failed : " )
-                        logging.error(e)
+                        logger.error( "Report formatting Failed : " )
+                        logger.error(e)
                         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
                         return {
                             "message" : f"Error Converting report into {format} format"
                         }
 
         except Exception as e:
-            logging.error( "Export Report Failed : " )
-            logging.error(e)
+            logger.error( "Export Report Failed : " )
+            logger.error(e)
             response.status_code = status.HTTP_404_NOT_FOUND
             return {}
     

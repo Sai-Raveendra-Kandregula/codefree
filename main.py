@@ -5,14 +5,16 @@ import os
 from subprocess import Popen, PIPE
 import subprocess
 import dotenv
+import uvicorn.logging
 
 dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 
 PORT=9000
 
+VERSION = open("VERSION", "r").read()
+
 docker_env=os.getenv('IN_DOCKER', False)
 dev_env=(os.getenv('ENVIRONMENT', 'PROD') != 'PROD')
-
 def check_pid(pid):
     """ Check For the existence of a unix pid. """
     try:
@@ -22,52 +24,45 @@ def check_pid(pid):
     else:
         return True
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    uvicorn_conf = uvicorn.Config(app="modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
 
+    server = uvicorn.Server(config=uvicorn_conf)
 
-    logging.basicConfig(format="%(levelname)-9s : %(message)s", level=logging.NOTSET if dev_env else logging.INFO)
+    logger = logging.getLogger('uvicorn.error')
 
-    # Disable Uvicorn Logging
-    logging.getLogger("uvicorn.error").handlers = []
-    logging.getLogger("uvicorn.error").propagate = False
-
-    logging.getLogger("uvicorn.access").handlers = []
-    logging.getLogger("uvicorn.access").propagate = False
-
-    logging.getLogger("uvicorn.asgi").handlers = []
-    logging.getLogger("uvicorn.asgi").propagate = True
-    
     # Detect Docker Environment
     if docker_env:
         # If Production Environment
         if not dev_env:
-            logging.info("CodeFree - Production Mode")
+            logger.info(f"CodeFree v{VERSION}")
 
             # Build Frontend
-            logging.info("Building Web App...")
+            logger.info("Building Web App...")
             process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/frontend', 'build'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
             stdout, stderr = process.communicate()
             if(process.returncode == 0):
-                logging.debug(stdout)
-                logging.info('Web App Built Successfully.')
+                logger.info('Web App Built Successfully.')
             else:
-                logging.error(f'Web App Build Failed : ${stderr}')
+                logger.error(f'Web App Build Failed : ${stderr}')
                 exit(1)
 
             # Copy /etc/apache2/ports.conf.prod to /etc/apache2/ports.conf and enable frontend static server
-            logging.info("Configuring Apache...")
-            if (os.system("cp /etc/apache2/ports.conf.prod /etc/apache2/ports.conf") == 0 and
-                os.system("a2ensite 001-frontend.conf") == 0):
-                logging.info("Done.")
+            logger.info("Configuring Apache...")
+            copy_ports_rc = os.system("cp /etc/apache2/ports.conf.prod /etc/apache2/ports.conf")
+            process = Popen(['/bin/bash', '-c', 'a2ensite 001-frontend.conf'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
+            process.communicate()
+            if (copy_ports_rc == 0 and process.returncode == 0):
+                logger.info("Done.")
             else:
-                logging.error("Error Configuring Apache.")
+                logger.error("Error Configuring Apache.")
                 exit(1)
 
         else:
-            logging.info("CodeFree - Development Mode")
+            logger.info(f"CodeFree v{VERSION} - Development Build")
 
             # Start Frontend Dev Server
-            logging.info("Starting Web App Dev Server...")
+            logger.info("Starting Web App Server...")
             
             process = Popen(['/usr/bin/yarn', '--cwd', '/codefree/frontend', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
             
@@ -75,31 +70,31 @@ if __name__ == "__main__":
             time.sleep(2) 
 
             if(check_pid(process.pid)):
-                logging.info('Web App Dev Server now Up.')
+                logger.info('Web App Server now Up.')
             else:
-                # stdout, stderr = process.communicate()
-                # logging.error(f'Web App Dev Server launch failed : ${stderr}')
-                logging.error(f'Web App Dev Server launch failed')
+                stdout, stderr = process.communicate()
+                logger.error(f'Web App Server startup failed :')
+                logger.error(stderr)
                 exit(1)
 
             # Copy /etc/apache2/ports.conf.dev to /etc/apache2/ports.conf
-            logging.info("Configuring Apache...")
+            logger.info("Configuring Apache...")
             if (os.system("cp /etc/apache2/ports.conf.dev /etc/apache2/ports.conf") == 0):
-                logging.info("Done.")
+                logger.info("Done.")
             else:
-                logging.error("Error Configuring Apache.")
+                logger.error("Error Configuring Apache.")
                 exit(1)
         
         # Start Apache Proxy
-        logging.info("Launching Apache Web Server...")
+        logger.info("Launching Apache Web Server...")
         process = Popen(['service', 'apache2', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
         stdout, stderr = process.communicate()
         if(process.returncode == 0):
-            logging.debug(stdout)
-            logging.info('Apache now listening on 0.0.0.0:8080')
+            logger.info('Apache now listening on 0.0.0.0:8080')
         else:
-            logging.error(f'Apache Launch Failed : ${stderr}')
+            logger.error(f'Apache Launch Failed : ${stderr}')
             exit(1)
 
     
-    uvicorn.run("server:app", host="0.0.0.0", port=PORT, reload=dev_env)
+    # uvicorn.run("modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
+    server.run()

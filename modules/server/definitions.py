@@ -9,7 +9,10 @@ class UserData(BaseModel):
     password: str
     keepSignedIn : bool = False
 
-class USER_ROLES(Enum):
+class User_Permission():
+    display : str
+
+class User_Role(Enum):
     VIEWER = 0,
     PROJECT_ADMIN = 7,
     SYSTEM_ADMIN = 15,

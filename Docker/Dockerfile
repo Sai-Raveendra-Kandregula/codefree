@@ -15,11 +15,11 @@ RUN ln -sf /codefree/codefree /usr/bin/codefree
 RUN mkdir /code # Prefer mounting your code directories under this directory
 
 # COPY Apache Configuration
-COPY ./apache2/apache2.conf /etc/apache2/
-COPY ./apache2/ports.conf.prod /etc/apache2/
-COPY ./apache2/ports.conf.dev /etc/apache2/
-COPY ./apache2/000-default.conf /etc/apache2/sites-available/
-COPY ./apache2/001-frontend.conf /etc/apache2/sites-available/
+COPY ./Docker/apache2/apache2.conf /etc/apache2/
+COPY ./Docker/apache2/ports.conf.prod /etc/apache2/
+COPY ./Docker/apache2/ports.conf.dev /etc/apache2/
+COPY ./Docker/apache2/000-default.conf /etc/apache2/sites-available/
+COPY ./Docker/apache2/001-frontend.conf /etc/apache2/sites-available/
 RUN a2ensite 000-default.conf
 RUN a2enmod proxy_http
 RUN a2enmod proxy
@@ -33,4 +33,4 @@ RUN yarn --cwd /codefree/frontend
 EXPOSE 8080
 
 WORKDIR /codefree
-ENTRYPOINT [ "/codefree/docker-entrypoint.sh" ]
+ENTRYPOINT [ "/codefree/Docker/entrypoint.sh" ]
