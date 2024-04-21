@@ -23,7 +23,7 @@ function ProjectWrapper() {
     const [projectInfo, setProjectInfo] = useState(null)
 
     function getProjectInfo() {
-        fetch(`${SERVER}/api/projects/get-project?project=${pathParams.projectid}`).then(
+        fetch(`${SERVER}/api/projects/get-project?project_id=${pathParams.projectid}`).then(
             (resp) => {
                 if (resp.status == 200) {
                     return resp.json()
@@ -60,20 +60,8 @@ function ProjectWrapper() {
                     padding: '0 0 0 20px'
                 }}>
                     {
-                        projectInfo && projectInfo['project_name']
+                        projectInfo && projectInfo['name']
                     }
-                    <a className='projectID' href={`/projects/${pathParams.projectid}`} onClick={
-                        (e) => {
-                            e.preventDefault()
-                            navigate(`/projects/${pathParams.projectid}/overview`, {
-                                replace: false
-                            })
-                        }
-                    }>
-                        {
-                            "#" + pathParams.projectid
-                        }
-                    </a>
                 </h2>
                 <div className={`viewTypeCarousel`} style={{
                     border: 'none',

@@ -149,11 +149,15 @@ function ProjectHome() {
           <h1>
             Issues found in {Object.keys(issueDataFileGrouped).length} file{Object.keys(issueDataFileGrouped).length > 1 && "s"}.
           </h1>
-          <LinkButton to={`/projects/${pathParams.projectid}/reports/lastReport`} title={"View the Latest Report"}
+          <LinkButton 
+            to={`/projects/${pathParams.projectid}/reports/lastReport`} 
+            title={"View the Latest Report"}
             content={<React.Fragment>
-              View the Latest Report
+              <span style={{
+                paddingLeft: '5px'
+              }}>View the Latest Report</span>
               <GoArrowRight style={{
-                fontSize: '1.25rem'
+                fontSize: '1.25rem',
               }} />
             </React.Fragment>} />
         </div>

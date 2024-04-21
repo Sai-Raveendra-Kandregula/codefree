@@ -115,7 +115,7 @@ function ReportViewer() {
                     gap: '10px',
                     paddingRight: '10px'
                 }}>
-                    <IconButton Icon={IoArrowBack} title={"Go back to Reports"} onClick={(e) => {
+                    <IconButton icon={<IoArrowBack />} title={"Go back to Reports"} onClick={(e) => {
                         navigate(`/projects/${pathParams.projectid}/reports`)
                     }} />
                     <h3>
@@ -239,7 +239,7 @@ function ReportViewer() {
                     }>
                         {
                             ({ open, close, isOpen }) => {
-                                return <IconButton Icon={IoInformationCircleOutline} title={"Report Info"} onClick={(e) => {
+                                return <IconButton icon={<IoInformationCircleOutline />} title={"Report Info"} onClick={(e) => {
                                     e.stopPropagation()
                                     if (isOpen) {
                                         close()

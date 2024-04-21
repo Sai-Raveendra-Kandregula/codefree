@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import LinkButton from '../../Components/LinkButton';
 import { SERVER_BASE_URL } from '../../App'
 
 import { HiOutlineDocumentReport } from "react-icons/hi";
+import { MdOutlineFileUpload } from 'react-icons/md';
 
 function Reports() {
   const pathParams = useParams()
@@ -38,7 +40,7 @@ function Reports() {
         flexDirection: 'column',
         alignItems: 'stretch',
         height: '100%',
-        gap: '10px'
+        gap: '20px'
     }}>
       {/* <h2>
         Reports
@@ -53,6 +55,18 @@ function Reports() {
         gap: '10px'
       }}>
         <input type='text' placeholder='Search Reports' />
+        <LinkButton 
+          className={'themeButton'}
+          title={"Upload Report"}
+          icon={<MdOutlineFileUpload style={{
+            fontSize: '1.1rem'
+          }} />}
+          to={`/projects/${pathParams.projectid}/reports?create`}
+          style={{
+            fontSize: '0.9rem'
+          }}
+          replace={false}
+        />
       </div>
       <div style={{
         padding: '0 0 20px 0',

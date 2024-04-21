@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { SERVER_BASE_URL } from '../App'
- 
+import LinkButton from '../Components/LinkButton'
+import { MdAdd, MdCheck, MdClose } from 'react-icons/md'
+import PopupModal from '../Components/Popup'
+import IconButton from '../Components/IconButton'
+
 function ProjectsList() {
+  const navigate = useNavigate();
   const [projectsList, setProjectsLists] = useState([])
 
+  const [searchParams, setSearchParams] = useSearchParams();
 
   function getProjects() {
+
     fetch(`${SERVER_BASE_URL}/api/projects/all-projects`).then(
       (resp) => {
         if (resp.status == 200) {
@@ -26,37 +33,145 @@ function ProjectsList() {
 
   useEffect(() => {
     getProjects();
+    console.log(searchParams.get("create"))
   }, [])
 
   return (
-    <div>
-        <h2 style={{
-          'padding': '0px 20px'
-        }}>
-          Projects List
-        </h2>
+    <div style={{
+      height: '100%',
+      padding: '0 20px 0 20px'
+    }}>
+      <PopupModal open={searchParams.get('create') != null} nested onClose={() => {
+        searchParams.delete('create')
+        setSearchParams(searchParams)
+      }}>
         <div style={{
-          padding: '10px 20px 20px 20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          height: '100%',
-          maxHeight: '100%',
-          overflowY: 'auto'
+          background: 'var(--background)',
+          borderRadius: 'var(--border-radius)',
+          padding: '20px',
+          paddingTop: '0px',
+          border: '1px solid var(--border-color)',
+          minWidth: '500px',
+          maxWidth: '500px',
+          // height: '80vh',
         }}>
-          {
-            projectsList.map(({ project_id, project_name }) => {
-              return <Link className='listItem' to={`/projects/${project_id}`} replace={false}>
-                <div className='initialsCircle'>
-                  {project_name.split(" ").map((word) => {
-                    return word[0].toUpperCase()
-                  })}
-                </div> 
-                <span>{project_name}</span>
-              </Link>
-            })
-          }
+          <h3 style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>
+              Create Project
+            </span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '5px'
+            }}>
+              <IconButton
+                title="Cancel"
+                icon={<MdClose style={{
+                  fontSize: '1.25rem'
+                }} />}
+                onClick={() => {
+                  navigate(`/projects`)
+                }}
+              />
+              <IconButton
+                title="Create Project"
+                icon={<MdCheck style={{
+                  fontSize: '1.25rem'
+                }} />}
+                onClick={() => {
+                  // navigate(`/projects`)
+                  const project_name = document.getElementById('project_name').value.trim()
+                  if (project_name.length < 4){
+                    alert("Project Name has to be at least of length 3")
+                    return
+                  }
+                  fetch(`/api/projects/create-project`, {
+                    method: 'post',
+                    headers: {
+                      'Content-Type' : 'application/json'
+                    } ,
+                    body: JSON.stringify({
+                      name: project_name
+                    })
+                  }).then((resp) => {
+                    if(resp.status == 201){
+                      navigate(`/projects`, {
+                        replace: false 
+                      })
+                    }
+                  })
+                }}
+              />
+            </div>
+          </h3>
+          <div>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              justifyContent: 'center',
+              gap: '10px',
+            }}>
+              <label htmlFor="project_name" style={{
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>
+                Project Name :
+              </label>
+              <input type="text" name="project_name" id="project_name" />
+            </div>
+          </div>
         </div>
+      </PopupModal>
+      <h2 style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <span>
+          Projects List
+        </span>
+        <LinkButton 
+          className={'themeButton'}
+          title={"Create Project"}
+          icon={<MdAdd style={{
+            fontSize: '1.1rem'
+          }} />}
+          to={`/projects?create`}
+          style={{
+            fontSize: '0.9rem'
+          }}
+          replace={false}
+        />
+      </h2>
+      <div style={{
+        padding: '10px 0 0 0',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        height: '100%',
+        maxHeight: '100%',
+        overflowY: 'auto',
+        gap: '5px'
+      }}>
+        {
+          projectsList.map(({ id, name }) => {
+            return <Link className='listItem' to={`/projects/${id}`} replace={false}>
+              <div className='initialsCircle'>
+                {name.split(" ").map((word) => {
+                  return word[0].toUpperCase()
+                })}
+              </div>
+              <span>{name}</span>
+            </Link>
+          })
+        }
+      </div>
     </div>
   )
 }

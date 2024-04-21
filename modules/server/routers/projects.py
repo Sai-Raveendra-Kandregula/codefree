@@ -12,25 +12,32 @@ from modules.cf_checker import CheckerStats, CheckerOutput
 from modules import cf_output
 
 from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
-from modules.server.definitions import UserData, SessionData
+from modules.server.definitions import UserData, SessionData, ProjectData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
 projectsRouter = APIRouter()
 
+projects = [ProjectData(id=1, name="Logger")]
+
+@projectsRouter.post("/projects/create-project")
+def create_project(project : ProjectData, request : Request, response : Response):
+    project_id = max(project_data.id for project_data in projects ) + 1
+
+    project.id = project_id
+    projects.append(project)
+
+    response.status_code = status.HTTP_201_CREATED
+    return {}
+
 @projectsRouter.get("/projects/all-projects")
 def get_all_projects(request : Request, response : Response):
-    return [{
-        "project_id" : '1',
-        "project_name" : "Test Project"
-    }]
+    return projects
 
 @projectsRouter.get("/projects/get-project")
-def get_project(project:str, request : Request, response : Response):
-    return {
-        "project_id" : project,
-        "project_name" : "Test Project"
-    }
+def get_project(project_id:int, request : Request, response : Response):
+    project = [ pro for pro in projects if pro.id == project_id ][0]
+    return project
 
 @projectsRouter.get("/reports/all-reports")
 def get_project_all_reports(project:str, request : Request, response : Response):

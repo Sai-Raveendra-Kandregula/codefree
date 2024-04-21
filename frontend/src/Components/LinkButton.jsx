@@ -27,7 +27,8 @@ function LinkButton({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '10px'
+        gap: '10px',
+        paddingRight: icon ? '5px' : undefined
       }}>{content ? content : title}</span>
     </Link>
   </React.Fragment>

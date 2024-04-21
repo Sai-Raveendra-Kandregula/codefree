@@ -48,11 +48,12 @@ a:hover > * {
 input[type=text],
 input[type=email],
 input[type=password] {
-  height: 30px;
+  box-sizing: border-box;
+  height: 35px;
   background-color: var(--select-background);
   border: 1px solid var(--control-border-color);
   border-radius: var(--border-radius);
-  padding: 0 10px;
+  padding: 2.5px 10px;
   min-width: 200px;
   width: 100%;
   max-height: 400px;
@@ -165,13 +166,13 @@ span.preBlockLineNumber {
   box-sizing: border-box;
   height: 35px;
   width: min-content;
-  padding: 5px 15px;
+  padding: 5px 10px;
 
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 5px;
 
   border: 1px solid transparent;
   border-radius: var(--border-radius);
@@ -291,14 +292,29 @@ span.preBlockLineNumber {
 }
 
 .initialsCircle{
-  height: 2.5rem;
-  width:  2.5rem;
+  height: 2.75rem;
+  width:  2.75rem;
   border-radius: 50%;
-  background: var(--button-overlay);
+  background: rgba(125,125,125, 0.2);
 
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   text-decoration: none !important;
+}
+
+.popup-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.themeButton{
+  background: var(--theme-color);
+  color: white;
+}
+
+.themeButton:hover {
+  background: var(--theme-color) !important;
+
+  filter: brightness(150%);
 }

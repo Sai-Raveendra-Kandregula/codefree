@@ -79,7 +79,7 @@ function GlobalRoot() {
           CodeFree
         </div>
         <div className={`${GlobalRootStyles.appHeaderRight}`}>
-          <IconButton title="Toggle Theme" Icon={activeTheme == "dark" ? CiLight : CiDark} onClick={(e) => {
+          <IconButton title="Toggle Theme" icon={activeTheme == "dark" ? <CiLight /> : <CiDark />} onClick={(e) => {
             if (activeTheme == "light") {
               setActiveTheme("dark")
             }

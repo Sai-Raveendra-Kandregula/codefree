@@ -106,5 +106,3 @@ if __name__ == "__main__":
         Multiprocess(uvicorn_conf, target=server.run, sockets=[sock]).run()
     else:
         server.run()
-    # uvicorn.run("modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
-    server.run()
