@@ -1,4 +1,5 @@
 astyle-py==1.0.5
+Django==5.0.4
 fastapi==0.110.0
 fastapi_sessions==0.3.2
 python-dotenv==0.19.2

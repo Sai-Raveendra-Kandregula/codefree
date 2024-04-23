@@ -5,6 +5,7 @@ import os
 from subprocess import Popen, PIPE
 import subprocess
 import dotenv
+import asyncio
 import uvicorn.logging
 
 from uvicorn.supervisors import ChangeReload, Multiprocess
@@ -17,6 +18,11 @@ VERSION = open("VERSION", "r").read()
 
 docker_env=os.getenv('IN_DOCKER', False)
 dev_env=(os.getenv('ENVIRONMENT', 'PROD') != 'PROD')
+
+async def runserver():
+    path = os.path.join(os.path.dirname(__file__), 'modules', 'cf_django')
+    os.system(f"cd {path} && nohup python3 manage.py runserver 0.0.0.0:8000 &")
+
 def check_pid(pid):
     """ Check For the existence of a unix pid. """
     try:
@@ -29,9 +35,12 @@ def check_pid(pid):
 if __name__ == "__main__":    
     uvicorn_conf = uvicorn.Config(app="modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
 
+    event_loop = asyncio.get_event_loop()
     server = uvicorn.Server(config=uvicorn_conf)
 
     logger = logging.getLogger('uvicorn.error')
+
+    django_server_task = None
 
     # Detect Docker Environment
     if docker_env:
@@ -87,6 +96,7 @@ if __name__ == "__main__":
                 logger.error("Error Configuring Apache.")
                 exit(1)
         
+
         # Start Apache Proxy
         logger.info("Launching Apache Web Server...")
         process = Popen(['service', 'apache2', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
@@ -97,12 +107,27 @@ if __name__ == "__main__":
             logger.error(f'Apache Launch Failed : ${stderr}')
             exit(1)
 
-    
-    if uvicorn_conf.should_reload:
-        sock = uvicorn_conf.bind_socket()
-        ChangeReload(uvicorn_conf, target=server.run, sockets=[sock]).run()
-    elif uvicorn_conf.workers > 1:
-        sock = uvicorn_conf.bind_socket()
-        Multiprocess(uvicorn_conf, target=server.run, sockets=[sock]).run()
+    logger.info("Starting Django Server...")
+    django_server_task = event_loop.create_task(runserver())
+    django_server_task._blocking = False
+    if not django_server_task.done():
+        logger.info("Done.")
     else:
-        server.run()
+        logger.error("Django Server Start Up failed")
+        exit(1)
+    
+    async def run_fastapi():
+        if uvicorn_conf.should_reload:
+            sock = uvicorn_conf.bind_socket()
+            ChangeReload(uvicorn_conf, target=server.run, sockets=[sock]).run()
+        elif uvicorn_conf.workers > 1:
+            sock = uvicorn_conf.bind_socket()
+            Multiprocess(uvicorn_conf, target=server.run, sockets=[sock]).run()
+        else:
+            server.run()
+        if django_server_task is not None and django_server_task.done() == False:
+            django_server_task.cancel()
+
+    fast_api_task = event_loop.create_task(run_fastapi())
+    event_loop.run_until_complete(django_server_task)
+    event_loop.close()
