@@ -1,3 +1,4 @@
+import os
 from uuid import UUID, uuid4
 from fastapi import APIRouter, Response, Depends
 
@@ -30,6 +31,10 @@ async def create_session(userdata : UserData, response: Response):
 @usersRouter.get("/user/validate", dependencies=[Depends(cookie)])
 async def whoami(session_data: SessionData = Depends(verifier)):
     return session_data
+
+@usersRouter.get("/user/all-users", dependencies=[Depends(cookie)])
+async def all_users(session_data: SessionData = Depends(verifier)):
+    return User.objects.all()
 
 @usersRouter.post("/user/sign-out")
 async def del_session(response: Response, session_id: UUID = Depends(cookie)):

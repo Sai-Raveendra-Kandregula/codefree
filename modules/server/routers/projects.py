@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 from modules.output import out_xlsx
 from modules.output import out_csv
-from modules.cf_checker import CheckerStats, CheckerOutput
+from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, CheckerSeverity, ComplianceStandards
 from modules import cf_output
 
 from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
@@ -16,35 +16,155 @@ from modules.server.definitions import UserData, SessionData, ProjectData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
+from sqlalchemy import select, func
+from sqlalchemy.orm import Session
+from modules.server.database import engine
+from db_definitions.projects import Project, Report
+
 projectsRouter = APIRouter()
 
-projects = [ProjectData(id=1, name="Logger", slug="logger")]
+def getReportStats(report : dict):
+    issue_items_cls = [ CheckerOutput(dict_data=item) for item in report['data'] ]
+    
+    files_Set = set()
+    style_count = 0
+    info_count = 0
+    minor_count = 0
+    major_count = 0
+    critical_count = 0
+
+    cwe_count = 0
+    misra_count = 0
+
+    for item in issue_items_cls:
+        files_Set.add(item.file_name)
+        if item._module.module_type == CheckerTypes.STYLE:
+            style_count += 1
+        elif item._module.module_type == CheckerTypes.CODE:
+            if item._module.compliance_standard == ComplianceStandards.CWE:
+                cwe_count +=1
+            elif item._module.compliance_standard == ComplianceStandards.MISRA:
+                misra_count +=1
+
+            if item.error_info.severity == CheckerSeverity.CRITICAL:
+                critical_count += 1
+            elif item.error_info.severity == CheckerSeverity.MAJOR:
+                major_count += 1
+            elif item.error_info.severity == CheckerSeverity.MINOR:
+                minor_count += 1
+            elif item.error_info.severity == CheckerSeverity.INFO:
+                info_count += 1
+
+    return {
+        'file_count' : len(files_Set),
+        'cwe_count' : cwe_count,
+        'misra_count' : misra_count,
+        'style_count' : style_count,
+        'info_count' : info_count,
+        'minor_count' : minor_count,
+        'major_count' : major_count,
+        'critical_count' : critical_count,
+    }
+
+def saveReportFile(report : dict, destination_file : str):
+    with open(destination_file, "w") as dest:
+        json.dump(obj=report, fp=dest)
+
+def getProjectReportsPath(slug : str):
+    path = os.path.join(APP_DATA_PATH, slug, 'reports')
+    mkdir_p(path)
+    return path
+
+# Testing
+db_session = Session(engine)
+result = db_session.scalars(select(Project).where(Project.slug.is_('logger')))
+if len(result.fetchall()) == 0:
+    project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
+    db_session.add(Project(id=project_id, name="Logger", slug="logger"))
+
+    with open(os.path.join(DATA_PATH, "report.json")) as fp:
+        report_data = json.load(fp)
+        relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
+        filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
+        saveReportFile(report_data, filepath)
+        stats = getReportStats(report_data)
+
+        report_id = db_session.query(func.coalesce(func.max(Report.id), 0)).scalar() + 1
+        
+        db_session.add(Report(
+            id=report_id,
+            project_id=project_id,
+            timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f%z"),
+            report_path=relative_path,
+            style_issues = stats['style_count'],
+            cwe_issues = stats['cwe_count'],
+            misra_issues = stats['misra_count'],
+            info_issues = stats['info_count'],
+            minor_issues = stats['minor_count'],
+            major_issues = stats['major_count'],
+            critical_issues = stats['critical_count'],
+            issue_files = stats['file_count'],
+        ))
+
+    db_session.commit()
+db_session.close()
 
 @projectsRouter.post("/projects/create-project")
 def create_project(project : ProjectData, request : Request, response : Response):
-    project_id = max(project_data.id for project_data in projects ) + 1
+    db_session = Session(engine)
 
-    project.id = project_id
-    projects.append(project)
+    max_project_id = db_session.query(func.max(Project.id)).scalar()
+    project.id = max_project_id + 1
+
+    db_session.add(Project(id=project.id, name=project.name, slug=project.slug))
+    db_session.commit()
+    db_session.close()
 
     response.status_code = status.HTTP_201_CREATED
     return {}
 
 @projectsRouter.get("/projects/all-projects")
 def get_all_projects(request : Request, response : Response):
-    return projects
+    db_session = Session(engine)
+    projects_all_query = select(Project)
+    projects_all_query_out = db_session.scalars(projects_all_query)
+    out = []
+    if projects_all_query_out is not None:
+        out = [ project.as_dict() for project in projects_all_query_out ]
+    db_session.close()
+    return out
 
 @projectsRouter.get("/projects/get-project")
 def get_project(slug:str, request : Request, response : Response):
-    project = [ pro for pro in projects if pro.slug == slug ][0]
-    return project
+    db_session = Session(engine)
+    projects_slug_query = select(Project).where(Project.slug.is_(slug))
+    projects_slug_query_out = db_session.scalars(projects_slug_query)
+    out= {}
+    response.status_code = status.HTTP_404_NOT_FOUND
+    if projects_slug_query_out is not None:
+        response.status_code = status.HTTP_200_OK
+        out = projects_slug_query_out.one().as_dict()
+    db_session.close()
+    return out
 
 @projectsRouter.get("/reports/all-reports")
 def get_project_all_reports(project:str, request : Request, response : Response):
-    return [{
-        "project_id" : project,
-        "report_id" : 1,
-    }]
+    # assuming project is actually the project slug
+    db_session = Session(engine)
+    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
+    if project_id == -1:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {
+            "message" : 'Project Not Found'
+        }
+    
+    reports_all_query = select(Report).where(Report.project_id.is_(project_id))
+    reports_all_query_out = db_session.scalars(reports_all_query)
+    out = []
+    if reports_all_query_out is not None:
+        out = [ report.as_dict() for report in reports_all_query_out ]
+    db_session.close()
+    return out
 
 @projectsRouter.get("/reports/get-report")
 def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):

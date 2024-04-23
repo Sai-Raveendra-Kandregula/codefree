@@ -268,6 +268,10 @@ class CheckerStats():
         return cls.__instances
     
     @classmethod
+    def reset(cls):
+        cls.__instances = {}
+    
+    @classmethod
     def get_stats(cls):
         out = []
 
