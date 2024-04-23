@@ -168,18 +168,49 @@ def get_project_all_reports(project:str, request : Request, response : Response)
 
 @projectsRouter.get("/reports/get-report")
 def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
+    db_session = Session(engine)
+    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
+    if project_id == -1:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : 'Project Not Found'
+        }
+    
+    report_id = report
+
+    if report.lower() == "lastreport":
+        report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar() 
+        if report_id == -1:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            db_session.close()
+            return {
+                "message" : "Report not found"
+            }
+    else:
+        report_id = int(report)
+
+    report_data : Report = db_session.query(Report).where(Report.project_id.is_(project_id)).where(Report.id.is_(report_id)).scalar()
+    if report_data == None:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : "Report not found"
+        }
     try:
-        with open(os.path.join(DATA_PATH, "report.json")) as fp:
+        with open(os.path.join(getProjectReportsPath(project), report_data.report_path)) as fp:
             response.status_code = status.HTTP_200_OK
-            report_data = json.load(fp)
+            report_data_obj = json.load(fp)
+            db_session.close()
             return {
                 "project_id" : project,
-                "report_id" : report if report != "lastReport" else "02",
+                "report_id" : report_id,
                 "tags" : [],
-                "report" : report_data
+                "report" : report_data_obj
             }
     except:
         response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
         return {}
 
 
@@ -189,8 +220,37 @@ def export_project_report(project:str, report:str, request : Request, response :
     if format.lower() not in formats:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {}
+    db_session = Session(engine)
+    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
+    if project_id == -1:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : 'Project Not Found'
+        }
+    
+    report_id = report
+
+    if report.lower() == "lastreport":
+        report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar() 
+        if report_id == -1:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            db_session.close()
+            return {
+                "message" : "Report not found"
+            }
+    else:
+        report_id = int(report)
+
+    report_data : Report = db_session.query(Report).where(Report.project_id.is_(project_id)).where(Report.id.is_(report_id)).scalar()
+    if report_data == None:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : "Report not found"
+        }
     try:
-        with open(os.path.join(DATA_PATH, "report.json")) as fp:
+        with open(os.path.join(getProjectReportsPath(project), report_data.report_path)) as fp:
             report_data = json.load(fp)
             if format.lower() == "json":
                 response.status_code = status.HTTP_200_OK

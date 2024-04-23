@@ -78,12 +78,12 @@ function Reports() {
         overflowY: 'auto'
       }}>
         {
-          reportsList.map(({ report_id }) => {
-            return <Link className='listItem' to={`/projects/${pathParams.projectid}/reports/${report_id}`} replace={false}>
+          reportsList.map(({ id }) => {
+            return <Link className='listItem' to={`/projects/${pathParams.projectid}/reports/${id}`} replace={false}>
               <HiOutlineDocumentReport style={{
                 fontSize: '1.25rem'
               }} />
-              <span>Report #{report_id}</span>
+              <span>Report #{id}</span>
             </Link>
           })
         }
