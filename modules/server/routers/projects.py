@@ -12,7 +12,7 @@ from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, Checke
 from modules import cf_output
 
 from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
-from modules.server.definitions import UserData, SessionData, ProjectData
+from modules.server.definitions import UserData, SessionData, ProjectData, ReportData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
@@ -22,6 +22,10 @@ from modules.server.database import engine
 from db_definitions.projects import Project, Report
 
 projectsRouter = APIRouter()
+
+def getReportHash(report : dict):
+    import hashlib
+    return hashlib.sha256(json.dumps(report, indent=0).encode('utf-8')).hexdigest()
 
 def getReportStats(report : dict):
     issue_items_cls = [ CheckerOutput(dict_data=item) for item in report['data'] ]
@@ -96,6 +100,7 @@ if len(result.fetchall()) == 0:
             project_id=project_id,
             timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f%z"),
             report_path=relative_path,
+            report_hash=getReportHash(report_data),
             style_issues = stats['style_count'],
             cwe_issues = stats['cwe_count'],
             misra_issues = stats['misra_count'],
@@ -166,6 +171,7 @@ def get_project_all_reports(project:str, request : Request, response : Response)
     db_session.close()
     return out
 
+
 @projectsRouter.get("/reports/get-report")
 def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
     db_session = Session(engine)
@@ -213,6 +219,100 @@ def get_project_report(project:str, report:str, request : Request, response : Re
         db_session.close()
         return {}
 
+@projectsRouter.get("/reports/get-stats")
+def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
+    db_session = Session(engine)
+    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
+    if project_id == -1:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : 'Project Not Found'
+        }
+    
+    report_id = report
+
+    if report.lower() == "lastreport":
+        report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar() 
+        if report_id == -1:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            db_session.close()
+            return {
+                "message" : "Report not found"
+            }
+    else:
+        report_id = int(report)
+
+    report_data : Report = db_session.query(Report).where(Report.project_id.is_(project_id)).where(Report.id.is_(report_id)).scalar()
+    if report_data == None:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : "Report not found"
+        }
+    
+    db_session.close()
+    return report_data.as_dict()
+
+
+@projectsRouter.post("/reports/upload-report")
+def upload_project_report(report : ReportData, request : Request, response : Response):
+    db_session = Session(engine)
+
+    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(report.project_id)).scalar()
+    if project_id == -1:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : 'Project Not Found'
+        }
+
+    report_data = report.report
+
+    if (report_data == {}) or ('data' not in report_data):
+        response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+        db_session.close()
+        return {
+            "message" : 'Invalid Report'
+        }
+    
+    hash = getReportHash(report_data)
+    report_existing =  db_session.query(func.coalesce(func.max(Report.id), 0)).where(Report.report_hash.is_(hash)).scalar()
+
+    if report_existing != 0:
+        response.status_code = status.HTTP_409_CONFLICT
+        db_session.close()
+        return {
+            "message" : f'Report already exists (Report ID : {report_existing})'
+        }
+    
+    relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
+    filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
+    saveReportFile(report_data, filepath)
+    stats = getReportStats(report_data)
+
+    report_id = db_session.query(func.coalesce(func.max(Report.id), 0)).scalar() + 1
+    
+    db_session.add(Report(
+        id=report_id,
+        project_id=project_id,
+        timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f%z"),
+        report_path=relative_path,
+        report_hash=hash,
+        style_issues = stats['style_count'],
+        cwe_issues = stats['cwe_count'],
+        misra_issues = stats['misra_count'],
+        info_issues = stats['info_count'],
+        minor_issues = stats['minor_count'],
+        major_issues = stats['major_count'],
+        critical_issues = stats['critical_count'],
+        issue_files = stats['file_count'],
+    ))
+
+    db_session.commit()
+    db_session.close()
+    response.status_code = status.HTTP_201_CREATED
+    return {}
 
 @projectsRouter.get("/reports/export-report")
 def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
