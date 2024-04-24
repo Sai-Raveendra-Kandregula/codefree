@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import ActivityRings from "react-activity-rings"
 import Chart from "react-apexcharts";
@@ -14,24 +14,23 @@ function ProjectHome() {
   const navigate = useNavigate();
 
   const [reportData, setReportData] = useState(null)
-  const [issueData, setIssueData] = useState({})
-  const [issueDataAgg, setIssueDataAgg] = useState({})
-  const [issueDataFileGrouped, setIssueDataFileGrouped] = useState({})
+  const [reportsList, setReportsLists] = useState([])
   const [theme, setTheme] = useState(window.localStorage.getItem('app-theme') || 'light')
 
   window.addEventListener('theme-update', () => {
     setTheme((window.localStorage.getItem('app-theme') == "dark") ? "dark" : "light")
   })
 
-  const keys_ordered = [
-    "Style Issues",
-    "Minor Code Issues",
-    "Major Code Issues",
-    "Critical Code Issues",
-  ]
+  const keys_ordered = {
+    "style_issues" : "Style Issues",
+    "minor_issues" : "Minor Code Issues",
+    "major_issues" : "Major Code Issues",
+    "critical_issues" : "Critical Code Issues",
+    "issue_files" : "Files with Issues"
+  }
 
-  function getLatestReportData() {
-    fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${pathParams.projectid}&report=lastReport`).then(
+  function getLatestReportStats() {
+    fetch(`${SERVER_BASE_URL}/api/reports/get-stats?project=${pathParams.projectid}&report=lastReport`).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()
@@ -44,61 +43,65 @@ function ProjectHome() {
       })
   }
 
+  function getAllReports(){
+    fetch(`${SERVER_BASE_URL}/api/reports/all-reports?project=${pathParams.projectid}`).then(
+      (resp) => {
+        if (resp.status == 200) {
+          return resp.json()
+        }
+        else {
+          return null
+        }
+      }).then((data) => {
+        if(data){
+          setReportsLists(data)
+        }
+        else{
+          setReportsLists([])
+        }
+      }).catch((reason) => {
+        console.log(`Error Fetching Report List : ${reason}`)
+        setReportsLists([])
+      })
+  }
+
   useEffect(() => {
-    getLatestReportData()
+    getLatestReportStats()
+    getAllReports()
   }, [])
 
-  useEffect(() => {
+  const issueDataDonut = useMemo(() => {
     if (reportData == null) {
-      return
+      return {}
     }
-
-    var total_issues = reportData["report"]["data"].length
-
-    var tempdata = {}
-
-    reportData["report"]["data"].forEach(element => {
-      var moduleType = "Style Issues"
-      if (element['Module Type'].toUpperCase() == "CODE") {
-        moduleType = element['Severity'] + " Code Issues"
-      }
-      if (!(moduleType in tempdata)) {
-        tempdata[moduleType] = 0
-      }
-      tempdata[moduleType] += 1
-    });
 
     var issueDataTmp = {}
 
-    keys_ordered.forEach((key) => {
-      if (key in tempdata) {
-        issueDataTmp[key] = tempdata[key] / total_issues
+    Object.keys(keys_ordered).forEach((key) => {
+      if (reportData[key] > 0 && key != "issue_files") {
+        issueDataTmp[keys_ordered[key]] = reportData[key]
       }
     })
 
-    // console.log(tempdata)
-    // console.log(issueDataTmp)
-
-    setIssueDataFileGrouped(reportData["report"]["data"].reduce((finalObject, object) => {
-      (finalObject[object['File Name']] = finalObject[object['File Name']] || []).push(object);
-      return finalObject;
-    }, {}))
-
-    setIssueData(tempdata)
-    setIssueDataAgg(issueDataTmp)
+    return issueDataTmp
   }, [reportData]);
 
-  // const activityData = [
-  //   { value: 0.8 },
-  //   { value: 0.6 },
-  //   { value: 0.2 }
-  // ]
+  const issueSeries = useMemo(()=>{
+    return Object.keys(keys_ordered).map((key) => {
+      return {
+        name: keys_ordered[key],
+        data: reportsList.map((report) => {
+          return report[key]
+        })
+      }
+    })
+  }, [reportsList])
 
-  const activityConfig = {
-    width: vmin(30),
-    height: vmin(30),
-    ringSize: vmin(1.5)
-  }
+  const timeline = useMemo(() => {
+    return reportsList.map((report_data) => {
+      return new Date(report_data['timestamp'])
+    })
+  }, [reportsList])
 
   const chartOptions = {
     theme: {
@@ -109,7 +112,7 @@ function ProjectHome() {
       id: "basic-bar"
     },
     xaxis: {
-      categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+      categories: timeline
     },
     plotOptions: {
       line: {
@@ -117,12 +120,6 @@ function ProjectHome() {
       }
     },
   }
-  const chartSeries = [
-    {
-      name: "test-series",
-      data: [30, 40, 45, 50, 49, 60, 70, 91]
-    }
-  ]
 
   return (
     <div style={{
@@ -140,14 +137,12 @@ function ProjectHome() {
         justifyContent: 'space-between',
         gap: '50px',
       }}>
-        {/* Home for Project ID : {routeParams.projectid} */}
-
         <div style={{
           width: '100%',
           paddingLeft: '30px'
         }}>
           <h1>
-            Issues found in {Object.keys(issueDataFileGrouped).length} file{Object.keys(issueDataFileGrouped).length > 1 && "s"}.
+            Issues found in { reportData ? reportData['issue_files'] : 0 } file{reportData ? (reportData['issue_files'] != 1 ? "s" : "") : "s"}.
           </h1>
           <LinkButton 
             to={`/projects/${pathParams.projectid}/reports/lastReport`} 
@@ -165,10 +160,8 @@ function ProjectHome() {
           <Chart
             width="500px"
             type='donut'
-            series={Object.keys(issueData).sort((a, b) => {
-              return keys_ordered.indexOf(a) - keys_ordered.indexOf(b)
-            }).map((key) => {
-              return issueData[key]
+            series={Object.keys(issueDataDonut).map((key) => {
+              return issueDataDonut[key]
             })
             }
             options={{
@@ -179,9 +172,7 @@ function ProjectHome() {
               chart: {
                 id: "issues-count"
               },
-              labels: Object.keys(issueData).sort((a, b) => {
-                return keys_ordered.indexOf(a) - keys_ordered.indexOf(b)
-              }),
+              labels: Object.keys(issueDataDonut),
               dataLabels: {
                 enabled: true,
               },
@@ -220,7 +211,7 @@ function ProjectHome() {
           </h2>
           <Chart
             options={chartOptions}
-            series={chartSeries}
+            series={issueSeries}
             type="line"
             width="100%"
             height="400px"
