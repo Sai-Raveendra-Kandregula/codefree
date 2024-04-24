@@ -3,25 +3,22 @@ import DottedLine from './assets/dottedline.png'
 import { IoArrowBack } from 'react-icons/io5'
 import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
 import { AppContext } from './NotFoundContext'
+import LinkButton from './Components/LinkButton'
 
 const CFAppErrors = {
   404 : <React.Fragment>
     Oops! Let us know when you find something because we have no idea what you are looking for!
     <br />
-    <a href={'/home'} title='Go Back Home' style={{
+    <LinkButton icon={<IoArrowBack />} to={'/home'} title='Go Back Home' style={{
       fontSize : '1rem'
-    }} >
-      Go Back Home
-    </a>
+    }} />
   </React.Fragment>,
   500 : <React.Fragment>
     Internal Server Error
     <br />
-    <a href={'/home'} title='Go Back Home' style={{
+    <LinkButton icon={<IoArrowBack />} to={'/home'} title='Go Back Home' style={{
       fontSize : '1rem'
-    }} >
-      Go Back Home
-    </a>
+    }} />
   </React.Fragment>
 }
 
@@ -32,7 +29,7 @@ function ErrorPage({
   const { routeError, setRouteError } = useContext(AppContext);
   
   if(isRouteErrorResponse(routeError)){
-    console.error(routeError);
+    // console.error(routeError);
     errorNumber = routeError.status
   }
 
