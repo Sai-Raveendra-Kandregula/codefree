@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 class SessionData(BaseModel):
@@ -14,6 +14,12 @@ class ProjectData(BaseModel):
     id : Optional[int] = Field(None, description="Project ID")
     slug : str
     name : str
+
+class ReportData(BaseModel):
+    id : Optional[int] = Field(None, description="Report ID")
+    project_id : str
+    tags : Optional[List[str]] = Field([], description="Report Tags")
+    report : dict
 
 class User_Permission():
     display : str
