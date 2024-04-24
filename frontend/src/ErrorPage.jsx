@@ -1,23 +1,40 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import DottedLine from './assets/dottedline.png'
-import { Link } from 'react-router-dom'
-import LinkButton from './Components/LinkButton'
-
 import { IoArrowBack } from 'react-icons/io5'
+import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
+import { AppContext } from './NotFoundContext'
 
 const CFAppErrors = {
   404 : <React.Fragment>
     Oops! Let us know when you find something because we have no idea what you are looking for!
     <br />
-    <LinkButton icon={<IoArrowBack />} to={'/home'} title='Back to Home' style={{
+    <a href={'/home'} title='Go Back Home' style={{
       fontSize : '1rem'
-    }} />
+    }} >
+      Go Back Home
+    </a>
+  </React.Fragment>,
+  500 : <React.Fragment>
+    Internal Server Error
+    <br />
+    <a href={'/home'} title='Go Back Home' style={{
+      fontSize : '1rem'
+    }} >
+      Go Back Home
+    </a>
   </React.Fragment>
 }
 
 function ErrorPage({
-  error = "404"
+  errorNumber = 500
 }) {
+
+  const { routeError, setRouteError } = useContext(AppContext);
+  
+  if(isRouteErrorResponse(routeError)){
+    console.error(routeError);
+    errorNumber = routeError.status
+  }
 
 
   useEffect(() => {
@@ -32,8 +49,8 @@ function ErrorPage({
 
   return (
     <div style={{
-        width: '100%',
-        height: '100%',
+        width: '100vw',
+        height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -58,7 +75,7 @@ function ErrorPage({
                 padding: '50px 0',
             }}>
                 {
-                  (error in CFAppErrors) ? error : '404'
+                  errorNumber.toString()
                 }
             </span>
             <h2 style={{
@@ -71,7 +88,7 @@ function ErrorPage({
                 gap: '30px'
             }}>
                 {
-                  (error in CFAppErrors) ? CFAppErrors[error] : CFAppErrors['404']
+                  (errorNumber.toString() in CFAppErrors) && CFAppErrors[errorNumber.toString()]
                 }
             </h2>
         </div>

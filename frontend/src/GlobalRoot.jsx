@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { CiLight, CiDark } from "react-icons/ci";
@@ -11,6 +11,8 @@ import SideBarLink from './Components/SideBarLink';
 import { SERVER_BASE_URL } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import LinkButton from './Components/LinkButton';
+import { AppContext } from './NotFoundContext';
+import ErrorPage from './ErrorPage';
 
 function GlobalRoot() {
 
@@ -59,15 +61,19 @@ function GlobalRoot() {
   function AuthHeader() {
     return <React.Fragment>
       {
-        userName.length > 0 ? 
-        <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<BiUserCircle />} title={userName}>
-          <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<BiLogIn />} />
-        </HeaderButton>
-        :
-        <HeaderButton replace={false} type={HEADER_BUTTON_TYPES.LINK} icon={<BiLogIn /> } title={"Sign In"} to={"/sign-in"} />
+        userName.length > 0 ?
+          <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<BiUserCircle />} title={userName}>
+            <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<BiLogIn />} />
+          </HeaderButton>
+          :
+          <HeaderButton replace={false} type={HEADER_BUTTON_TYPES.LINK} icon={<BiLogIn />} title={"Sign In"} to={"/sign-in"} />
       }
     </React.Fragment>
   }
+
+  const { notFound } = useContext(AppContext);
+
+  if (notFound) return <ErrorPage />
 
   return (
     <React.Fragment>

@@ -53,6 +53,7 @@
     width: clamp(200px, 20%, 300px);
     height: calc(100vh - var(--header-height));
     max-height: calc(100vh - var(--header-height));
+    background: var(--nav-panel-background);
     overflow: auto;
     box-sizing: border-box;
     padding: 10px;

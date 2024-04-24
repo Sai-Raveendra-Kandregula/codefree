@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
 import reportViewerStyles from '../../styles/reportViewer.module.css'
@@ -13,6 +13,16 @@ import { SERVER_BASE_URL } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
 import LinkButton from '../../Components/LinkButton';
 import ToolTip from '../../Components/ToolTip';
+
+export async function reportDataLoader( {params} ){
+    const resp = await fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${params.projectid}&report=${params.reportid}`)
+    if (resp.status == 200) {
+        return resp.json()
+    }
+    else {
+        throw new Response("", {status : resp.status})
+    }
+}
 
 function ReportViewer() {
     const navigate = useNavigate()
@@ -28,26 +38,8 @@ function ReportViewer() {
     const [groupBy, setGroupBy] = useState(() => {
         return searchParams.get("groupBy") || groupingMapping[viewType][0]
     });
-    const [reportData, setReportData] = useState(null)
+    const [reportData, setReportData] = useState(useLoaderData())
     const [transformedReportData, setTransformedReportData] = useState({})
-
-    function getReportData() {
-        fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${pathParams.projectid}&report=${pathParams.reportid}`).then(
-            (resp) => {
-                if (resp.status == 200) {
-                    return resp.json()
-                }
-                else {
-                    return null
-                }
-            }).then((data) => {
-                setReportData(data)
-            })
-    }
-
-    useEffect(() => {
-        getReportData()
-    }, [])
 
     useEffect(() => {
         searchParams.set("viewType", (viewType || Object.keys(groupingMapping)[0]))

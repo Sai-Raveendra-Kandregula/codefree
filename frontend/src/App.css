@@ -10,6 +10,7 @@
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
   --header-background: #0d0d0d;
+  --nav-panel-background : #eaecf1;
   --theme-color: #00457d;
   
   --card-background: rgba(255, 255, 255, 0.5);
@@ -21,9 +22,10 @@
 :root.dark {
   --background: rgb(7, 7, 12);
   --foreground: #FEFEFE;
-  --border-color: #393939;
-  --control-border-color: #3d3d3d;
+  --border-color: #3939397d;
+  --control-border-color: #2e2e2e;
   --header-background: rgb(0, 0, 8);
+  --nav-panel-background : rgb(0, 0, 8);
   --theme-color: #00457d;
 
   --card-background: rgba(255, 255, 255, 0.075);

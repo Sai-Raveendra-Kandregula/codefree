@@ -8,7 +8,12 @@ function ConfigureProject() {
     <div style={{
       padding: '20px'
   }}>
-    Configure Project ID : {routeParams.projectid}
+    <h2 style={{
+      marginTop : '0px'
+    }}>
+      Configure Project
+    </h2>
+    ID : {routeParams.projectid}
   </div>
   )
 }

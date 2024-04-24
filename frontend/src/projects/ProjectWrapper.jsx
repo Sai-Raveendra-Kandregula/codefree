@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Outlet, useNavigate, useParams, Link, useSearchParams } from 'react-router-dom'
+import { Outlet, useNavigate, useParams, Link, useSearchParams, useLoaderData } from 'react-router-dom'
+
+export async function projectInfoLoader( {params} ) {
+    const resp = await fetch(`/api/projects/get-project?slug=${params.projectid}`)
+    if (resp.status != 200) {
+        throw resp
+    }
+    else {
+        return resp.json()
+    }
+}
 
 function ProjectWrapper() {
     const navigate = useNavigate()
@@ -20,25 +30,13 @@ function ProjectWrapper() {
         }
     }
 
-    const [projectInfo, setProjectInfo] = useState(null)
+    const projectInfo = useLoaderData();
 
-    function getProjectInfo() {
-        fetch(`${SERVER}/api/projects/get-project?slug=${pathParams.projectid}`).then(
-            (resp) => {
-                if (resp.status == 200) {
-                    return resp.json()
-                }
-                else {
-                    return null
-                }
-            }).then((data) => {
-                setProjectInfo(data)
-            })
-    }
+    // const [projectInfo, setProjectInfo] = useState(null)
 
-    useEffect(() => {
-        getProjectInfo();
-    }, [])
+    // useEffect(() => {
+    //     getProjectInfo();
+    // }, [])
 
     return (
         <div style={{
