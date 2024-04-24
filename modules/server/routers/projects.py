@@ -18,6 +18,7 @@ from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound
 from modules.server.database import engine
 from db_definitions.projects import Project, Report
 
@@ -222,8 +223,9 @@ def get_project_report(project:str, report:str, request : Request, response : Re
 @projectsRouter.get("/reports/get-stats")
 def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
     db_session = Session(engine)
-    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
-    if project_id == -1:
+    try:
+        project_id = db_session.query(Project.id).where(Project.slug.is_(project)).scalar()
+    except NoResultFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         db_session.close()
         return {
@@ -233,8 +235,9 @@ def get_project_report(project:str, report:str, request : Request, response : Re
     report_id = report
 
     if report.lower() == "lastreport":
-        report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar() 
-        if report_id == -1:
+        try:
+            report_id = db_session.query(func.max(Report.id)).scalar() 
+        except NoResultFound:
             response.status_code = status.HTTP_404_NOT_FOUND
             db_session.close()
             return {
