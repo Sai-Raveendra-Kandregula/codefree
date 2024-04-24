@@ -38,6 +38,7 @@ class Report(ProjectsBase):
 
     # Report Path
     report_path : Mapped[str] = mapped_column(String(200))
+    report_hash : Mapped[str] = mapped_column(String(64))
 
     # Report Stats
     style_issues : Mapped[int] = mapped_column()
