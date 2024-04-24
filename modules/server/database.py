@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 engine = create_engine(f"sqlite:///{APP_DATA_PATH}/codefree.sqlite", echo=False)
 
 def init_db():
-    logger.info("Initalizing DB...")
+    logger.info("Initialising DB...")
 
     mkdir_p(APP_DATA_PATH)
 
@@ -16,4 +16,4 @@ def init_db():
 
     ProjectsBase.metadata.create_all(engine)
 
-    logger.info("Initalizing DB Done.")
+    logger.info("DB Initialisation done.")
