@@ -6,7 +6,7 @@ IMAGE_TAG="codefree:$VERSION"
 
 docker run --rm -it \
     -p 8080:8080 \
-    -p 8000:8000 \
+    -p 3000:3000 \
     -e REACT_APP_SERVER_BASE_URL= \
     -e ENVIRONMENT=DEV \
     -e CHOKIDAR_USEPOLLING=true \
