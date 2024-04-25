@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Link, Outlet, useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import useBreadcrumbs from "use-react-router-breadcrumbs";
 
@@ -53,6 +53,9 @@ export async function globalRootLoader({ params }) {
   }
   if (params.reportid) {
     out['reportList'] = await reportListLoader({ params })
+  }
+  else{
+    out['reportList'] = undefined
   }
   return out
 }
@@ -115,7 +118,18 @@ function GlobalRoot() {
     </React.Fragment>
   }
 
-  const loaderData = useLoaderData()
+  const [rootLoaderData, setRootLoaderData] = useState(useLoaderData())
+
+  async function parseRootLoaderData(){
+    const loaderData =  await globalRootLoader({params:pathParams})
+    setRootLoaderData(loaderData)
+  }
+
+  useEffect(() => {
+    parseRootLoaderData()
+  }, [pathParams])
+
+
   const sideBarItems = () => {
     if (pathParams.projectid) {
       return <React.Fragment>
@@ -124,21 +138,21 @@ function GlobalRoot() {
         }}>
           <b>
           {
-            loaderData['reportList'] ? `${loaderData['projectInfo'] && loaderData['projectInfo']['name']} - Reports`
-            : (loaderData['projectInfo'] && "Project")
+            rootLoaderData['reportList'] ? `${rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} - Reports`
+            : (rootLoaderData['projectInfo'] && "Project")
           }
           </b>
         </div>
         {
-          loaderData['reportList'] ? <React.Fragment>
+          rootLoaderData['reportList'] ? <React.Fragment>
               {
-                loaderData['reportList'].map((report) => {
+                rootLoaderData['reportList'].map((report) => {
                   return <SideBarLink to={`/projects/${pathParams.projectid}/reports/${report['id']}`} title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
                 })
               }
             </React.Fragment>
           : <React.Fragment>
-              <SideBarLink to={`/projects/${pathParams.projectid}`} title={loaderData['projectInfo'] && loaderData['projectInfo']['name']} icon={<GoProject />} />
+              <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} icon={<GoProject />} />
               <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
               <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<GoGear  />} />
             </React.Fragment>
