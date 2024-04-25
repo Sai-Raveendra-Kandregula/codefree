@@ -127,8 +127,6 @@ function ProjectHome() {
       display: 'flex',
       flexDirection: 'column',
       gap: '10px',
-      maxHeight: '100%',
-      overflowY: 'auto'
     }}>
       <div className='appPanel' style={{
         display: 'flex',
@@ -214,7 +212,8 @@ function ProjectHome() {
             series={issueSeries}
             type="line"
             width="100%"
-            height="400px"
+            height="500px"
+            // height="350px"
           />
         </div>
       </div>

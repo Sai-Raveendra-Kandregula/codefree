@@ -161,6 +161,10 @@ span.preBlockLineNumber {
   background: var(--control-overlay-bg);
 }
 
+.dark .sideBarLink{
+  border: 1px solid transparent;
+}
+
 .sideBarLink>svg {
   height: 20px;
   width: 20px;

@@ -12,7 +12,7 @@ function SideBarLink({
 }) {
   return (<React.Fragment>
     <Link 
-      className={`sideBarLink ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`} 
+      className={`sideBarLink ${[to, to + "/"].includes(window.location.pathname) ? "active" : ""} ${className ? className : ""}`} 
       to={to} 
       title={title} 
       replace={false}

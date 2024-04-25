@@ -88,8 +88,8 @@ function ReportViewer() {
 
     return (
         <div style={{
-            height: '100%',
-            maxHeight: '100%',
+            height: 'calc(100vh - var(--header-height) )',
+            maxHeight: 'calc(100vh - var(--header-height) )',
             overflowY: 'hidden',
         }}>
             <div style={{
@@ -251,7 +251,8 @@ function ReportViewer() {
                         display: 'flex',
                         flexDirection: 'column',
                         height: '100%',
-                        maxHeight: '100%'
+                        maxHeight: '100%',
+                        overflow: 'auto'
                     }}>
                         <div style={{
                             overflowY: 'auto',

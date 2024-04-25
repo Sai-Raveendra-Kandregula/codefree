@@ -10,6 +10,15 @@ import { SERVER_BASE_URL } from '../../App'
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
 
+export async function reportListLoader( {params} ) {
+  const resp = await fetch(`/api/reports/all-reports?project=${params.projectid}`)
+  if (resp.status == 200) {
+    return resp.json()
+  }
+  else {
+    throw resp
+  }
+}
 
 function Reports() {
   const navigate = useNavigate()
@@ -20,7 +29,7 @@ function Reports() {
   const [reportsList, setReportsLists] = useState([])
 
   function getReports() {
-    fetch(`${SERVER_BASE_URL}/api/reports/all-reports?project=${pathParams.projectid}`).then(
+    fetch(`/api/reports/all-reports?project=${pathParams.projectid}`).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()

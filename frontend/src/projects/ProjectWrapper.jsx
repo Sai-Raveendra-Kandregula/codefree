@@ -41,43 +41,9 @@ function ProjectWrapper() {
     return (
         <div style={{
             height: '100%',
-            maxHeight: '100%',
-            overflowY: 'hidden',
             display: 'flex',
             flexDirection: 'column'
         }}>
-            <div style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-end',
-                gap: '20px',
-                borderBottom: '1px solid var(--border-color)',
-            }}>
-                <h2 className='projectTitle' style={{
-                    boxSizing: 'border-box',
-                    padding: '0 0 0 20px'
-                }}>
-                    {
-                        projectInfo && projectInfo['name']
-                    }
-                </h2>
-                <div className={`viewTypeCarousel`} style={{
-                    border: 'none',
-                    height: '100%'
-                }}>
-                    {
-                        Object.keys(subPages).map((val) => {
-                            return <Link
-                                className={`viewTypeButton ${window.location.pathname.startsWith(subPages[val]['to']) ? "selected" : ""}`}
-                                to={subPages[val]['to']}
-                                replace={false}
-                            >
-                                {val}
-                            </Link>
-                        })
-                    }
-                </div>
-            </div>
             <Outlet />
         </div>
     )

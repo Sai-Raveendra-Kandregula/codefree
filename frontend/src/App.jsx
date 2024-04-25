@@ -13,6 +13,7 @@ import SignOut from './SignOut';
 import { AppContext, NotFound } from './NotFoundContext';
 import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
+import { globalRootLoader } from './GlobalRoot';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -40,14 +41,13 @@ const RoutesJSX = (
         <Route path='/sign-in' element={<SignIn />} />
         <Route path='/sign-out' element={<SignOut />} />
         <Route path='*' element={<ErrorPage error={404} />} />
-        <Route path='/' element={<GlobalRoot />}>
+        <Route path='/' element={<GlobalRoot />} loader={globalRootLoader} errorElement={<NotFound />}>
             <Route path='/' element={<Navigate to={'/home'} replace={false} />} />
             <Route path='/home' element={<Navigate to={'/projects'} replace={false} />} />
             <Route path='/projects/' element={<ProjectsRoot />} >
                 <Route path='/projects/' element={<ProjectsList />} />
                 <Route path='/projects/:projectid' element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
-                    <Route path='/projects/:projectid/' element={<Navigate to={`overview`} relative={true} replace={false} />} />
-                    <Route path='/projects/:projectid/overview' element={<ProjectHome />} />
+                    <Route path='/projects/:projectid/' element={<ProjectHome />} />
                     <Route path='/projects/:projectid/reports' element={<Reports />} />
                     <Route path='/projects/:projectid/reports/:reportid' element={<ReportViewer />} loader={reportDataLoader} errorElement={<NotFound />} />
                     <Route path='/projects/:projectid/configure' element={<ConfigureProject />} />
