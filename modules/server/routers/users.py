@@ -1,18 +1,67 @@
 import os
+import datetime
 from uuid import UUID, uuid4
-from fastapi import APIRouter, Response, Depends
+from fastapi import APIRouter, Response, Depends, status
 
-from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
-from modules.server.definitions import UserData, SessionData
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound
+
+from db_definitions.users import User, getPasswordHash, generateSalt
+
+from modules.server.database import engine 
+from modules.server.SessionAuthenticator import verifier, cookie, backend
+from modules.server.definitions import UserData, SessionData, User_Role
+
+USER_DATA = {
+    "admin" : {
+        "password" : "admin@123",
+        "role" : User_Role.SYSTEM_ADMIN
+    }
+}
+
+# Testing
+db_session = Session(engine)
+def_user = db_session.query(User).where(User.user_name.is_('admin')).scalar()
+if def_user is None:
+    user_id = db_session.query(func.coalesce(func.max(User.id), 0)).scalar() + 1
+    salt = generateSalt()
+    pwd_hash = getPasswordHash("admin@123", salt)
+    db_session.add(User(
+        id=user_id,
+        user_name="admin",
+        email="sairaveendrakandregula@gmail.com",
+        password_salt=salt,
+        password_hash=pwd_hash,
+        created_on=datetime.datetime.now(),
+        updated_on=datetime.datetime.now()
+    ))
+    db_session.commit()
+db_session.close()
+
+def authenticate_user(userdata : UserData) -> status:
+    db_session = Session(engine)
+
+    user_info_db : User = db_session.query(User).where(User.user_name.is_(userdata.username)).scalar()
+    if user_info_db is None:
+        db_session.close()
+        return status.HTTP_404_NOT_FOUND
+
+    if getPasswordHash(userdata.password, user_info_db.password_salt) == user_info_db.password_hash:
+        db_session.close()
+        return status.HTTP_200_OK
+    db_session.close()
+    return status.HTTP_401_UNAUTHORIZED
 
 usersRouter = APIRouter()
 
 @usersRouter.post("/user/sign-in")
 async def create_session(userdata : UserData, response: Response):
-    if authenticate_user(userdata) == False:
-        response.status_code = 401
+    auth_output = authenticate_user(userdata=userdata)
+    if auth_output != status.HTTP_200_OK:
+        response.status_code = auth_output
         return {
-            "message" : "Invalid Username/Password"
+            "message" : str(auth_output)
         }
     session = uuid4()
     sessiondata = SessionData(username=userdata.username)

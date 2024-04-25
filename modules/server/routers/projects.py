@@ -11,7 +11,7 @@ from modules.output import out_csv
 from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, CheckerSeverity, ComplianceStandards
 from modules import cf_output
 
-from modules.server.SessionAuthenticator import authenticate_user, verifier, cookie, backend
+from modules.server.SessionAuthenticator import verifier, cookie, backend
 from modules.server.definitions import UserData, SessionData, ProjectData, ReportData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p

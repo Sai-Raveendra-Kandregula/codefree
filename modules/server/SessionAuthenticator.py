@@ -10,19 +10,10 @@ from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 
-from modules.server.definitions import SessionData, UserData, User_Role
+from modules.server.definitions import SessionData
 
-USER_DATA = {
-    "admin" : {
-        "password" : "admin@123",
-        "role" : User_Role.SYSTEM_ADMIN
-    }
-}
-
-def authenticate_user(userdata : UserData):
-    if userdata.username in USER_DATA and USER_DATA[userdata.username]['password'] == userdata.password:
-        return True
-    return False
+from db_definitions.users import User
+from modules.server.database import engine
 
 cookie_params = CookieParameters()
 

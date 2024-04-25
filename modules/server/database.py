@@ -1,4 +1,6 @@
-from db_definitions.projects import ProjectsBase
+from db_definitions.users import *
+from db_definitions.projects import *
+from db_definitions.common import CodeFreeBase
 
 from modules.server.common import APP_DATA_PATH, mkdir_p, logger
 
@@ -14,6 +16,6 @@ def init_db():
 
     logger.info(f"Using {APP_DATA_PATH}/codefree.sqlite as database")
 
-    ProjectsBase.metadata.create_all(engine)
+    CodeFreeBase.metadata.create_all(engine)
 
     logger.info("DB Initialisation done.")
