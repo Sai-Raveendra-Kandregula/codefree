@@ -66,6 +66,9 @@ function ReportViewer() {
         if(pathParams.reportid.toLowerCase() == 'last-report'){
             setLastReport(reportData["report_id"])
         }
+        else{
+            setLastReport(0)
+        }
 
         var tempdata = {}
 
