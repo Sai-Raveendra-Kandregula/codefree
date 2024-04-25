@@ -44,7 +44,7 @@
     border: 1px solid var(--border-color);
     background: var(--background);
   
-    top: calc(100% + 5px);
+    top: calc(100% + 0px);
     min-width: 100%;
     width: min-content;
     max-width: 300px;

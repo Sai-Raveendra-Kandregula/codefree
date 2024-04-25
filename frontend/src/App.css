@@ -4,13 +4,13 @@
 :root {
   --header-height: 60px;
   --header-padding: 20px;
-  --border-radius: 5px;
+  --border-radius: 7.5px;
   --background: #eaecf1;
   --foreground: #010101;
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
   --header-background: #0d0d0d;
-  --nav-panel-background : #eaecf1;
+  --nav-panel-background : #cbd2e0;
   --theme-color: #00457d;
   
   --card-background: rgba(255, 255, 255, 0.5);
@@ -237,7 +237,7 @@ span.preBlockLineNumber {
   border: 1px solid var(--border-color);
   background: var(--background);
 
-  top: calc(100% + 15px);
+  top: calc(100% + 0px);
   min-width: 100%;
   color: var(--foreground);
 }

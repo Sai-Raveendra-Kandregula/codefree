@@ -59,7 +59,8 @@ function SignIn() {
         justifyContent: 'center',
         gap: '10px',
         padding: '50px',
-        width: 'clamp(300px, 40% ,600px)'
+        height: 'clamp(500px, 40% ,750px)',
+        width: 'clamp(250px, 40% ,400px)',
       }}>
         <h3>
           Sign in to CodeFree

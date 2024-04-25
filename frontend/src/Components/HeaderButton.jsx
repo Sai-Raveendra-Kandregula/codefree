@@ -12,9 +12,12 @@ function HeaderButton({
   children,
   className,
   type = HEADER_BUTTON_TYPES.LINK,
+  showDropdownIcon = true,
   to,
   icon,
   title,
+  content,
+  anchorDropDown = "right",
   ...props
 }) {
 
@@ -35,7 +38,7 @@ function HeaderButton({
           overflowX: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-        }}>{title}</span>
+        }}>{content ? content : title}</span>
       </Link>
     }
     {
@@ -59,15 +62,23 @@ function HeaderButton({
             }
           }}>
           {icon}
-          <span style={{
-            flex: '1',
-            overflowX: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>{title}</span>
-          <IoChevronDownOutline />
+          {
+            content && <span style={{
+              flex: '1',
+              overflowX: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>{content}</span>
+          }
+          {
+            showDropdownIcon &&
+            <IoChevronDownOutline />
+          }
         </div>
-        <div ref={dropdownRef} className='headerButtonDropDown'>
+        <div ref={dropdownRef} className='headerButtonDropDown' style={{
+          left: anchorDropDown == "left" ? "0" : "unset",
+          right: anchorDropDown == "right" ? "0" : "unset",
+        }}>
           {children}
         </div>
       </div>

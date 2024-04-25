@@ -29,8 +29,14 @@ function setTitle(title = "") {
 
 const SERVER_BASE_URL = process.env.REACT_APP_SERVER_BASE_URL.replace(/\/$/, "") || '' // Get Base url from env and remove any trailing slashes
 
+const SuspenseLayout = () => (
+    <Suspense fallback={<Loading />}>
+      <Outlet />
+    </Suspense>
+  );
+
 const RoutesJSX = (
-    <Route path="/" element={<Outlet />}>
+    <Route path="/" element={<SuspenseLayout />}>
         <Route path='/sign-in' element={<SignIn />} />
         <Route path='/sign-out' element={<SignOut />} />
         <Route path='*' element={<ErrorPage error={404} />} />
@@ -57,9 +63,7 @@ const router = createBrowserRouter(routes)
 function App() {
     return (
         <div className="App">
-            <Suspense fallback={<Loading />}>
-                <RouterProvider router={router} />
-            </Suspense>
+            <RouterProvider router={router} />
         </div>
     );
 }
