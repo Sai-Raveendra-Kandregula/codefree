@@ -20,12 +20,22 @@ import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
 
+function toTitleCase(str) {
+  return str.replace(
+  /\w\S*/g,
+  function(txt) {
+  return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  }
+  );
+  }
+
 const Breadcrumbs = () => {
   const breadcrumbs = useBreadcrumbs();
   return (
     <React.Fragment>
       {breadcrumbs.map(({ breadcrumb, key }, ind) => {
-        const crumb = <Link className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{breadcrumb}</Link>
+        console.log(breadcrumb.props.children, typeof breadcrumb.props.children)
+        const crumb = <Link className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{toTitleCase(breadcrumb.props.children)}</Link>
         if (ind == 0) {
           return
         }
@@ -64,6 +74,9 @@ function GlobalRoot() {
 
   const navigate = useNavigate();
   const pathParams = useParams();
+
+  const { notFound, lastReport } = useContext(AppContext);
+
 
   const [activeTheme, setActiveTheme] = useState((window.localStorage.getItem("app-theme") == "dark") ? "dark" : "light")
   const [userName, setUserName] = useState("")
@@ -147,7 +160,9 @@ function GlobalRoot() {
           rootLoaderData['reportList'] ? <React.Fragment>
               {
                 rootLoaderData['reportList'].map((report) => {
-                  return <SideBarLink to={`/projects/${pathParams.projectid}/reports/${report['id']}`} title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
+                  return <SideBarLink to={`/projects/${pathParams.projectid}/reports/${report['id']}`} 
+                    className={pathParams.reportid && pathParams.reportid.toLowerCase() == 'last-report' && report['id'] == lastReport && "active"} 
+                    title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
                 })
               }
             </React.Fragment>
@@ -166,8 +181,6 @@ function GlobalRoot() {
       </React.Fragment>
     }
   }
-
-  const { notFound } = useContext(AppContext);
 
   if (notFound) return <ErrorPage />
 

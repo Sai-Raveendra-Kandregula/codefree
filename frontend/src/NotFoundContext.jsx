@@ -4,13 +4,14 @@ import { useRouteError } from 'react-router-dom';
 export const AppContext = React.createContext();
 
 export const AppProvider = (props) => {
-  const [state, setState] = useState({ notFound: false, routeError: null });
+  const [state, setState] = useState({ notFound: false, routeError: null, lastReport: 0 });
 
   const value = useMemo(
     () => ({
       ...state,
       setNotFound: (notFound) => setState((state) => ({ ...state, notFound })),
       setRouteError: (routeError) => setState((state) => ({ ...state, routeError })),
+      setLastReport: (lastReport) => setState((state) => ({ ...state, lastReport })),
     }),
     [state]
   );

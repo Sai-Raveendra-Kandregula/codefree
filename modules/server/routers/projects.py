@@ -186,7 +186,7 @@ def get_project_report(project:str, report:str, request : Request, response : Re
     
     report_id = report
 
-    if report.lower() == "lastreport":
+    if report.lower() == "last-report":
         report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar() 
         if report_id == -1:
             response.status_code = status.HTTP_404_NOT_FOUND
@@ -234,7 +234,7 @@ def get_project_report(project:str, report:str, request : Request, response : Re
     
     report_id = report
 
-    if report.lower() == "lastreport":
+    if report.lower() == "last-report":
         try:
             report_id = db_session.query(func.max(Report.id)).scalar() 
         except NoResultFound:
@@ -334,7 +334,7 @@ def export_project_report(project:str, report:str, request : Request, response :
     
     report_id = report
 
-    if report.lower() == "lastreport":
+    if report.lower() == "last-report":
         report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar() 
         if report_id == -1:
             response.status_code = status.HTTP_404_NOT_FOUND

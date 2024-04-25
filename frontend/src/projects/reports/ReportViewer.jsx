@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
@@ -13,6 +13,7 @@ import { SERVER_BASE_URL } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
 import LinkButton from '../../Components/LinkButton';
 import ToolTip from '../../Components/ToolTip';
+import { AppContext } from '../../NotFoundContext';
 
 export async function reportDataLoader( {params} ){
     const resp = await fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${params.projectid}&report=${params.reportid}`)
@@ -28,6 +29,8 @@ function ReportViewer() {
     const navigate = useNavigate()
     const pathParams = useParams()
     const [searchParams, setSearchParams] = useSearchParams()
+
+    const { lastReport, setLastReport } = useContext(AppContext);
 
     const groupingMapping = {
         "code": ["Severity", "Compliance Standard", "File Name", "Module Name"],
@@ -58,6 +61,10 @@ function ReportViewer() {
     useEffect(() => {
         if (reportData == null) {
             return
+        }
+
+        if(pathParams.reportid.toLowerCase() == 'last-report'){
+            setLastReport(reportData["report_id"])
         }
 
         var tempdata = {}
@@ -108,7 +115,9 @@ function ReportViewer() {
                     paddingRight: '10px'
                 }}>
                     <IconButton icon={<IoArrowBack />} title={"Go back to Reports"} onClick={(e) => {
-                        navigate(`/projects/${pathParams.projectid}/reports`)
+                        navigate(`..`, {
+                            relative: 'path'
+                        })
                     }} />
                     <h3>
                         Report #{reportData && reportData['report_id']}

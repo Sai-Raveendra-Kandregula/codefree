@@ -30,7 +30,7 @@ function ProjectHome() {
   }
 
   function getLatestReportStats() {
-    fetch(`${SERVER_BASE_URL}/api/reports/get-stats?project=${pathParams.projectid}&report=lastReport`).then(
+    fetch(`${SERVER_BASE_URL}/api/reports/get-stats?project=${pathParams.projectid}&report=last-report`).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()
@@ -143,7 +143,7 @@ function ProjectHome() {
             Issues found in { reportData ? reportData['issue_files'] : 0 } file{reportData ? (reportData['issue_files'] != 1 ? "s" : "") : "s"}.
           </h1>
           <LinkButton 
-            to={`/projects/${pathParams.projectid}/reports/lastReport`} 
+            to={`/projects/${pathParams.projectid}/reports/last-report`} 
             title={"View the Latest Report"}
             content={<React.Fragment>
               <span style={{
