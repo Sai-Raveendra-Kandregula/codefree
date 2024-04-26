@@ -7,7 +7,6 @@ import time
 import os
 from subprocess import Popen, PIPE
 import subprocess
-import asyncio
 import uvicorn.logging
 from uvicorn.supervisors import ChangeReload, Multiprocess
 
@@ -32,7 +31,6 @@ def check_pid(pid):
 if __name__ == "__main__":    
     uvicorn_conf = uvicorn.Config(app="modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
 
-    event_loop = asyncio.get_event_loop()
     server = uvicorn.Server(config=uvicorn_conf)
 
     logger = logging.getLogger('uvicorn.error')
@@ -105,7 +103,7 @@ if __name__ == "__main__":
             logger.error(f'Apache Launch Failed : ${stderr}')
             exit(1)
     
-    async def run_fastapi():
+    def run_fastapi():
         if uvicorn_conf.should_reload:
             sock = uvicorn_conf.bind_socket()
             ChangeReload(uvicorn_conf, target=server.run, sockets=[sock]).run()
@@ -113,8 +111,6 @@ if __name__ == "__main__":
             sock = uvicorn_conf.bind_socket()
             Multiprocess(uvicorn_conf, target=server.run, sockets=[sock]).run()
         else:
-            server.run()
+            return server.run()
 
-    fast_api_task = event_loop.create_task(run_fastapi())
-    event_loop.run_until_complete(fast_api_task)
-    event_loop.close()
+    run_fastapi()
