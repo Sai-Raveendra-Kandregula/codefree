@@ -1,7 +1,7 @@
 import datetime
 from typing import List
 from typing import Optional
-from sqlalchemy import String, ForeignKey, DateTime
+from sqlalchemy import String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -46,6 +46,8 @@ class Report(CodeFreeBase):
     critical_issues : Mapped[int] = mapped_column()
     issue_files : Mapped[int] = mapped_column()
 
+    commits_list : Mapped[Optional[Text]] = mapped_column(Text(80 * 100)) # stringified array, max 100 commits, each of size ~74 characters
+
     def as_dict(self):
         return {
         "id": self.id,
@@ -58,5 +60,6 @@ class Report(CodeFreeBase):
         "minor_issues": self.minor_issues,
         "major_issues": self.major_issues,
         "critical_issues": self.critical_issues,
-        "issue_files": self.issue_files
+        "issue_files": self.issue_files,
+        "commits_list" : self.commits_list
     }
