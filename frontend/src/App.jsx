@@ -40,7 +40,7 @@ const RoutesJSX = (
     <Route path="/" element={<SuspenseLayout />}>
         <Route path='/sign-in' element={<SignIn />} />
         <Route path='/sign-out' element={<SignOut />} />
-        <Route path='*' element={<ErrorPage error={404} />} />
+        <Route path='*' element={<ErrorPage errorNumber={404} />} />
         <Route path='/' element={<GlobalRoot />} loader={globalRootLoader} errorElement={<NotFound />}>
             <Route path='/' element={<Navigate to={'/home'} replace={false} />} />
             <Route path='/home' element={<Navigate to={'/projects'} replace={false} />} />

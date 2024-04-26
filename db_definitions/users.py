@@ -26,16 +26,23 @@ class User(CodeFreeBase):
     password_salt: Mapped[str] = mapped_column(String(36)) # UUID
     password_hash: Mapped[str] = mapped_column(String(64)) # SHA512 Hash of Password + Salt
     created_on: Mapped[DateTime] = mapped_column(DateTime())
+    created_by: Mapped[str] = mapped_column(String(30))
     updated_on: Mapped[DateTime] = mapped_column(DateTime())
+    updated_by: Mapped[str] = mapped_column(String(30))
 
     def __repr__(self) -> str:
-        return f"User(username={self.user_name!r})"
+        return f"User(user_name={self.user_name!r})"
     
     def as_dict(self):
         return {
-            "username" : self.user_name,
+            "id" : self.id,
+            "user_name" : self.user_name,
             "initials" : self.initials,
-            "displayname" : self.display_name,
-            "email" : self.email
+            "display_name" : self.display_name,
+            "email" : self.email,
+            "created_on" : self.created_on,
+            "created_by" : self.created_by,
+            "updated_on" : self.updated_on,
+            "updated_by" : self.updated_by,
         }
    

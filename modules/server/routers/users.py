@@ -11,7 +11,7 @@ from db_definitions.users import User, getPasswordHash, generateSalt
 
 from modules.server.database import engine 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
-from modules.server.definitions import UserData, SessionData, User_Role
+from modules.server.definitions import UserLogin, UserData, SessionData, User_Role
 
 USER_DATA = {
     "admin" : {
@@ -34,12 +34,14 @@ if def_user is None:
         password_salt=salt,
         password_hash=pwd_hash,
         created_on=datetime.datetime.now(),
-        updated_on=datetime.datetime.now()
+        created_by="admin",
+        updated_on=datetime.datetime.now(),
+        updated_by="admin",
     ))
     db_session.commit()
 db_session.close()
 
-def authenticate_user(userdata : UserData) -> status:
+def authenticate_user(userdata : UserLogin) -> status:
     db_session = Session(engine)
 
     user_info_db : User = db_session.query(User).where(User.user_name.is_(userdata.username)).scalar()
@@ -56,15 +58,20 @@ def authenticate_user(userdata : UserData) -> status:
 usersRouter = APIRouter()
 
 @usersRouter.post("/user/sign-in")
-async def create_session(userdata : UserData, response: Response):
+async def create_session(userdata : UserLogin, response: Response):
     auth_output = authenticate_user(userdata=userdata)
     if auth_output != status.HTTP_200_OK:
         response.status_code = auth_output
         return {
             "message" : str(auth_output)
         }
+    
+    db_session = Session(engine)
+
+    user_info_db : User = db_session.query(User).where(User.user_name.is_(userdata.username)).scalar()
+
     session = uuid4()
-    sessiondata = SessionData(username=userdata.username)
+    sessiondata = UserData.parse_obj(user_info_db.as_dict())
 
     await backend.create(session, sessiondata)
     if not userdata.keepSignedIn:
@@ -78,11 +85,11 @@ async def create_session(userdata : UserData, response: Response):
     }
 
 @usersRouter.get("/user/validate", dependencies=[Depends(cookie)])
-async def whoami(session_data: SessionData = Depends(verifier)):
-    return session_data
+async def whoami(user_data: UserData = Depends(verifier)):
+    return user_data
 
 @usersRouter.get("/user/all-users", dependencies=[Depends(cookie)])
-async def all_users(session_data: SessionData = Depends(verifier)):
+async def all_users(user_data: UserData = Depends(verifier)):
     return User.objects.all()
 
 @usersRouter.post("/user/sign-out")

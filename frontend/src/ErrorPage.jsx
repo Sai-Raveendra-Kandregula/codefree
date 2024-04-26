@@ -6,6 +6,13 @@ import { AppContext } from './NotFoundContext'
 import LinkButton from './Components/LinkButton'
 
 const CFAppErrors = {
+  403 : <React.Fragment>
+    You do not have access to this page.
+    <br />
+    <LinkButton icon={<IoArrowBack />} to={'/home'} title='Go Back Home' style={{
+      fontSize : '1rem'
+    }} />
+  </React.Fragment>,
   404 : <React.Fragment>
     Oops! Let us know when you find something because we have no idea what you are looking for!
     <br />
@@ -14,7 +21,7 @@ const CFAppErrors = {
     }} />
   </React.Fragment>,
   500 : <React.Fragment>
-    Internal Server Error
+    Internal Server Error. Please contact the Administrator if the issue persists.
     <br />
     <LinkButton icon={<IoArrowBack />} to={'/home'} title='Go Back Home' style={{
       fontSize : '1rem'

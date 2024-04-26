@@ -3,7 +3,7 @@ import { Link, Outlet, useLoaderData, useNavigate, useParams } from 'react-route
 import useBreadcrumbs from "use-react-router-breadcrumbs";
 
 import { CiLight, CiDark } from "react-icons/ci";
-import { GoHome, GoProject,  GoGear, GoCodeSquare  } from "react-icons/go";
+import { GoHome, GoProject, GoGear, GoCodeSquare } from "react-icons/go";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 
 import { BiUserCircle, BiLogIn } from "react-icons/bi";
@@ -22,12 +22,12 @@ import { reportListLoader } from './projects/reports/Reports';
 
 function toTitleCase(str) {
   return str.replace(
-  /\w\S*/g,
-  function(txt) {
-  return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  }
+    /\w\S*/g,
+    function (txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
   );
-  }
+}
 
 const Breadcrumbs = () => {
   const breadcrumbs = useBreadcrumbs();
@@ -56,15 +56,28 @@ const Breadcrumbs = () => {
   );
 };
 
+async function getUserName() {
+  const resp = await fetch(`/api/user/validate`, {
+    credentials: "include"
+  })
+  if (resp.status == 200) {
+    return resp.json()
+  }
+  else {
+   window.location.href = `/sign-in?redirect=${window.location.href}`
+  }
+}
+
 export async function globalRootLoader({ params }) {
   const out = {}
+  out['user'] = await getUserName()
   if (params.projectid) {
     out['projectInfo'] = await projectInfoLoader({ params })
   }
   if (params.reportid) {
     out['reportList'] = await reportListLoader({ params })
   }
-  else{
+  else {
     out['reportList'] = undefined
   }
   return out
@@ -77,33 +90,18 @@ function GlobalRoot() {
 
   const { notFound, lastReport } = useContext(AppContext);
 
+  const [rootLoaderData, setRootLoaderData] = useState(useLoaderData())
 
   const [activeTheme, setActiveTheme] = useState((window.localStorage.getItem("app-theme") == "dark") ? "dark" : "light")
-  const [userName, setUserName] = useState("")
 
-  function getUserName() {
-    fetch(`${SERVER_BASE_URL}/api/user/validate`, {
-      credentials: "include"
-    })
-      .then((resp) => {
-        if (resp.status == 200) {
-          return resp.json()
-        }
-      })
-      .then((data) => {
-        setUserName(data['username'])
-      })
-      .catch(() => {
-        navigate(`/sign-in?redirect=${window.location.href}`,
-          {
-            replace: false
-          })
-      })
+  async function parseRootLoaderData() {
+    const loaderData = await globalRootLoader({ params: pathParams })
+    setRootLoaderData(loaderData)
   }
 
   useEffect(() => {
-    getUserName()
-  }, [])
+    parseRootLoaderData()
+  }, [pathParams])
 
   useEffect(() => {
     if (activeTheme) {
@@ -120,9 +118,10 @@ function GlobalRoot() {
 
   function AuthHeader() {
     return <React.Fragment>
+      {console.log(rootLoaderData['user'])}
       {
-        userName.length > 0 ?
-          <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<BiUserCircle />} showDropdownIcon={false} title={userName} >
+        rootLoaderData['user'] ?
+          <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<BiUserCircle />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
             <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<BiLogIn />} />
           </HeaderButton>
           :
@@ -131,18 +130,6 @@ function GlobalRoot() {
     </React.Fragment>
   }
 
-  const [rootLoaderData, setRootLoaderData] = useState(useLoaderData())
-
-  async function parseRootLoaderData(){
-    const loaderData =  await globalRootLoader({params:pathParams})
-    setRootLoaderData(loaderData)
-  }
-
-  useEffect(() => {
-    parseRootLoaderData()
-  }, [pathParams])
-
-
   const sideBarItems = () => {
     if (pathParams.projectid) {
       return <React.Fragment>
@@ -150,26 +137,26 @@ function GlobalRoot() {
           padding: '10px'
         }}>
           <b>
-          {
-            rootLoaderData['reportList'] ? `${rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} - Reports`
-            : (rootLoaderData['projectInfo'] && "Project")
-          }
+            {
+              rootLoaderData['reportList'] ? `${rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} - Reports`
+                : (rootLoaderData['projectInfo'] && "Project")
+            }
           </b>
         </div>
         {
           rootLoaderData['reportList'] ? <React.Fragment>
-              {
-                rootLoaderData['reportList'].map((report) => {
-                  return <SideBarLink to={`/projects/${pathParams.projectid}/reports/${report['id']}`} 
-                    className={pathParams.reportid && pathParams.reportid.toLowerCase() == 'last-report' && report['id'] == lastReport && "active"} 
-                    title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
-                })
-              }
-            </React.Fragment>
-          : <React.Fragment>
+            {
+              rootLoaderData['reportList'].map((report) => {
+                return <SideBarLink to={`/projects/${pathParams.projectid}/reports/${report['id']}`}
+                  className={pathParams.reportid && pathParams.reportid.toLowerCase() == 'last-report' && report['id'] == lastReport && "active"}
+                  title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
+              })
+            }
+          </React.Fragment>
+            : <React.Fragment>
               <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} icon={<GoProject />} />
               <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
-              <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<GoGear  />} />
+              <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<GoGear />} />
             </React.Fragment>
         }
       </React.Fragment>

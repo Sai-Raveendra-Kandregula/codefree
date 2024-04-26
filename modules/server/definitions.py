@@ -1,14 +1,26 @@
 from enum import Enum
+from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
 class SessionData(BaseModel):
     username: str
 
-class UserData(BaseModel):
+class UserLogin(BaseModel):
     username: str
     password: str
     keepSignedIn : bool = False
+
+class UserData(BaseModel):
+    id: int
+    user_name: str
+    initials : Optional[str] = Field(None)
+    display_name: Optional[str] = Field(None)
+    email: str
+    created_on: datetime
+    created_by: str
+    updated_on: datetime
+    updated_by: str
 
 class ProjectData(BaseModel):
     id : Optional[int] = Field(None, description="Project ID")

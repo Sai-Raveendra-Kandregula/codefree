@@ -10,7 +10,7 @@ from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 
-from modules.server.definitions import SessionData
+from modules.server.definitions import UserData
 
 from db_definitions.users import User
 from modules.server.database import engine
@@ -25,15 +25,15 @@ cookie = SessionCookie(
     secret_key="DONOTUSE",
     cookie_params=cookie_params,
 )
-backend = InMemoryBackend[UUID, SessionData]()
+backend = InMemoryBackend[UUID, UserData]()
 
-class BasicVerifier(SessionVerifier[UUID, SessionData]):
+class BasicVerifier(SessionVerifier[UUID, UserData]):
     def __init__(
         self,
         *,
         identifier: str,
         auto_error: bool,
-        backend: InMemoryBackend[UUID, SessionData],
+        backend: InMemoryBackend[UUID, UserData],
         auth_http_exception: HTTPException,
     ):
         self._identifier = identifier
@@ -57,7 +57,7 @@ class BasicVerifier(SessionVerifier[UUID, SessionData]):
     def auth_http_exception(self):
         return self._auth_http_exception
 
-    def verify_session(self, model: SessionData) -> bool:
+    def verify_session(self, model: UserData) -> bool:
         """If the session exists, it is valid"""
         return True
 

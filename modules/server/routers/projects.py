@@ -12,7 +12,7 @@ from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, Checke
 from modules import cf_output
 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
-from modules.server.definitions import UserData, SessionData, ProjectData, ReportData
+from modules.server.definitions import UserData, UserLogin, SessionData, ProjectData, ReportData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
@@ -115,8 +115,8 @@ if len(result.fetchall()) == 0:
     db_session.commit()
 db_session.close()
 
-@projectsRouter.post("/projects/create-project")
-def create_project(project : ProjectData, request : Request, response : Response):
+@projectsRouter.post("/projects/create-project", dependencies=[Depends(cookie)])
+def create_project(project : ProjectData, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
 
     max_project_id = db_session.query(func.max(Project.id)).scalar()
@@ -129,8 +129,8 @@ def create_project(project : ProjectData, request : Request, response : Response
     response.status_code = status.HTTP_201_CREATED
     return {}
 
-@projectsRouter.get("/projects/all-projects")
-def get_all_projects(request : Request, response : Response):
+@projectsRouter.get("/projects/all-projects", dependencies=[Depends(cookie)])
+def get_all_projects(request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
     projects_all_query = select(Project)
     projects_all_query_out = db_session.scalars(projects_all_query)
@@ -140,8 +140,8 @@ def get_all_projects(request : Request, response : Response):
     db_session.close()
     return out
 
-@projectsRouter.get("/projects/get-project")
-def get_project(slug:str, request : Request, response : Response):
+@projectsRouter.get("/projects/get-project", dependencies=[Depends(cookie)])
+def get_project(slug:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
     projects_slug_query = select(Project).where(Project.slug.is_(slug))
     projects_slug_query_out = db_session.scalars(projects_slug_query)
@@ -153,8 +153,8 @@ def get_project(slug:str, request : Request, response : Response):
     db_session.close()
     return out
 
-@projectsRouter.get("/reports/all-reports")
-def get_project_all_reports(project:str, request : Request, response : Response):
+@projectsRouter.get("/reports/all-reports", dependencies=[Depends(cookie)])
+def get_project_all_reports(project:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     # assuming project is actually the project slug
     db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
@@ -172,9 +172,8 @@ def get_project_all_reports(project:str, request : Request, response : Response)
     db_session.close()
     return out
 
-
-@projectsRouter.get("/reports/get-report")
-def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
+@projectsRouter.get("/reports/get-report", dependencies=[Depends(cookie)])
+def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
     if project_id == -1:
@@ -220,8 +219,8 @@ def get_project_report(project:str, report:str, request : Request, response : Re
         db_session.close()
         return {}
 
-@projectsRouter.get("/reports/get-stats")
-def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
+@projectsRouter.get("/reports/get-stats", dependencies=[Depends(cookie)])
+def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
     try:
         project_id = db_session.query(Project.id).where(Project.slug.is_(project)).scalar()
@@ -257,9 +256,8 @@ def get_project_report(project:str, report:str, request : Request, response : Re
     db_session.close()
     return report_data.as_dict()
 
-
-@projectsRouter.post("/reports/upload-report")
-def upload_project_report(report : ReportData, request : Request, response : Response):
+@projectsRouter.post("/reports/upload-report", dependencies=[Depends(cookie)])
+def upload_project_report(report : ReportData, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
 
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(report.project_id)).scalar()
@@ -317,8 +315,8 @@ def upload_project_report(report : ReportData, request : Request, response : Res
     response.status_code = status.HTTP_201_CREATED
     return {}
 
-@projectsRouter.get("/reports/export-report")
-def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json"):
+@projectsRouter.get("/reports/export-report", dependencies=[Depends(cookie)])
+def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
     formats = [ "json", "csv", "xlsx" ]
     if format.lower() not in formats:
         response.status_code = status.HTTP_400_BAD_REQUEST
