@@ -34,4 +34,3 @@ EXPOSE 8080
 
 WORKDIR /codefree
 ENTRYPOINT [ "/codefree/Docker/entrypoint.sh" ]
-STOPSIGNAL SIGINT
