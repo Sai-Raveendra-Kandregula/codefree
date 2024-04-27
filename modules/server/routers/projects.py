@@ -20,7 +20,7 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from modules.server.database import engine
-from db_definitions.projects import Project, Report
+from modules.server.db_definitions.projects import Project, Report
 
 projectsRouter = APIRouter()
 

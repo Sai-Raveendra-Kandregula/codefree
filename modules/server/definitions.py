@@ -12,7 +12,7 @@ class UserLogin(BaseModel):
     keepSignedIn : bool = False
 
 class UserData(BaseModel):
-    id: int
+    id: Optional[int] = Field(None)
     user_name: str
     initials : Optional[str] = Field(None)
     display_name: Optional[str] = Field(None)
@@ -21,6 +21,14 @@ class UserData(BaseModel):
     created_by: str
     updated_on: datetime
     updated_by: str
+
+class NewUserData(BaseModel):
+    user_name: str
+    email: str
+    password : str
+    invite_token : Optional[str] = Field(None)
+    created_on: datetime
+    created_by: str
 
 class ProjectData(BaseModel):
     id : Optional[int] = Field(None, description="Project ID")

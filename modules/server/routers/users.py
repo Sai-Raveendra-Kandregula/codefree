@@ -7,11 +7,11 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
-from db_definitions.users import User, getPasswordHash, generateSalt
+from modules.server.db_definitions.users import User, getPasswordHash, generateSalt
 
 from modules.server.database import engine 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
-from modules.server.definitions import UserLogin, UserData, SessionData, User_Role
+from modules.server.definitions import UserLogin, UserData, NewUserData, User_Role
 
 USER_DATA = {
     "admin" : {
@@ -84,14 +84,6 @@ async def create_session(userdata : UserLogin, response: Response):
         "message" : f"{userdata.username} signed in successfully!"
     }
 
-@usersRouter.get("/user/validate", dependencies=[Depends(cookie)])
-async def whoami(user_data: UserData = Depends(verifier)):
-    return user_data
-
-@usersRouter.get("/user/all-users", dependencies=[Depends(cookie)])
-async def all_users(user_data: UserData = Depends(verifier)):
-    return User.objects.all()
-
 @usersRouter.post("/user/sign-out")
 async def del_session(response: Response, session_id: UUID = Depends(cookie)):
     if (await backend.read(session_id=session_id) is not None):
@@ -100,3 +92,33 @@ async def del_session(response: Response, session_id: UUID = Depends(cookie)):
     return {
         "message" : f"User Signed Out"
     }
+
+@usersRouter.get("/user/validate", dependencies=[Depends(cookie)])
+async def whoami(user_data: UserData = Depends(verifier)):
+    return user_data
+
+@usersRouter.get("/user/all-users", dependencies=[Depends(cookie)])
+async def all_users(user_data: UserData = Depends(verifier)):
+    return User.objects.all()
+
+
+@usersRouter.post("/user/invite-user", dependencies=[Depends(cookie)])
+async def invite_user(new_user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
+    db_session = Session(engine)
+
+    # Check if user_data has permission to invite users
+
+
+
+    db_session.close()
+    pass
+
+@usersRouter.post("/user/create-account")
+async def create_user_acc(new_user : NewUserData, response: Response):
+    db_session = Session(engine)
+
+    # Check if users can sign-up
+
+    db_session.close()
+    pass
+

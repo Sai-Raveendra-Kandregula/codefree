@@ -1,6 +1,6 @@
-from db_definitions.users import *
-from db_definitions.projects import *
-from db_definitions.common import CodeFreeBase
+from modules.server.db_definitions.users import *
+from modules.server.db_definitions.projects import *
+from modules.server.db_definitions.common import CodeFreeBase
 
 from modules.server.common import APP_DATA_PATH, mkdir_p, logger
 

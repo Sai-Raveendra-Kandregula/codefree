@@ -6,6 +6,10 @@ from sqlalchemy.orm import mapped_column
 
 from db_definitions.common import CodeFreeBase
 
+def generateInviteToken() -> str:
+    import uuid
+    return str(uuid.uuid4())
+
 def generateSalt() -> str:
     import uuid
     return str(uuid.uuid4())
@@ -44,5 +48,28 @@ class User(CodeFreeBase):
             "created_by" : self.created_by,
             "updated_on" : self.updated_on,
             "updated_by" : self.updated_by,
+        }
+   
+class PendingUser(CodeFreeBase):
+    __tablename__ = "user"
+
+    user_name: Mapped[str] = mapped_column(String(30), primary_key=True)
+    email: Mapped[str] = mapped_column(String(30))
+    password_salt: Mapped[Optional[str]] = mapped_column(String(36)) # UUID
+    password_hash: Mapped[Optional[str]] = mapped_column(String(64)) # SHA512 Hash of Password + Salt
+    invite_token: Mapped[Optional[str]] = mapped_column(String(36)) # Invite Token (UUID)
+    invite_expires_in: Mapped[Optional[DateTime]] = mapped_column(DateTime())
+    created_on: Mapped[DateTime] = mapped_column(DateTime())
+    created_by: Mapped[str] = mapped_column(String(30))
+
+    def __repr__(self) -> str:
+        return f"User(user_name={self.user_name!r})"
+    
+    def as_dict(self):
+        return {
+            "user_name" : self.user_name,
+            "email" : self.email,
+            "created_on" : self.created_on,
+            "created_by" : self.created_by,
         }
    
