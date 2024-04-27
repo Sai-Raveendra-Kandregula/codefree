@@ -12,7 +12,7 @@ from fastapi_sessions.frontends.implementations import SessionCookie, CookiePara
 
 from modules.server.definitions import UserData
 
-from db_definitions.users import User
+from modules.server.db_definitions.users import User
 from modules.server.database import engine
 
 cookie_params = CookieParameters()

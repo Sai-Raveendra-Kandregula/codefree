@@ -4,7 +4,7 @@ from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from db_definitions.common import CodeFreeBase
+from modules.server.db_definitions.common import CodeFreeBase
 
 def generateInviteToken() -> str:
     import uuid
@@ -51,7 +51,7 @@ class User(CodeFreeBase):
         }
    
 class PendingUser(CodeFreeBase):
-    __tablename__ = "user"
+    __tablename__ = "pendinguser"
 
     user_name: Mapped[str] = mapped_column(String(30), primary_key=True)
     email: Mapped[str] = mapped_column(String(30))
