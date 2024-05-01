@@ -88,9 +88,7 @@ function SignIn() {
             credentials: "include",
             mode: 'cors'
           }).then((resp) => {
-            console.log(`${SERVER_BASE_URL}/api/user/sign-in`)
             if (resp.status == 200) {
-              console.log("Signed In")
               redirectToTarget();
             }
             else {

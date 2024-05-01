@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import LinkButton from '../../Components/LinkButton';
 import IconButton from '../../Components/IconButton';
@@ -25,29 +25,7 @@ function Reports() {
   const pathParams = useParams()
   const [searchParams, setSearchParams] = useSearchParams();
 
-
-  const [reportsList, setReportsLists] = useState([])
-
-  function getReports() {
-    fetch(`/api/reports/all-reports?project=${pathParams.projectid}`).then(
-      (resp) => {
-        if (resp.status == 200) {
-          return resp.json()
-        }
-        else {
-          return null
-        }
-      }).then((data) => {
-        setReportsLists(data)
-      }).catch((reason) => {
-        console.log(`Error Fetching Report List : ${reason}`)
-        setReportsLists([])
-      })
-  }
-
-  useEffect(() => {
-    getReports()
-  }, []);
+  const reportsList = useLoaderData();
 
   function uploadReport() {
     const report = document.getElementById('upload_report').files[0]
@@ -65,8 +43,6 @@ function Reports() {
         return
       }
 
-      // Upload Result
-      console.log(out)
       fetch(`/api/reports/upload-report`, {
         method: 'post',
         headers: {
@@ -77,7 +53,6 @@ function Reports() {
         if (resp.status == 201) {
           searchParams.delete('upload')
           setSearchParams(searchParams)
-          getReports()
         }
         else if(resp.status == 404) {
           alert("Project Not Found.")

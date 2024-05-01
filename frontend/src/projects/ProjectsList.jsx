@@ -25,7 +25,6 @@ function ProjectsList() {
       }).then((data) => {
         setProjectsLists(data)
       }).catch((reason) => {
-        console.log(`Error Fetching Report List : ${reason}`)
         setProjectsLists([])
       })
   }
@@ -33,7 +32,6 @@ function ProjectsList() {
 
   useEffect(() => {
     getProjects();
-    console.log(searchParams.get("create"))
   }, [])
 
   function createProject() {

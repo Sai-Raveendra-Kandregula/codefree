@@ -60,7 +60,6 @@ function ProjectHome() {
           setReportsLists([])
         }
       }).catch((reason) => {
-        console.log(`Error Fetching Report List : ${reason}`)
         setReportsLists([])
       })
   }

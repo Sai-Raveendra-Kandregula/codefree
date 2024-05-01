@@ -22,9 +22,7 @@ function SignOut() {
       credentials: "include",
       mode: 'cors'
     }).then((resp) => {
-      console.log(`${SERVER_BASE_URL}/api/user/sign-out`)
       if (resp.status == 200) {
-        console.log("Signed Out")
         redirectToSignIn();
       }
       else {

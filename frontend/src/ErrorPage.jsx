@@ -39,8 +39,6 @@ function ErrorPage({
 }) {
   const navigate = useNavigate()
 
-  // console.log("Here, Error Number : " + errorNumber)
-
   if (errorNumber == StatusCodes.UNAUTHORIZED) {
     navigate(`/sign-in?redirect=${window.location.href}`)
   }

@@ -6,6 +6,8 @@ import { CiLight, CiDark } from "react-icons/ci";
 import { GoHome, GoProject, GoGear, GoCodeSquare } from "react-icons/go";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 
+import * as TbIcons from 'react-icons/tb'
+
 import { BiUserCircle, BiLogIn } from "react-icons/bi";
 
 import GlobalRootStyles from './styles/globalroot.module.css'
@@ -19,6 +21,18 @@ import ErrorPage from './ErrorPage';
 import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
+
+function isAlphanumeric(str) {
+  return /^[a-z0-9]+$/i.test(str)
+}
+
+function isAlphabet(str) {
+  return /^[a-z]+$/i.test(str)
+}
+
+function isNumeric(str) {
+  return /^[0-9]+$/i.test(str)
+}
 
 function toTitleCase(str) {
   return str.replace(
@@ -34,8 +48,7 @@ const Breadcrumbs = () => {
   return (
     <React.Fragment>
       {breadcrumbs.map(({ breadcrumb, key }, ind) => {
-        console.log(breadcrumb.props.children, typeof breadcrumb.props.children)
-        const crumb = <Link className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{toTitleCase(breadcrumb.props.children)}</Link>
+        const crumb = <Link key={key} className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{toTitleCase(breadcrumb.props.children)}</Link>
         if (ind == 0) {
           return
         }
@@ -43,7 +56,7 @@ const Breadcrumbs = () => {
           return crumb
         }
         else {
-          return <React.Fragment>
+          return <React.Fragment key={key}>
             {/* <RxSlash /> */}
             <span>
               {"/"}
@@ -118,7 +131,6 @@ function GlobalRoot() {
 
   function AuthHeader() {
     return <React.Fragment>
-      {console.log(rootLoaderData['user'])}
       {
         rootLoaderData['user'] ?
           <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<BiUserCircle />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
@@ -132,6 +144,14 @@ function GlobalRoot() {
 
   const sideBarItems = () => {
     if (pathParams.projectid) {
+      var ProjectIcon = 'GoProject'
+      if(rootLoaderData['projectInfo'] && isAlphabet(rootLoaderData['projectInfo']['name'][0].toLowerCase())){
+        ProjectIcon = TbIcons[`TbSquareLetter${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
+      }
+      else if(rootLoaderData['projectInfo'] && isNumeric(rootLoaderData['projectInfo']['name'][0])){
+        ProjectIcon = TbIcons[`TbSquareNumber${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
+      }
+
       return <React.Fragment>
         <div style={{
           padding: '10px'
@@ -154,7 +174,8 @@ function GlobalRoot() {
             }
           </React.Fragment>
             : <React.Fragment>
-              <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} icon={<GoProject />} />
+              <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} 
+                icon={<ProjectIcon />} />
               <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
               <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<GoGear />} />
             </React.Fragment>
