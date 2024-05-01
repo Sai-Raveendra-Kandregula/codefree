@@ -2,6 +2,7 @@
 
 import os
 from typing import List
+import types
 
 from modules import cf_args
 
@@ -18,7 +19,7 @@ if __name__ == "__main__":
 
     progress_printer = get_progress_printer(args=args)
     error_printer = get_error_printer(args=args)
-
+    
     progress_printer("Path : " + args.path)
     if args.optionsFile != None:
         progress_printer("Using Options File from : " + args.path)
@@ -27,9 +28,21 @@ if __name__ == "__main__":
     if args.outputFile is not None:
         progress_printer("Output File : " + os.path.realpath(args.outputFile.name))
         progress_printer("Output Format : " + args.formatClass)
+    elif args.formatClass == 'server':
+        progress_printer("Output : Upload to CodeFree Server")
     else:
         progress_printer("Output File : stdout")
         progress_printer("Output Format : JSON")
+
+    format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
+    if(format_module.preCheck is not None):
+        if(isinstance(format_module.preCheck, (types.FunctionType, types.BuiltinFunctionType))):
+            progress_printer("Running Prechecks...")
+            if(not format_module.preCheck(args)):
+                error_printer("Precheck Failed.")
+                exit(1)
+            else:
+                progress_printer("Prechecks successful.")
 
     progress_printer("\nRunning CodeFree Analysis...")
 

@@ -31,7 +31,7 @@ def load_args() -> argparse.Namespace:
                     for arg in file_parsed_args.__dict__.keys():
                         attr = getattr(namespace, arg)
                         if attr is None:
-                            print(arg)
+                            # print(arg)
                             setattr(namespace, arg, attr)
 
     parser.add_argument(
@@ -97,6 +97,16 @@ def load_args() -> argparse.Namespace:
     outputGroup = parser.add_argument_group('Output Options')
     outputGroup.description = f"Set Output Format and other options. If multiple formats are mentioned, last specified format is used."
     
+    format_modules = FormattingModule.modules()
+    
+    outputGroup.add_argument(
+            f"--output",
+            dest="formatClass",
+            action="store",
+            choices=[module.formatStr for module in format_modules],
+            help=f"Choose Output Module. If not specified, raw object is dumped to stdout."
+        )
+
     outputGroup.add_argument(
         f"--output-file",
         dest="outputFile",
@@ -108,8 +118,6 @@ def load_args() -> argparse.Namespace:
         metavar="<path_to_output>"
     )
     
-    format_modules = FormattingModule.modules()
-
     outputGroup.add_argument(
             f"--quiet",
             dest="printProgress",
@@ -124,19 +132,11 @@ def load_args() -> argparse.Namespace:
             help=f"Do not calculate Issue Statistics."
         )
 
-    outputGroup.add_argument(
-            f"--format",
-            dest="formatClass",
-            action="store",
-            choices=[module.formatStr for module in format_modules],
-            help=f"Output Format. If not specified, raw object is dumped to stdout."
-        )
-
     out_module : FormattingModule
     for out_module in format_modules:
         outModuleOpts = parser.add_argument_group(f'{out_module.formatStr} Output Options')
         if (len(out_module.formatOptions) > 0):
-            outModuleOpts.description = f"These options should be used along with --{out_module.formatStr}, else they are ignored."
+            outModuleOpts.description = f"{out_module.formatHelp}.\n\nThe following options can be used along with `--format {out_module.formatStr}`, else they are ignored."
 
             option : FormatOption
             for option in out_module.formatOptions:
@@ -177,7 +177,7 @@ def load_args() -> argparse.Namespace:
             for arg in file_parsed_args.__dict__.keys():
                 attr = getattr(args, arg)
                 if attr is None:
-                    print(arg)
+                    # print(arg)
                     setattr(args, arg, attr)
     
     if len(args.includePaths) < 1:

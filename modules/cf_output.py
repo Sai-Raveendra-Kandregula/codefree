@@ -1,7 +1,9 @@
 from typing import Dict, List, Callable, Any, TypeAlias
+import types
 import sys
 
 class ArgActionOptions:
+    Save : str = "store"
     Empty : str =  "store_true"
 
 class FormatOption:
@@ -9,8 +11,18 @@ class FormatOption:
     argDest : str
     argAction : str
     argHelp : str
-    argConst : Any = None
-    default : Any = None
+    argConst : Any
+    default : Any
+
+    def __init__(self) -> None:
+        self.argAction = ArgActionOptions.Save
+        self.argConst = None
+        self.default = None
+
+    def __str__(self):
+        return str({
+            "option" : self.option
+        })
 
 FormatFunction : TypeAlias = Callable[[ Any, List[Any] ], str]
 
@@ -29,12 +41,23 @@ def get_progress_printer(args):
 class FormattingModule():
     formatStr : str
     formatter : FormatFunction
-    formatOptions : List[FormatOption] = []
+    formatOptions : List[FormatOption]
     formatHelp: str
-    handlesOutputInternally : bool = False
+    handlesOutputInternally : bool
+    preCheck : types.FunctionType
 
     __default = None
     __modules = {}
+
+    def __init__(self) -> None:
+        self.formatOptions = []
+        self.handlesOutputInternally = False
+        self.preCheck = None
+
+    def __str__(self):
+        return str({
+            "options" : [str(opt) for opt in self.formatOptions]
+        })
 
     @classmethod
     def set_default(cls, module):
