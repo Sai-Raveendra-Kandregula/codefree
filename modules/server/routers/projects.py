@@ -138,6 +138,12 @@ db_session.close()
 def create_project(project : ProjectData, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
 
+    existing = db_session.query(Project).where(Project.slug.is_(project.slug)).scalar()
+    if existing is not None:
+        db_session.close()
+        response.status_code = status.HTTP_409_CONFLICT
+        return {}
+
     max_project_id = db_session.query(func.max(Project.id)).scalar()
     project.id = max_project_id + 1
 
