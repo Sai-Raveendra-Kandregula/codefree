@@ -35,6 +35,10 @@ class ProjectData(BaseModel):
     slug : str
     name : str
 
+class ProjectConfig(BaseModel):
+    slug : str
+    git_repo : Optional[dict] = Field(None)
+
 class ReportData(BaseModel):
     id : Optional[int] = Field(None, description="Report ID")
     project_id : str

@@ -3,6 +3,14 @@ import logging
 import dotenv
 import errno
 
+def mkdir_p(path): # mkdir -p implementation
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise
+
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'sample_raw_report')
 
 APP_NAME = "CodeFree GUI"
@@ -14,12 +22,7 @@ logger = logging.getLogger('uvicorn.error')
 if os.path.exists(os.path.join(os.path.dirname(__file__), '.env')):
     dotenv.load_dotenv(dotenv_path=".env")
 
-APP_DATA_PATH = (os.getenv('DATA_PATH', '/tmp')).removesuffix("/")
-
-def mkdir_p(path): # mkdir -p implementation
-    try:
-        os.makedirs(path)
-    except OSError as exc: # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else: raise
+APP_DATA_PATH = os.getenv('CF_DATA_PATH', '/tmp').removesuffix("/")
+APP_CONF_PATH = os.getenv('CF_CONF_PATH', '/tmp').removesuffix("/")
+mkdir_p(APP_CONF_PATH)
+APP_CONF_FILE = os.path.join(APP_CONF_PATH, "cf_config.json")

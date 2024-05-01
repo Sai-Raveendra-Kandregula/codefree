@@ -16,13 +16,32 @@ from modules.server.definitions import UserData, UserLogin, SessionData, Project
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
-from sqlalchemy import select, func
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from modules.server.database import engine
 from modules.server.db_definitions.projects import Project, Report
 
 projectsRouter = APIRouter()
+
+def getProjectConfiguration(slug : str) -> dict|None:
+    path = os.path.join(APP_DATA_PATH, slug, 'config.json')
+    config = None
+
+    if os.path.exists(path=path):
+        with open(path, "r") as conf_file:
+            config = json.load(conf_file)
+    return config
+
+def setProjectConfiguration(slug : str, config : dict) -> bool:
+    path = os.path.join(APP_DATA_PATH, slug, 'config.json')
+    success = False
+
+    if os.path.exists(path=path):
+        with open(path, "w") as conf_file:
+            json.dump(fp=conf_file, obj=config)
+            success = True
+    return success
 
 def getReportHash(report : dict):
     import hashlib
@@ -82,8 +101,8 @@ def getProjectReportsPath(slug : str):
 
 # Testing
 db_session = Session(engine)
-result = db_session.scalars(select(Project).where(Project.slug.is_('logger')))
-if len(result.fetchall()) == 0:
+result = db_session.query(Project).where(Project.slug.is_('logger')).scalar()
+if result == None:
     project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
     db_session.add(Project(id=project_id, name="Logger", slug="logger"))
 
@@ -132,8 +151,7 @@ def create_project(project : ProjectData, request : Request, response : Response
 @projectsRouter.get("/projects/all-projects", dependencies=[Depends(cookie)])
 def get_all_projects(request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
-    projects_all_query = select(Project)
-    projects_all_query_out = db_session.scalars(projects_all_query)
+    projects_all_query_out = db_session.query(Project).all()
     out = []
     if projects_all_query_out is not None:
         out = [ project.as_dict() for project in projects_all_query_out ]
@@ -143,13 +161,13 @@ def get_all_projects(request : Request, response : Response, user_data: UserData
 @projectsRouter.get("/projects/get-project", dependencies=[Depends(cookie)])
 def get_project(slug:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
-    projects_slug_query = select(Project).where(Project.slug.is_(slug))
-    projects_slug_query_out = db_session.scalars(projects_slug_query)
+    projects_slug_query = db_session.query(Project).where(Project.slug.is_(slug))
+    projects_slug_query_out = projects_slug_query.scalar()
     out= {}
     response.status_code = status.HTTP_404_NOT_FOUND
     if projects_slug_query_out is not None:
         response.status_code = status.HTTP_200_OK
-        out = projects_slug_query_out.one().as_dict()
+        out = projects_slug_query_out.as_dict()
     db_session.close()
     return out
 
@@ -164,8 +182,8 @@ def get_project_all_reports(project:str, request : Request, response : Response,
             "message" : 'Project Not Found'
         }
     
-    reports_all_query = select(Report).where(Report.project_id.is_(project_id))
-    reports_all_query_out = db_session.scalars(reports_all_query)
+    reports_all_query = db_session.query(Report).where(Report.project_id.is_(project_id))
+    reports_all_query_out = reports_all_query.all()
     out = []
     if reports_all_query_out is not None:
         out = [ report.as_dict() for report in reports_all_query_out ]

@@ -46,7 +46,7 @@ const RoutesJSX = (
             <Route path='/home' element={<Navigate to={'/projects'} replace={false} />} />
             <Route path='/projects/' element={<ProjectsRoot />} >
                 <Route path='/projects/' element={<ProjectsList />} />
-                <Route path='/projects/:projectid' element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
+                 <Route path='/projects/:projectid' element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
                     <Route path='/projects/:projectid/' element={<ProjectHome />} />
                     <Route path='/projects/:projectid/reports' element={<Reports />} />
                     <Route path='/projects/:projectid/reports/:reportid' element={<ReportViewer />} loader={reportDataLoader} errorElement={<NotFound />} />

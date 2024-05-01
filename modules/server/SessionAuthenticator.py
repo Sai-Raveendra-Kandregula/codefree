@@ -3,7 +3,7 @@ import os
 import logging
 from enum import Enum
 from pydantic import BaseModel
-from fastapi import HTTPException, FastAPI, Response, Depends
+from fastapi import HTTPException, status
 from uuid import UUID, uuid4
 
 from fastapi_sessions.backends.implementations import InMemoryBackend
@@ -66,5 +66,5 @@ verifier = BasicVerifier(
     identifier="codefree_user_verifier",
     auto_error=True,
     backend=backend,
-    auth_http_exception=HTTPException(status_code=403, detail="invalid session"),
+    auth_http_exception=HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"),
 )

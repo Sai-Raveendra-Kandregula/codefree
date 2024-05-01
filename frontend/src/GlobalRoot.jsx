@@ -60,11 +60,11 @@ async function getUserName() {
   const resp = await fetch(`/api/user/validate`, {
     credentials: "include"
   })
-  if (resp.status == 200) {
-    return resp.json()
+  if (resp.status != 200) {
+    throw resp.status
   }
   else {
-   window.location.href = `/sign-in?redirect=${window.location.href}`
+    return resp.json()
   }
 }
 
@@ -88,7 +88,7 @@ function GlobalRoot() {
   const navigate = useNavigate();
   const pathParams = useParams();
 
-  const { notFound, lastReport } = useContext(AppContext);
+  const { lastReport } = useContext(AppContext);
 
   const [rootLoaderData, setRootLoaderData] = useState(useLoaderData())
 
@@ -168,8 +168,6 @@ function GlobalRoot() {
       </React.Fragment>
     }
   }
-
-  if (notFound) return <ErrorPage />
 
   return (
     <React.Fragment>

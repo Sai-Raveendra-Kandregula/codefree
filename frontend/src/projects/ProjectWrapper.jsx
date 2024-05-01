@@ -4,7 +4,7 @@ import { Outlet, useNavigate, useParams, Link, useSearchParams, useLoaderData } 
 export async function projectInfoLoader( {params} ) {
     const resp = await fetch(`/api/projects/get-project?slug=${params.projectid}`)
     if (resp.status != 200) {
-        throw resp
+        throw resp.status
     }
     else {
         return resp.json()
