@@ -1,6 +1,6 @@
 .apexcharts-canvas > svg {
     background: transparent !important;
-    filter: drop-shadow(5px 5px 10px rgba(100,100,100,0.5));
+    filter: drop-shadow(5px 5px 10px rgba(50, 50, 50, 0.25));
 }
 
 .apexchartsissues-count > svg path {
