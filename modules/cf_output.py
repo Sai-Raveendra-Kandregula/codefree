@@ -44,6 +44,7 @@ class FormattingModule():
     formatOptions : List[FormatOption]
     formatHelp: str
     handlesOutputInternally : bool
+    hasNoOutputFile : bool
     preCheck : types.FunctionType
 
     __default = None
@@ -52,6 +53,7 @@ class FormattingModule():
     def __init__(self) -> None:
         self.formatOptions = []
         self.handlesOutputInternally = False
+        self.hasNoOutputFile = False
         self.preCheck = None
 
     def __str__(self):
@@ -86,9 +88,10 @@ class FormattingModule():
         from modules import cf_checker
         import json
         output = cf_checker.CheckingModule.get_output()
-        if args.outputFile is None:
+        format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
+
+        if args.outputFile is None and not format_module.hasNoOutputFile:
             print(json.dumps([item.dict() for item in output], indent=2))
         else:
-            format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
             format_module.formatter(args, output)
 

@@ -41,7 +41,8 @@ function ReportViewer() {
     const [groupBy, setGroupBy] = useState(() => {
         return searchParams.get("groupBy") || groupingMapping[viewType][0]
     });
-    const [reportData, setReportData] = useState(useLoaderData())
+    
+    const reportData = useLoaderData()
     const [transformedReportData, setTransformedReportData] = useState({})
 
     useEffect(() => {

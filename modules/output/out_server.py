@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from modules.cf_checker import CheckerOutput, get_error_printer
+from modules.cf_checker import CheckerOutput, get_error_printer, get_progress_printer
 from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
 
 from typing import List
@@ -8,22 +8,40 @@ import json
 import requests
 import urllib.parse
 
+ServerSession : requests.Session = requests.session()
+
 def output_server(args, output: List[CheckerOutput] = []):
+    progress_printer = get_progress_printer(args=args)
+    error_printer = get_error_printer(args=args)
+
     out_obj = {}
     out_obj['timestamp'] = str(datetime.now(timezone.utc))
     out_obj['data'] = [item.dict() for item in output]
-    json_string = json.dumps(out_obj)
-    print(json_string)
+
+    uploadUrl = urllib.parse.urljoin(args.serverUrl, '/api/reports/upload-report')
+    resp : requests.Response
+    
+    resp = ServerSession.post(uploadUrl, json={
+        "project_id": args.cfProject,
+        "report": out_obj
+    })
+    if(resp.status_code == 201):
+        progress_printer("Report Uploaded Successfully.")
+    else:
+        error_printer(f"Report Upload Failed. (HTTP Status Code : {resp.status_code})")
 
 def checkRequisites(args):
     error_printer = get_error_printer(args=args)
-    if(not args.serverUrl):
+    if(not getattr(args, "serverUrl", False)):
         error_printer("CodeFree Server URL Not Provided")
         return False
-    if(not args.cfUserName):
+    if(not getattr(args, "cfProject", False)):
+        error_printer("CodeFree Server Project Slug Not Provided")
+        return False
+    if(not getattr(args, "cfUserName", False)):
         error_printer("CodeFree Server UserName Not Provided")
         return False
-    if(not args.cfPassword):
+    if(not getattr(args, "cfPassword", False)):
         error_printer("CodeFree Server Password Not Provided")
         return False
 
@@ -38,17 +56,22 @@ def checkRequisites(args):
         return False
 
     signInUrl = urllib.parse.urljoin(args.serverUrl, '/api/user/sign-in')
-    try:
-        resp = requests.post(url=signInUrl, json={
-            "username": args.cfUserName,
-            "password": args.cfPassword,
-            "keepSignedIn" : False
-        })
-    except:
-        error_printer(f"Authentication failed with CodeFree Server ({args.serverUrl})")
-        return False
+    resp = ServerSession.post(url=signInUrl, json={
+        "username": args.cfUserName,
+        "password": args.cfPassword,
+        "keepSignedIn" : False
+    })
     if(resp.status_code != 200):
         error_printer(f"Authentication failed with CodeFree Server ({args.serverUrl})")
+        return False
+
+    getProjectUrl = urllib.parse.urljoin(args.serverUrl, f'/api/projects/get-project?slug={args.cfProject}')
+    resp = ServerSession.get(url=getProjectUrl)
+    if(resp.status_code == 404):
+        error_printer(f"Fetching Project Details Failed : Project {args.cfProject} does not exist.")
+        return False
+    elif(resp.status_code != 200):
+        error_printer(f"Fetching Project Details Failed : HTTP Status Code {resp.status_code}")
         return False
 
     return True
@@ -57,6 +80,7 @@ server_format_obj = FormattingModule()
 
 server_format_obj.formatStr = "server"
 server_format_obj.formatHelp = "Uploads Report to CodeFree Server"
+server_format_obj.hasNoOutputFile = True
 server_format_obj.formatter = output_server
 server_format_obj.preCheck = checkRequisites
 
@@ -65,6 +89,12 @@ server_ip_opt.option = "server-url"
 server_ip_opt.argDest = "serverUrl"
 server_ip_opt.argAction = "store"
 server_ip_opt.argHelp = "CodeFree Server Address"
+
+server_project_opt = FormatOption()
+server_project_opt.option = "cf-project"
+server_project_opt.argDest = "cfProject"
+server_project_opt.argAction = "store"
+server_project_opt.argHelp = "CodeFree Server Project Slug"
 
 server_user_opt = FormatOption()
 server_user_opt.option = "cf-username"
@@ -79,6 +109,7 @@ server_pswd_opt.argAction = "store"
 server_pswd_opt.argHelp = "CodeFree Server password"
 
 server_format_obj.formatOptions.append(server_ip_opt)
+server_format_obj.formatOptions.append(server_project_opt)
 server_format_obj.formatOptions.append(server_user_opt)
 server_format_obj.formatOptions.append(server_pswd_opt)
 

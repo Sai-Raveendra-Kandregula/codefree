@@ -103,18 +103,9 @@ function GlobalRoot() {
 
   const { lastReport } = useContext(AppContext);
 
-  const [rootLoaderData, setRootLoaderData] = useState(useLoaderData())
+  const rootLoaderData = useLoaderData()
 
   const [activeTheme, setActiveTheme] = useState((window.localStorage.getItem("app-theme") == "dark") ? "dark" : "light")
-
-  async function parseRootLoaderData() {
-    const loaderData = await globalRootLoader({ params: pathParams })
-    setRootLoaderData(loaderData)
-  }
-
-  useEffect(() => {
-    parseRootLoaderData()
-  }, [pathParams])
 
   useEffect(() => {
     if (activeTheme) {
@@ -144,7 +135,7 @@ function GlobalRoot() {
 
   const sideBarItems = () => {
     if (pathParams.projectid) {
-      var ProjectIcon = 'GoProject'
+      var ProjectIcon = GoProject
       if(rootLoaderData['projectInfo'] && isAlphabet(rootLoaderData['projectInfo']['name'][0].toLowerCase())){
         ProjectIcon = TbIcons[`TbSquareLetter${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
       }
