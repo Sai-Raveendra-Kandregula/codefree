@@ -45,7 +45,7 @@ function ProjectsList() {
       alert("Project Slug has to be at least of length 3")
       return
     }
-    fetch(`/api/projects/create-project`, {
+    fetch(`${SERVER_BASE_URL}/api/projects/create-project`, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -205,7 +205,7 @@ function ProjectsList() {
       }}>
         {
           projectsList.map(({ slug, name }) => {
-            return <Link className='listItem' to={`/projects/${slug}`} replace={false}>
+            return <Link key={`/projects/${slug}`} className='listItem' to={`/projects/${slug}`} replace={false}>
               <div className='initialsCircle'>
                 {name.split(" ").map((word) => {
                   return word[0].toUpperCase()

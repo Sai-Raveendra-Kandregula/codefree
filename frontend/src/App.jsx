@@ -29,7 +29,12 @@ function setTitle(title = "") {
     window.title = `${title} | CodeFree`;
 }
 
-const SERVER_BASE_URL = process.env.REACT_APP_SERVER_BASE_URL.replace(/\/$/, "") || '' // Get Base url from env and remove any trailing slashes
+const SERVER_BASE_URL = process.env.REACT_APP_SERVER_BASE_URL.replace(/^\/|\/$/g, "") || '' // Get Base url from env and remove any trailing slashes
+var tmp = process.env.REACT_APP_ROOT_PATH.replace(/^\/|\/$/g, "").toString()
+const SERVER_ROOT_PATH = tmp.length > 0 ? '/' + process.env.REACT_APP_ROOT_PATH.replace(/^\/|\/$/g, "") : '' // Get Base Path from env and remove any trailing slashes
+
+console.log(SERVER_BASE_URL)
+console.log(SERVER_ROOT_PATH)
 
 const SuspenseLayout = () => (
     <Suspense fallback={<Loading />}>
@@ -37,21 +42,23 @@ const SuspenseLayout = () => (
     </Suspense>
   );
 
+  console.log(SERVER_ROOT_PATH)
+
 const RoutesJSX = (
-    <Route path="/" element={<SuspenseLayout />}>
-        <Route path='/sign-in' element={<SignIn />} />
-        <Route path='/sign-out' element={<SignOut />} />
+    <Route path={`/`} element={<SuspenseLayout />}>
+        <Route path={`/sign-in`} element={<SignIn />} />
+        <Route path={`/sign-out`} element={<SignOut />} />
         <Route path='*' element={<ErrorPage errorNumber={404} />} />
-        <Route path='/' element={<GlobalRoot />} loader={globalRootLoader} errorElement={<NotFound />}>
-            <Route path='/' element={<Navigate to={'/home'} replace={false} />} />
-            <Route path='/home' element={<Navigate to={'/projects'} replace={false} />} />
-            <Route path='/projects/' element={<ProjectsRoot />} >
-                <Route path='/projects/' element={<ProjectsList />} />
-                 <Route path='/projects/:projectid' element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
-                    <Route path='/projects/:projectid/' element={<ProjectHome />} />
-                    <Route path='/projects/:projectid/reports' element={<Reports />} loader={reportListLoader} errorElement={<NotFound />} />
-                    <Route path='/projects/:projectid/reports/:reportid' element={<ReportViewer />} loader={reportDataLoader} errorElement={<NotFound />} />
-                    <Route path='/projects/:projectid/configure' element={<ConfigureProject />} />
+        <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} errorElement={<NotFound />} shouldRevalidate={() => true}>
+            <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
+            <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
+            <Route path={`/projects`} element={<ProjectsRoot />} >
+                <Route path={`/projects`} element={<ProjectsList />} />
+                 <Route path={`/projects/:projectid`} element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
+                    <Route path={`/projects/:projectid`} element={<ProjectHome />} />
+                    <Route path={`/projects/:projectid/reports`} element={<Reports />} loader={reportListLoader} errorElement={<NotFound />} />
+                    <Route path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} errorElement={<NotFound />} />
+                    <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
                 </Route>
             </Route>
         </Route>
@@ -59,7 +66,9 @@ const RoutesJSX = (
 
 const routes = createRoutesFromElements(RoutesJSX);
 
-const router = createBrowserRouter(routes)
+const router = createBrowserRouter(routes, {
+    basename: `${SERVER_ROOT_PATH}`
+})
 
 function App() {
     return (
@@ -72,5 +81,6 @@ function App() {
 export default App;
 export {
     setTitle,
-    SERVER_BASE_URL
+    SERVER_BASE_URL,
+    SERVER_ROOT_PATH
 };

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { SERVER_ROOT_PATH } from '../App'
 
 
 function SideBarLink({
@@ -12,7 +13,7 @@ function SideBarLink({
 }) {
   return (<React.Fragment>
     <Link 
-      className={`sideBarLink ${[to, to + "/"].includes(window.location.pathname) ? "active" : ""} ${className ? className : ""}`} 
+      className={`sideBarLink ${[SERVER_ROOT_PATH + to, SERVER_ROOT_PATH + to + "/"].includes(window.location.pathname) ? "active" : ""} ${className ? className : ""}`} 
       to={to} 
       title={title} 
       replace={false}

@@ -98,7 +98,8 @@ function ProjectHome() {
 
   const timeline = useMemo(() => {
     return reportsList.map((report_data) => {
-      return new Date(report_data['timestamp'])
+      const date = new Date(report_data['timestamp'])
+      return date
     })
   }, [reportsList])
 
@@ -111,7 +112,7 @@ function ProjectHome() {
       id: "basic-bar"
     },
     xaxis: {
-      categories: timeline
+      categories: timeline,
     },
     plotOptions: {
       line: {

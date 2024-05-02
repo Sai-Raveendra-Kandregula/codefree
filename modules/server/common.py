@@ -17,11 +17,12 @@ APP_NAME = "CodeFree GUI"
 AUTHOR = "Sai Raveendra Kandregula"
 CONTACT_EMAIL = "sairaveendrakandregula@gmail.com"
 
+
 logger = logging.getLogger('uvicorn.error')
 
-if os.path.exists(os.path.join(os.path.dirname(__file__), '.env')):
-    dotenv.load_dotenv(dotenv_path=".env")
 
+SERVER_URL = os.getenv('SERVER_URL', "http://localhost:8080").removesuffix("/")
+ROOT_PATH = "/" + os.getenv('ROOT_PATH', "").removeprefix("/").removesuffix("/")
 APP_DATA_PATH = os.getenv('CF_DATA_PATH', '/tmp').removesuffix("/")
 APP_CONF_PATH = os.getenv('CF_CONF_PATH', '/tmp').removesuffix("/")
 mkdir_p(APP_CONF_PATH)

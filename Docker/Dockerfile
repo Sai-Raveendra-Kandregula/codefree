@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 ENV IN_DOCKER=true
 
 RUN apt update
-RUN apt -y install curl wget python3.10 python3-pip apache2
+RUN apt -y install curl wget python3.10 python3-pip apache2 gettext
 RUN a2enmod rewrite
 RUN ln -sf /usr/bin/python3.10 /usr/bin/python
 
@@ -18,7 +18,7 @@ RUN mkdir /code # Prefer mounting your code directories under this directory
 COPY ./Docker/apache2/apache2.conf /etc/apache2/
 COPY ./Docker/apache2/ports.conf.prod /etc/apache2/
 COPY ./Docker/apache2/ports.conf.dev /etc/apache2/
-COPY ./Docker/apache2/000-default.conf /etc/apache2/sites-available/
+COPY ./Docker/apache2/000-default.template.conf /etc/apache2/sites-available/
 COPY ./Docker/apache2/001-frontend.conf /etc/apache2/sites-available/
 RUN a2ensite 000-default.conf
 RUN a2enmod proxy_http

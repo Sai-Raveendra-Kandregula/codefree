@@ -52,7 +52,7 @@ class Report(CodeFreeBase):
         return {
         "id": self.id,
         "project_id": self.project_id,
-        "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f%z"),
+        "timestamp": self.timestamp.timestamp(),
         "style_issues": self.style_issues,
         "cwe_issues": self.cwe_issues,
         "misra_issues": self.misra_issues,

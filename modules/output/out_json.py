@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+import datetime
 from modules.cf_checker import *
 from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
 
@@ -8,7 +8,7 @@ import json
 
 def output_json(args, output: List[CheckerOutput] = []):
     out_obj = {}
-    out_obj['timestamp'] = str(datetime.now(timezone.utc))
+    out_obj['timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
     out_obj['data'] = [item.dict() for item in output]
     json_string = json.dumps(out_obj, indent=(2 if args.jsonUsePretty else None))
     args.outputFile.write(json_string)

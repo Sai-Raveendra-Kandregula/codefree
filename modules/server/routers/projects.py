@@ -14,7 +14,7 @@ from modules import cf_output
 from modules.server.SessionAuthenticator import verifier, cookie, backend
 from modules.server.definitions import UserData, UserLogin, SessionData, ProjectData, ReportData
 
-from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
+from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, SERVER_URL, mkdir_p
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -106,30 +106,30 @@ if result == None:
     project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
     db_session.add(Project(id=project_id, name="Logger", slug="logger"))
 
-    with open(os.path.join(DATA_PATH, "report.json")) as fp:
-        report_data = json.load(fp)
-        relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
-        filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
-        saveReportFile(report_data, filepath)
-        stats = getReportStats(report_data)
+    # with open(os.path.join(DATA_PATH, "report.json")) as fp:
+    #     report_data = json.load(fp)
+    #     relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
+    #     filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
+    #     saveReportFile(report_data, filepath)
+    #     stats = getReportStats(report_data)
 
-        report_id = db_session.query(func.coalesce(func.max(Report.id), 0)).scalar() + 1
+    #     report_id = db_session.query(func.coalesce(func.max(Report.id), 0)).scalar() + 1
         
-        db_session.add(Report(
-            id=report_id,
-            project_id=project_id,
-            timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f%z"),
-            report_path=relative_path,
-            report_hash=getReportHash(report_data),
-            style_issues = stats['style_count'],
-            cwe_issues = stats['cwe_count'],
-            misra_issues = stats['misra_count'],
-            info_issues = stats['info_count'],
-            minor_issues = stats['minor_count'],
-            major_issues = stats['major_count'],
-            critical_issues = stats['critical_count'],
-            issue_files = stats['file_count'],
-        ))
+    #     db_session.add(Report(
+    #         id=report_id,
+    #         project_id=project_id,
+    #         timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc),
+    #         report_path=relative_path,
+    #         report_hash=getReportHash(report_data),
+    #         style_issues = stats['style_count'],
+    #         cwe_issues = stats['cwe_count'],
+    #         misra_issues = stats['misra_count'],
+    #         info_issues = stats['info_count'],
+    #         minor_issues = stats['minor_count'],
+    #         major_issues = stats['major_count'],
+    #         critical_issues = stats['critical_count'],
+    #         issue_files = stats['file_count'],
+    #     ))
 
     db_session.commit()
 db_session.close()
@@ -321,7 +321,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
     db_session.add(Report(
         id=report_id,
         project_id=project_id,
-        timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f%z"),
+        timestamp = datetime.fromtimestamp(report_data['timestamp'] / 1000),
         report_path=relative_path,
         report_hash=hash,
         style_issues = stats['style_count'],
@@ -337,7 +337,9 @@ def upload_project_report(report : ReportData, request : Request, response : Res
     db_session.commit()
     db_session.close()
     response.status_code = status.HTTP_201_CREATED
-    return {}
+    return {
+        "report_url" : f"{SERVER_URL}/projects/{report.project_id}/reports/{report_id}"
+    }
 
 @projectsRouter.get("/reports/export-report", dependencies=[Depends(cookie)])
 def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
@@ -385,7 +387,7 @@ def export_project_report(project:str, report:str, request : Request, response :
                 # return report_data
             else:
                 # Output Modules that generate files by themselves
-                report_ts : datetime = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f%z")
+                report_ts : datetime = datetime.fromtimestamp(report_data['timestamp'] / 1000)
                 issue_items = report_data['data']
                 issue_items_cls = [ CheckerOutput(dict_data=item) for item in issue_items ]
                 now = datetime.now()

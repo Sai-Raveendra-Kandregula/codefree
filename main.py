@@ -59,7 +59,7 @@ if __name__ == "__main__":
             process = Popen(['/bin/bash', '-c', 'a2ensite 001-frontend.conf'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
             process.communicate()
             if (copy_ports_rc == 0 and process.returncode == 0):
-                logger.info("Done.")
+                pass
             else:
                 logger.error("Error Configuring Apache.")
                 exit(1)
@@ -86,11 +86,20 @@ if __name__ == "__main__":
             # Copy /etc/apache2/ports.conf.dev to /etc/apache2/ports.conf
             logger.info("Configuring Apache...")
             if (os.system("cp /etc/apache2/ports.conf.dev /etc/apache2/ports.conf") == 0):
-                logger.info("Done.")
+                pass
             else:
                 logger.error("Error Configuring Apache.")
                 exit(1)
-        
+        if (os.system("cat /etc/apache2/sites-available/000-default.template.conf | envsubst '$ROOT_PATH' > /etc/apache2/sites-available/000-default.conf") == 0):
+            pass
+        else:
+            logger.error("Error Configuring Apache.")
+            exit(1)
+        if (os.system("a2ensite 000-default.conf") == 0):
+            logger.info("Done.")
+        else:
+            logger.error("Error Configuring Apache.")
+            exit(1)
         init_db()
 
         # Start Apache Proxy

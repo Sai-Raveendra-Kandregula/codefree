@@ -1,6 +1,7 @@
-from datetime import datetime, timezone
+import datetime
 from modules.cf_checker import CheckerOutput, get_error_printer, get_progress_printer
 from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
+from fastapi import status
 
 from typing import List
 
@@ -14,19 +15,28 @@ def output_server(args, output: List[CheckerOutput] = []):
     progress_printer = get_progress_printer(args=args)
     error_printer = get_error_printer(args=args)
 
+
+    server_url : str = args.serverUrl
+    server_url = server_url.removesuffix("/") + "/"
+
     out_obj = {}
-    out_obj['timestamp'] = str(datetime.now(timezone.utc))
+    out_obj['timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
     out_obj['data'] = [item.dict() for item in output]
 
-    uploadUrl = urllib.parse.urljoin(args.serverUrl, '/api/reports/upload-report')
+    uploadUrl = urllib.parse.urljoin(server_url, 'api/reports/upload-report')
     resp : requests.Response
     
     resp = ServerSession.post(uploadUrl, json={
         "project_id": args.cfProject,
         "report": out_obj
     })
-    if(resp.status_code == 201):
+    if(resp.status_code == status.HTTP_201_CREATED):
         progress_printer("Report Uploaded Successfully.")
+        print(f"It can be accessed at {resp.json()['report_url']}")
+    elif(resp.status_code == status.HTTP_406_NOT_ACCEPTABLE):
+        error_printer("Report Upload Failed.\nError : Invalid Report")
+    elif(resp.status_code == status.HTTP_409_CONFLICT):
+        error_printer(f"Report Upload Failed.\nError : {resp.json()['message']}")
     else:
         error_printer(f"Report Upload Failed. (HTTP Status Code : {resp.status_code})")
 
@@ -44,33 +54,37 @@ def checkRequisites(args):
     if(not getattr(args, "cfPassword", False)):
         error_printer("CodeFree Server Password Not Provided")
         return False
+    
+    server_url : str = args.serverUrl
+    server_url = server_url.removesuffix("/") + "/"
 
-    statusUrl = urllib.parse.urljoin(args.serverUrl, '/api/greetings')
+    statusUrl = urllib.parse.urljoin(server_url, 'api/greetings')
     try:
         resp = requests.get(url=statusUrl)
+        print(statusUrl)
     except:
-        error_printer(f"CodeFree Server not reachable at {args.serverUrl}")
+        error_printer(f"CodeFree Server not reachable at {server_url}")
         return False
-    if(resp.status_code != 200):
-        error_printer(f"CodeFree Server not healthy at {args.serverUrl}")
+    if(resp.status_code != status.HTTP_200_OK):
+        error_printer(f"CodeFree Server not healthy at {server_url} (Code : {resp.status_code})")
         return False
 
-    signInUrl = urllib.parse.urljoin(args.serverUrl, '/api/user/sign-in')
+    signInUrl = urllib.parse.urljoin(server_url, 'api/user/sign-in')
     resp = ServerSession.post(url=signInUrl, json={
         "username": args.cfUserName,
         "password": args.cfPassword,
         "keepSignedIn" : False
     })
-    if(resp.status_code != 200):
+    if(resp.status_code != status.HTTP_200_OK):
         error_printer(f"Authentication failed with CodeFree Server ({args.serverUrl})")
         return False
 
-    getProjectUrl = urllib.parse.urljoin(args.serverUrl, f'/api/projects/get-project?slug={args.cfProject}')
+    getProjectUrl = urllib.parse.urljoin(server_url, f'api/projects/get-project?slug={args.cfProject}')
     resp = ServerSession.get(url=getProjectUrl)
-    if(resp.status_code == 404):
+    if(resp.status_code == status.HTTP_404_NOT_FOUND):
         error_printer(f"Fetching Project Details Failed : Project {args.cfProject} does not exist.")
         return False
-    elif(resp.status_code != 200):
+    elif(resp.status_code != status.HTTP_200_OK):
         error_printer(f"Fetching Project Details Failed : HTTP Status Code {resp.status_code}")
         return False
 

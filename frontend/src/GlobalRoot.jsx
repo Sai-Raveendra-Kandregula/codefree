@@ -70,7 +70,7 @@ const Breadcrumbs = () => {
 };
 
 async function getUserName() {
-  const resp = await fetch(`/api/user/validate`, {
+  const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
     credentials: "include"
   })
   if (resp.status != 200) {

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { isRouteErrorResponse, useRouteError } from 'react-router-dom';
+import { isRouteErrorResponse, useRouteError, useNavigate } from 'react-router-dom';
 import ErrorPage from './ErrorPage';
+import { StatusCodes } from 'http-status-codes';
 
 export const AppContext = React.createContext();
 
@@ -21,8 +22,14 @@ export const AppProvider = (props) => {
 
 export const NotFound = () => {
   const { notFound, setNotFound } = useContext(AppContext);
+  const navigate = useNavigate()
+
 
   const route_Error = useRouteError()
+
+  if( (isRouteErrorResponse(route_Error) && route_Error.status == StatusCodes.UNAUTHORIZED) || (route_Error == StatusCodes.UNAUTHORIZED) ){
+    navigate(`/sign-in?redirect=${window.location.href}`)
+  }
   
   useEffect(() => {
       if (!notFound) {

@@ -11,7 +11,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
 
 export async function reportListLoader( {params} ) {
-  const resp = await fetch(`/api/reports/all-reports?project=${params.projectid}`)
+  const resp = await fetch(`${SERVER_BASE_URL}/api/reports/all-reports?project=${params.projectid}`)
   if (resp.status == 200) {
     return resp.json()
   }
@@ -43,7 +43,7 @@ function Reports() {
         return
       }
 
-      fetch(`/api/reports/upload-report`, {
+      fetch(`${SERVER_BASE_URL}/api/reports/upload-report`, {
         method: 'post',
         headers: {
           'Content-Type': 'application/json'

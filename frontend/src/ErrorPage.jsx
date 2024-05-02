@@ -94,7 +94,7 @@ function ErrorPage({
         }}>
           {
             (errorNumber.toString() in CFAppErrors) ? CFAppErrors[errorNumber.toString()]
-            : getReasonPhrase(errorNumber)
+            : `Unknown Error : (${errorNumber})`
           }
         </h2>
       </div>

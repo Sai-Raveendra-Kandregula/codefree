@@ -217,26 +217,27 @@ function ReportViewer() {
                     </DropdownButton>
                     <ToolTip popup={
                         reportData &&
-                        <table style={{
-                            whiteSpace: 'nowrap',
-                            overflowX:'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '300px'
-                        }}>
-                            <tr><td>Generated On :</td>
-                                <td>
+                        <table>
+                            <tr>
+                                <td style={{
+                                    whiteSpace: 'nowrap'
+                                }}>
+                                    Generated On :
+                                </td>
+                                <td style={{
+                                    whiteSpace: 'nowrap'
+                                }}>
                                     {
-                                        new Date(reportData['report']['timestamp'])
-                                            .toLocaleString(navigator.languages[navigator.languages.length - 1], {
-                                                year: 'numeric',
-                                                month: '2-digit',
-                                                day: '2-digit',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                                second: '2-digit',
-                                            })
-                                            .replace(/T/, ' ') // Replace 'T' with a space
-                                            .replace(/\..+/, '')
+                                        new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit',
+                                        })
+                                        .replace(/T/, ' ') // Replace 'T' with a space
+                                        .replace(/\..+/, '')
                                     }
                                 </td>
                             </tr>
