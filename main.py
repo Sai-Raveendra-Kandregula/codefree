@@ -63,6 +63,11 @@ if __name__ == "__main__":
             else:
                 logger.error("Error Configuring Apache.")
                 exit(1)
+            if (os.system("cat /etc/apache2/sites-available/000-default.template.conf | envsubst '$ROOT_PATH' > /etc/apache2/sites-available/000-default.conf") == 0):
+                pass
+            else:
+                logger.error("Error Configuring Apache.")
+                exit(1)
 
         else:
             logger.info(f"CodeFree v{VERSION} - Development Build")
@@ -90,12 +95,12 @@ if __name__ == "__main__":
             else:
                 logger.error("Error Configuring Apache.")
                 exit(1)
-        if (os.system("cat /etc/apache2/sites-available/000-default.template.conf | envsubst '$ROOT_PATH' > /etc/apache2/sites-available/000-default.conf") == 0):
-            pass
-        else:
-            logger.error("Error Configuring Apache.")
-            exit(1)
-        if (os.system("a2ensite 000-default.conf") == 0):
+            if (os.system("cat /etc/apache2/sites-available/000-default.template.dev.conf | envsubst '$ROOT_PATH' > /etc/apache2/sites-available/000-default.conf") == 0):
+                pass
+            else:
+                logger.error("Error Configuring Apache.")
+                exit(1)
+        if (os.system("a2ensite 000-default.conf &> /dev/null") == 0):
             logger.info("Done.")
         else:
             logger.error("Error Configuring Apache.")

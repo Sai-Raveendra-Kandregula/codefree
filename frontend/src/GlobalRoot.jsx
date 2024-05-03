@@ -13,7 +13,7 @@ import { BiUserCircle, BiLogIn } from "react-icons/bi";
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
 import SideBarLink from './Components/SideBarLink';
-import { SERVER_BASE_URL } from './App';
+import { SERVER_BASE_URL, SERVER_ROOT_PATH } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import LinkButton from './Components/LinkButton';
 import { AppContext } from './NotFoundContext';
@@ -74,7 +74,7 @@ async function getUserName() {
     credentials: "include"
   })
   if (resp.status != 200) {
-    throw resp.status
+    window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
   }
   else {
     return resp.json()
