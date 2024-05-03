@@ -308,7 +308,9 @@ def upload_project_report(report : ReportData, request : Request, response : Res
         response.status_code = status.HTTP_409_CONFLICT
         db_session.close()
         return {
-            "message" : f'Report already exists (Report ID : {report_existing})'
+            "message" : f'Report already exists (Report ID : {report_existing})',
+            "report_id": report_existing,
+            "report_url" : f"{SERVER_URL}/projects/{report.project_id}/reports/{report_existing}"
         }
     
     relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"

@@ -36,7 +36,7 @@ def output_server(args, output: List[CheckerOutput] = []):
     elif(resp.status_code == status.HTTP_406_NOT_ACCEPTABLE):
         error_printer("Report Upload Failed.\nError : Invalid Report")
     elif(resp.status_code == status.HTTP_409_CONFLICT):
-        error_printer(f"Report Upload Failed.\nError : {resp.json()['message']}")
+        error_printer(f"Report Upload Failed.\Report Already Exists : {resp.json()['report_url']}")
     else:
         error_printer(f"Report Upload Failed. (HTTP Status Code : {resp.status_code})")
 
