@@ -57,14 +57,22 @@
     justify-content: flex-start;
     gap: 5px;
 
-    width: clamp(200px, 20%, 300px);
+    width: clamp(250px, 20%, 300px);
     height: calc(100vh);
     max-height: calc(100vh);
     background: var(--nav-panel-background);
     overflow: hidden;
     box-sizing: border-box;
     border-right: 1px solid var(--border-color);
+
+    transition: transform 0.2s ease-in-out;
 }
+
+.appSidebar.hidden{
+    position: absolute;
+    transform: translateX(-100%);
+}
+
 .appSidebarNavItems {
     display: flex;
     flex-direction: column;

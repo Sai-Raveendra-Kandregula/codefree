@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import {NameInitialsAvatar} from 'react-name-initials-avatar';
 import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { MdAdd, MdCheck, MdClose } from 'react-icons/md'
@@ -208,13 +209,9 @@ function ProjectsList() {
       }}>
         {
           projectsList.length > 0 ?
-            projectsList.map(({ slug, name }) => {
+            projectsList.map(({ slug, name, avatar_color }) => {
               return <Link key={`/projects/${slug}`} className='listItem' to={`/projects/${slug}`} replace={false}>
-                <div className='initialsCircle'>
-                  {name.split(" ").map((word) => {
-                    return word[0].toUpperCase()
-                  })}
-                </div>
+                <NameInitialsAvatar name={name} textColor={'white'} borderStyle='none' bgColor={avatar_color} />
                 <span>{name}</span>
               </Link>
             })

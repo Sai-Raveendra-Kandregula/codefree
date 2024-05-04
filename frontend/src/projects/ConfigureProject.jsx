@@ -29,7 +29,7 @@ function ConfigureProject() {
         gap: '10px'
       }}>
         <label htmlFor="project_id"><b>Project ID</b></label>
-        <input type="text" name="project_id" id="project_id" defaultValue={routeParams.projectid} value={routeParams.projectid} disabled={true} />
+        <input type="text" name="project_id" id="project_id" defaultValue={routeParams.projectid} disabled={true} />
       </div>
       <div style={{
         maxWidth: '500px',

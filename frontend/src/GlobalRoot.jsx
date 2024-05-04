@@ -9,6 +9,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import * as TbIcons from 'react-icons/tb'
 
 import { BiUserCircle, BiLogIn } from "react-icons/bi";
+import { LuUser2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
 
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
@@ -22,6 +23,8 @@ import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
 import 'react-toastify/dist/ReactToastify.css';
+import { userDataLoader } from './users/UserRoot';
+import { NameInitialsAvatar } from 'react-name-initials-avatar';
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -35,7 +38,7 @@ function isNumeric(str) {
   return /^[0-9]+$/i.test(str)
 }
 
-function toTitleCase(str) {
+export function toTitleCase(str) {
   return str.replace(
     /\w\S*/g,
     function (txt) {
@@ -85,14 +88,15 @@ async function getUserName() {
 export async function globalRootLoader({ params }) {
   const out = {}
   out['user'] = await getUserName()
+  if(params.userid) {
+    out['userInfo'] = await userDataLoader({params})
+  }
   if (params.projectid) {
     out['projectInfo'] = await projectInfoLoader({ params })
-  }
-  if (params.reportid) {
     out['reportList'] = await reportListLoader({ params })
   }
-  else {
-    out['reportList'] = undefined
+  if (params.reportid) {
+    out['reportData'] = await reportDataLoader({ params })
   }
   return out
 }
@@ -106,27 +110,17 @@ function GlobalRoot() {
 
   const rootLoaderData = useLoaderData()
 
-  const [activeTheme, setActiveTheme] = useState((window.localStorage.getItem("app-theme") == "dark") ? "dark" : "light")
-
-  useEffect(() => {
-    if (activeTheme) {
-      window.localStorage.setItem("app-theme", activeTheme)
-      window.dispatchEvent(new Event("theme-update"));
-      if (activeTheme == "dark") {
-        document.querySelector(":root").classList.add("dark")
-      }
-      else {
-        document.querySelector(":root").classList.remove("dark")
-      }
-    }
-  }, [activeTheme])
+  const [sidebarHidden, setSidebarHidden] = useState(false)
 
   function AuthHeader() {
     return <React.Fragment>
       {
         rootLoaderData['user'] ?
-          <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<BiUserCircle />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
-            <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<BiLogIn />} />
+          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<NameInitialsAvatar name={`${rootLoaderData['user']['display_name']}`} 
+            borderStyle='none' bgColor={rootLoaderData['user']['avatar_color']} size='1.65rem' textColor='white' textSize='0.65rem' />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
+            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
+            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
+            <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<LuLogOut />} />
           </HeaderButton>
           :
           <HeaderButton replace={false} type={HEADER_BUTTON_TYPES.LINK} icon={<BiLogIn />} title={"Sign In"} to={"/sign-in"} />
@@ -135,12 +129,34 @@ function GlobalRoot() {
   }
 
   const sideBarItems = () => {
+    if (pathParams.userid && pathParams.userid == rootLoaderData['user']['user_name']) {
+
+      return <React.Fragment>
+        <div style={{
+          padding: '10px'
+        }}>
+          <b>
+            {
+              (rootLoaderData['user']['display_name'] != null ? rootLoaderData['user']['display_name'] : rootLoaderData['user']['user_name'])
+            }
+          </b>
+        </div>
+        {
+          <React.Fragment>
+              <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
+              <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
+            </React.Fragment>
+        }
+      </React.Fragment>
+
+    }
+
     if (pathParams.projectid) {
       var ProjectIcon = GoProject
-      if(rootLoaderData['projectInfo'] && isAlphabet(rootLoaderData['projectInfo']['name'][0].toLowerCase())){
+      if (rootLoaderData['projectInfo'] && isAlphabet(rootLoaderData['projectInfo']['name'][0].toLowerCase())) {
         ProjectIcon = TbIcons[`TbSquareLetter${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
       }
-      else if(rootLoaderData['projectInfo'] && isNumeric(rootLoaderData['projectInfo']['name'][0])){
+      else if (rootLoaderData['projectInfo'] && isNumeric(rootLoaderData['projectInfo']['name'][0])) {
         ProjectIcon = TbIcons[`TbSquareNumber${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
       }
 
@@ -150,26 +166,26 @@ function GlobalRoot() {
         }}>
           <b>
             {
-              rootLoaderData['reportList'] ? `${rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} - Reports`
+              pathParams.reportid ? `${rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} - Reports`
                 : (rootLoaderData['projectInfo'] && "Project")
             }
           </b>
         </div>
         {
-          rootLoaderData['reportList'] ? <React.Fragment>
+          pathParams.reportid ? <React.Fragment>
             {
               rootLoaderData['reportList'].map((report) => {
-                return <SideBarLink to={`/projects/${pathParams.projectid}/reports/${report['id']}`}
+                return <SideBarLink key={report['id']} to={`/projects/${pathParams.projectid}/reports/${report['id']}`}
                   className={pathParams.reportid && pathParams.reportid.toLowerCase() == 'last-report' && report['id'] == lastReport && "active"}
                   title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
               })
             }
           </React.Fragment>
             : <React.Fragment>
-              <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} 
+              <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']}
                 icon={<ProjectIcon />} />
               <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
-              <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<GoGear />} />
+              <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<LuSettings />} />
             </React.Fragment>
         }
       </React.Fragment>
@@ -178,70 +194,79 @@ function GlobalRoot() {
       return <React.Fragment>
         <SideBarLink to={'/home'} title={'Home'} icon={<GoHome />} />
         <SideBarLink to={'/projects'} title={'Projects'} icon={<GoProject />} />
+        {
+          rootLoaderData['user'] && rootLoaderData['user']['is_user_admin'] && 
+          <SideBarLink to={'/system-preferences'} title={"System Preferences"} icon={<LuSettings />} />
+        }
       </React.Fragment>
     }
   }
 
   return (
-      <div className={`${GlobalRootStyles.appContent}`}>
-        <nav className={`${GlobalRootStyles.appSidebar}`}>
+    <div className={`${GlobalRootStyles.appContent}`}>
+      <nav className={`${GlobalRootStyles.appSidebar} ${sidebarHidden && GlobalRootStyles.hidden}`}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: 'var(--header-height)',
+          padding: '0 10px',
+          gap: '5px'
+        }}>
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            height: 'var(--header-height)',
-            padding: '0 10px',
+            flex: 1,
+            paddingLeft: '10px',
           }}>
-            <div style={{
-              flex: 1,
-              paddingLeft: '10px',
-            }}>
-              <a href='/'>
-                CodeFree
-              </a>
-            </div>
-            <IconButton title="Toggle Theme" icon={activeTheme == "dark" ? <CiLight /> : <CiDark />} onClick={(e) => {
-              if (activeTheme == "light") {
-                setActiveTheme("dark")
-              }
-              else {
-                setActiveTheme("light")
-              }
-            }} />
+            <Link to='/'>
+              CodeFree
+            </Link>
+          </div>
+          <IconButton title="Collapse Nav Pane" icon={<LuPanelLeftClose />} onClick={(e) => {
+            setSidebarHidden(true)
+          }} />
 
-            <AuthHeader />
-          </div>
-          <div className={`${GlobalRootStyles.appSidebarNavItems}`} style={{
-            padding: '10px'
-          }}>
-            {
-              sideBarItems()
-            }
-          </div>
-        </nav>
-        <div className={`${GlobalRootStyles.outletWrapper}`}>
-          <div style={{
-            height: 'var(--header-height)',
-            background: 'var(--background)',
-            borderBottom: '1px solid var(--border-color)',
-            boxSizing: 'border-box',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            padding: '0 20px',
-            gap: '5px',
-            position: 'sticky',
-            top: '0',
-            zIndex: '999',
-          }}>
-            <Breadcrumbs />
-          </div>
-          <div style={{
-            minHeight: 'calc(100vh - var(--header-height) )'
-          }}>
-            <Outlet />
-          </div>
+          <AuthHeader />
+        </div>
+        <div className={`${GlobalRootStyles.appSidebarNavItems}`} style={{
+          padding: '10px'
+        }}>
+          {
+            sideBarItems()
+          }
+        </div>
+      </nav>
+      <div className={`${GlobalRootStyles.outletWrapper}`}>
+        <div style={{
+          height: 'var(--header-height)',
+          background: 'var(--background)',
+          borderBottom: '1px solid var(--border-color)',
+          boxSizing: 'border-box',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          padding: '0 20px',
+          gap: '5px',
+          position: 'sticky',
+          top: '0',
+          zIndex: '999',
+        }}>
+          {
+            sidebarHidden && <IconButton title="Expand Nav Pane" icon={<LuPanelLeftOpen />}
+              style={{
+                marginRight: '10px'
+              }}
+              onClick={(e) => {
+                setSidebarHidden(false)
+              }} />
+          }
+          <Breadcrumbs />
+        </div>
+        <div style={{
+          minHeight: 'calc(100vh - var(--header-height) )'
+        }}>
+          <Outlet />
         </div>
       </div>
+    </div>
   )
 }
 

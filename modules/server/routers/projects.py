@@ -1,10 +1,11 @@
 import os
 import json
-from datetime import datetime, timezone
+import datetime
 
 from fastapi import APIRouter, Request, Response, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, JSONResponse
+import randomcolor
 
 from modules.output import out_xlsx
 from modules.output import out_csv
@@ -21,6 +22,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from modules.server.database import engine
 from modules.server.db_definitions.projects import Project, Report
+
+rand_color = randomcolor.RandomColor()
 
 projectsRouter = APIRouter()
 
@@ -104,33 +107,7 @@ db_session = Session(engine)
 result = db_session.query(Project).where(Project.slug.is_('logger')).scalar()
 if result == None:
     project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
-    db_session.add(Project(id=project_id, name="Logger", slug="logger"))
-
-    # with open(os.path.join(DATA_PATH, "report.json")) as fp:
-    #     report_data = json.load(fp)
-    #     relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
-    #     filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
-    #     saveReportFile(report_data, filepath)
-    #     stats = getReportStats(report_data)
-
-    #     report_id = db_session.query(func.coalesce(func.max(Report.id), 0)).scalar() + 1
-        
-    #     db_session.add(Report(
-    #         id=report_id,
-    #         project_id=project_id,
-    #         timestamp = datetime.strptime(report_data['timestamp'], "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc),
-    #         report_path=relative_path,
-    #         report_hash=getReportHash(report_data),
-    #         style_issues = stats['style_count'],
-    #         cwe_issues = stats['cwe_count'],
-    #         misra_issues = stats['misra_count'],
-    #         info_issues = stats['info_count'],
-    #         minor_issues = stats['minor_count'],
-    #         major_issues = stats['major_count'],
-    #         critical_issues = stats['critical_count'],
-    #         issue_files = stats['file_count'],
-    #     ))
-
+    db_session.add(Project(id=project_id, name="Logger", slug="logger", avatar_color=rand_color.generate(luminosity="dark")[0]))
     db_session.commit()
 db_session.close()
 
@@ -147,7 +124,7 @@ def create_project(project : ProjectData, request : Request, response : Response
     max_project_id = db_session.query(func.max(Project.id)).scalar()
     project.id = max_project_id + 1
 
-    db_session.add(Project(id=project.id, name=project.name, slug=project.slug))
+    db_session.add(Project(id=project.id, name=project.name, slug=project.slug, avatar_color=rand_color.generate(luminosity="dark")[0]))
     db_session.commit()
     db_session.close()
 
@@ -249,16 +226,12 @@ def get_project_report(project:str, report:str, request : Request, response : Re
             "message" : "Report not found"
         }
     try:
+        report_data_obj = report_data.as_dict()
         with open(os.path.join(getProjectReportsPath(project), report_data.report_path)) as fp:
             response.status_code = status.HTTP_200_OK
-            report_data_obj = json.load(fp)
+            report_data_obj['report'] = json.load(fp)
             db_session.close()
-            return {
-                "project_id" : project,
-                "report_id" : report_id,
-                "tags" : [],
-                "report" : report_data_obj
-            }
+            return report_data_obj
     except:
         response.status_code = status.HTTP_404_NOT_FOUND
         db_session.close()
@@ -302,7 +275,7 @@ def get_project_report(project:str, report:str, request : Request, response : Re
     return report_data.as_dict()
 
 @projectsRouter.post("/reports/upload-report", dependencies=[Depends(cookie)])
-def upload_project_report(report : ReportData, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+def upload_project_report(report : ReportData, request : Request, response : Response, user_data: UserData = Depends(verifier), uploadedVia : str = "CodeFree CLI" ):
     db_session = Session(engine)
 
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(report.project_id)).scalar()
@@ -334,7 +307,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
             "report_url" : f"{SERVER_URL}/projects/{report.project_id}/reports/{report_existing}"
         }
     
-    relative_path = datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
+    relative_path = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
     filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
     saveReportFile(report_data, filepath)
     stats = getReportStats(report_data)
@@ -344,9 +317,11 @@ def upload_project_report(report : ReportData, request : Request, response : Res
     db_session.add(Report(
         id=report_id,
         project_id=project_id,
-        timestamp = datetime.fromtimestamp(report_data['timestamp'] / 1000),
+        timestamp = datetime.datetime.now(datetime.timezone.utc),
         report_path=relative_path,
         report_hash=hash,
+        report_src = uploadedVia,
+        report_src_usr = user_data.user_name,
         style_issues = stats['style_count'],
         cwe_issues = stats['cwe_count'],
         misra_issues = stats['misra_count'],

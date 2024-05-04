@@ -16,6 +16,7 @@ class Project(CodeFreeBase):
     id: Mapped[int] = mapped_column(primary_key=True)
     slug: Mapped[str] = mapped_column(String(30), primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
+    avatar_color : Mapped[str] = mapped_column(String(7))
 
     def __repr__(self) -> str:
         return f"Project(id={self.id!r}, name={self.name!r}, slug={self.slug!r})"
@@ -33,6 +34,8 @@ class Report(CodeFreeBase):
     # Report Path
     report_path : Mapped[str] = mapped_column(String(200))
     report_hash : Mapped[str] = mapped_column(String(64))
+    report_src : Mapped[str] = mapped_column(String(30))
+    report_src_usr : Mapped[str] = mapped_column(String(30))
 
     # Report Stats
     style_issues : Mapped[int] = mapped_column()
@@ -52,7 +55,9 @@ class Report(CodeFreeBase):
         return {
         "id": self.id,
         "project_id": self.project_id,
-        "timestamp": self.timestamp.timestamp(),
+        "timestamp": self.timestamp.timestamp() * 1000,
+        "report_src" : self.report_src,
+        "report_src_usr" : self.report_src_usr,
         "style_issues": self.style_issues,
         "cwe_issues": self.cwe_issues,
         "misra_issues": self.misra_issues,
@@ -61,5 +66,5 @@ class Report(CodeFreeBase):
         "major_issues": self.major_issues,
         "critical_issues": self.critical_issues,
         "issue_files": self.issue_files,
-        "commits_list" : self.commits_list
+        "commits_list" : self.commits_list,
     }

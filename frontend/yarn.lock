@@ -7690,6 +7690,11 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
+react-name-initials-avatar@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/react-name-initials-avatar/-/react-name-initials-avatar-0.0.7.tgz#e1b68cebec672e99b55f876778c35e31e7f7a84c"
+  integrity sha512-Y2NcSyVmSdhIGJkSWzO2GKsBCEcj9bqO4gVyu69+Ni93sCOTqxJLhNP9A7fGjDgGI+j9BsCbufhGTfVfQ1UM3w==
+
 react-refresh@^0.11.0:
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0.tgz#77198b944733f0f1f1a90e791de4541f9f074046"

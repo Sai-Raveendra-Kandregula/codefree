@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Outlet, useNavigate, useParams, Link, useSearchParams, useLoaderData } from 'react-router-dom'
+import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import { SERVER_BASE_URL } from '../App'
 
 export async function projectInfoLoader( {params} ) {
@@ -28,14 +28,6 @@ function ProjectWrapper() {
             "to": `/projects/${pathParams.projectid}/configure`
         }
     }
-
-    const projectInfo = useLoaderData();
-
-    // const [projectInfo, setProjectInfo] = useState(null)
-
-    // useEffect(() => {
-    //     getProjectInfo();
-    // }, [])
 
     return (
         <div style={{

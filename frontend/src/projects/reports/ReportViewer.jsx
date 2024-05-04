@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
 import reportViewerStyles from '../../styles/reportViewer.module.css'
@@ -9,19 +9,19 @@ import { VscJson } from "react-icons/vsc";
 import { TbCsv } from "react-icons/tb";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { IoArrowBack } from "react-icons/io5";
-import { SERVER_BASE_URL } from '../../App';
+import { SERVER_BASE_URL, useRouteData } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
 import LinkButton from '../../Components/LinkButton';
 import ToolTip from '../../Components/ToolTip';
 import { AppContext } from '../../NotFoundContext';
 
-export async function reportDataLoader( {params} ){
+export async function reportDataLoader({ params }) {
     const resp = await fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${params.projectid}&report=${params.reportid}`)
     if (resp.status == 200) {
         return resp.json()
     }
     else {
-        throw new Response("", {status : resp.status})
+        throw new Response("", { status: resp.status })
     }
 }
 
@@ -41,8 +41,8 @@ function ReportViewer() {
     const [groupBy, setGroupBy] = useState(() => {
         return searchParams.get("groupBy") || groupingMapping[viewType][0]
     });
-    
-    const reportData = useLoaderData()
+
+    const reportData = useRouteData('0-3')['reportData']
     const [transformedReportData, setTransformedReportData] = useState({})
 
     useEffect(() => {
@@ -64,10 +64,10 @@ function ReportViewer() {
             return
         }
 
-        if(pathParams.reportid.toLowerCase() == 'last-report'){
-            setLastReport(reportData["report_id"])
+        if (pathParams.reportid.toLowerCase() == 'last-report') {
+            setLastReport(reportData["id"])
         }
-        else{
+        else {
             setLastReport(0)
         }
 
@@ -124,7 +124,7 @@ function ReportViewer() {
                         })
                     }} />
                     <h3>
-                        Report #{reportData && reportData['report_id']}
+                        Report #{reportData && reportData['id']}
                     </h3>
                 </div>
                 <div className={`viewTypeCarousel`} style={{
@@ -136,6 +136,7 @@ function ReportViewer() {
                     {
                         Object.keys(groupingMapping).map((val) => {
                             return <Link
+                                key={val}
                                 className={`viewTypeButton ${viewType == val ? "selected" : ""}`}
                                 onClick={(e) => {
                                     e.preventDefault()
@@ -217,30 +218,73 @@ function ReportViewer() {
                     </DropdownButton>
                     <ToolTip popup={
                         reportData &&
-                        <table>
-                            <tr>
-                                <td style={{
-                                    whiteSpace: 'nowrap'
-                                }}>
-                                    Generated On :
-                                </td>
-                                <td style={{
-                                    whiteSpace: 'nowrap'
-                                }}>
-                                    {
-                                        new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
-                                            year: 'numeric',
-                                            month: '2-digit',
-                                            day: '2-digit',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            second: '2-digit',
-                                        })
-                                        .replace(/T/, ' ') // Replace 'T' with a space
-                                        .replace(/\..+/, '')
-                                    }
-                                </td>
-                            </tr>
+                        <table style={{
+                            whiteSpace: 'nowrap'
+                        }}>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        Generated On
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        {
+                                            new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                            })
+                                                .replace(/T/, ' ') // Replace 'T' with a space
+                                                .replace(/\..+/, '')
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Uploaded On
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        {
+                                            new Date(reportData['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                            })
+                                                .replace(/T/, ' ') // Replace 'T' with a space
+                                                .replace(/\..+/, '')
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Uploaded By
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        {
+                                            reportData['report_src_usr']
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Uploaded Via
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        {
+                                            reportData['report_src']
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
                         </table>
                     }>
                         {

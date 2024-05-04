@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import LinkButton from '../../Components/LinkButton';
 import IconButton from '../../Components/IconButton';
 import PopupModal from '../../Components/Popup'
 
-import { SERVER_BASE_URL } from '../../App'
+import { SERVER_BASE_URL, useRouteData } from '../../App'
 
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
@@ -25,7 +25,7 @@ function Reports() {
   const pathParams = useParams()
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const reportsList = useLoaderData();
+  const reportsList = useRouteData('0-3')['reportList'];
 
   function uploadReport() {
     const report = document.getElementById('upload_report').files[0]
@@ -43,7 +43,7 @@ function Reports() {
         return
       }
 
-      fetch(`${SERVER_BASE_URL}/api/reports/upload-report`, {
+      fetch(`${SERVER_BASE_URL}/api/reports/upload-report?uploadedVia=CodeFree%20GUI`, {
         method: 'post',
         headers: {
           'Content-Type': 'application/json'
@@ -196,7 +196,7 @@ function Reports() {
         {
           reportsList.length > 0 ?
           reportsList.map(({ id }) => {
-            return <Link className='listItem' to={`/projects/${pathParams.projectid}/reports/${id}`} replace={false}>
+            return <Link key={`report_${pathParams.projectid}_${id}`} className='listItem' to={`/projects/${pathParams.projectid}/reports/${id}`} replace={false}>
               <HiOutlineDocumentReport style={{
                 fontSize: '1.25rem'
               }} />

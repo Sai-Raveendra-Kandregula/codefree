@@ -157,7 +157,7 @@ function CodeIssueItem({
                         issue["CWE List"].toString().includes(",") ?
                         issue["CWE List"].toString().split(",").map((cwe)=>{
                             const url = `https://cwe.mitre.org/data/definitions/${cwe.trim()}.html`
-                            return <React.Fragment><a target='_blank' href={url}>
+                            return <React.Fragment key={cwe}><a target='_blank' href={url}>
                                 {url}
                             </a><br/>
                             </React.Fragment>

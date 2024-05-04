@@ -12,16 +12,15 @@ class UserLogin(BaseModel):
     keepSignedIn : bool = False
 
 class UserData(BaseModel):
-    id: Optional[int] = Field(None)
     user_name: str
-    initials : Optional[str] = Field(None)
-    display_name: Optional[str] = Field(None)
+    display_name: str = Field(None)
+    avatar_color: str
     is_user_admin: Optional[bool] = Field(False)
     email: str
-    created_on: datetime
-    created_by: str
-    updated_on: datetime
-    updated_by: str
+    created_on: Optional[datetime] = Field(None)
+    created_by: Optional[str] = Field(None)
+    updated_on: Optional[datetime] = Field(None)
+    updated_by: Optional[str] = Field(None)
 
 class NewUserData(BaseModel):
     user_name: str
