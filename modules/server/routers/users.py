@@ -23,7 +23,6 @@ def_user = db_session.query(User).count()
 if def_user == 0:
     salt = generateSalt()
     pwd_hash = getPasswordHash(DEFAULT_PASS, salt)
-    print(rand_color.generate(luminosity='dark'))
     db_session.add(User(
         user_name=DEFAULT_USER,
         display_name="System Admin",
