@@ -180,18 +180,21 @@ function ProjectsList() {
         <span>
           Projects List
         </span>
-        <LinkButton
-          className={'themeButton'}
-          title={"Create Project"}
-          icon={<MdAdd style={{
-            fontSize: '1.1rem'
-          }} />}
-          to={`/projects?create`}
-          style={{
-            fontSize: '0.9rem'
-          }}
-          replace={false}
-        />
+        {
+          projectsList.length &&
+          <LinkButton
+            className={'themeButton'}
+            title={"Create Project"}
+            icon={<MdAdd style={{
+              fontSize: '1.1rem'
+            }} />}
+            to={`/projects?create`}
+            style={{
+              fontSize: '0.9rem'
+            }}
+            replace={false}
+          />
+        }
       </h2>
       <div style={{
         padding: '10px 0 0 0',
@@ -204,16 +207,21 @@ function ProjectsList() {
         gap: '5px'
       }}>
         {
-          projectsList.map(({ slug, name }) => {
-            return <Link key={`/projects/${slug}`} className='listItem' to={`/projects/${slug}`} replace={false}>
-              <div className='initialsCircle'>
-                {name.split(" ").map((word) => {
-                  return word[0].toUpperCase()
-                })}
-              </div>
-              <span>{name}</span>
-            </Link>
-          })
+          projectsList.length > 0 ?
+            projectsList.map(({ slug, name }) => {
+              return <Link key={`/projects/${slug}`} className='listItem' to={`/projects/${slug}`} replace={false}>
+                <div className='initialsCircle'>
+                  {name.split(" ").map((word) => {
+                    return word[0].toUpperCase()
+                  })}
+                </div>
+                <span>{name}</span>
+              </Link>
+            })
+            :
+            <span>
+              Looks fresh in here. <Link to={`/projects?create`}>Create a Project</Link> to get started.
+            </span>
         }
       </div>
     </div>

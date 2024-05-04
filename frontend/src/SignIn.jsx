@@ -3,12 +3,11 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { SERVER_BASE_URL } from './App'
 import LinkButton from './Components/LinkButton'
+import { toast } from 'react-toastify'
 
 function SignIn() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-
-  const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
     if (window.localStorage.getItem("app-theme") == "dark") {
@@ -73,7 +72,7 @@ function SignIn() {
         </div>
         <LinkButton to={"#"} onClick={(e) => {
           e.preventDefault()
-          setErrorMessage("")
+          
           fetch(`${SERVER_BASE_URL}/api/user/sign-in`, {
             method: "post",
             headers: {
@@ -92,13 +91,10 @@ function SignIn() {
               redirectToTarget();
             }
             else {
-              if (resp.status == 401) {
-                setErrorMessage('Invalid Username/password')
-              }
+              toast.error('Invalid Username or Password.')
             }
           })
         }} title={"Submit"} />
-        {errorMessage}
       </div>
     </div>
   )

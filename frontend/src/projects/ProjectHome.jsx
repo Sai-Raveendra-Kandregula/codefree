@@ -22,11 +22,11 @@ function ProjectHome() {
   })
 
   const keys_ordered = {
-    "style_issues" : "Style Issues",
-    "minor_issues" : "Minor Code Issues",
-    "major_issues" : "Major Code Issues",
-    "critical_issues" : "Critical Code Issues",
-    "issue_files" : "Files with Issues"
+    "style_issues": "Style Issues",
+    "minor_issues": "Minor Code Issues",
+    "major_issues": "Major Code Issues",
+    "critical_issues": "Critical Code Issues",
+    "issue_files": "Files with Issues"
   }
 
   function getLatestReportStats() {
@@ -43,7 +43,7 @@ function ProjectHome() {
       })
   }
 
-  function getAllReports(){
+  function getAllReports() {
     fetch(`${SERVER_BASE_URL}/api/reports/all-reports?project=${pathParams.projectid}`).then(
       (resp) => {
         if (resp.status == 200) {
@@ -53,10 +53,10 @@ function ProjectHome() {
           return null
         }
       }).then((data) => {
-        if(data){
+        if (data) {
           setReportsLists(data)
         }
-        else{
+        else {
           setReportsLists([])
         }
       }).catch((reason) => {
@@ -85,7 +85,7 @@ function ProjectHome() {
     return issueDataTmp
   }, [reportData]);
 
-  const issueSeries = useMemo(()=>{
+  const issueSeries = useMemo(() => {
     return Object.keys(keys_ordered).map((key) => {
       return {
         name: keys_ordered[key],
@@ -128,95 +128,112 @@ function ProjectHome() {
       flexDirection: 'column',
       gap: '10px',
     }}>
-      <div className='appPanel' style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '50px',
-      }}>
-        <div style={{
-          width: '100%',
-          paddingLeft: '30px'
-        }}>
-          <h1>
-            Issues found in { reportData ? reportData['issue_files'] : 0 } file{reportData ? (reportData['issue_files'] != 1 ? "s" : "") : "s"}.
-          </h1>
-          <LinkButton 
-            to={`/projects/${pathParams.projectid}/reports/last-report`} 
-            title={"View the Latest Report"}
-            content={<React.Fragment>
-              <span style={{
-                paddingLeft: '5px'
-              }}>View the Latest Report</span>
-              <GoArrowRight style={{
-                fontSize: '1.25rem',
-              }} />
-            </React.Fragment>} />
-        </div>
-        <div>
-          <Chart
-            width="500px"
-            type='donut'
-            series={Object.keys(issueDataDonut).map((key) => {
-              return issueDataDonut[key]
-            })
-            }
-            options={{
-              theme: {
-                mode: theme,
-                palette: 'palette1'
-              },
-              chart: {
-                id: "issues-count"
-              },
-              labels: Object.keys(issueDataDonut),
-              dataLabels: {
-                enabled: true,
-              },
-              plotOptions: {
-                pie: {
-                  background: 'transparent',
-                  donut: {
-                    background: 'transparent',
-                    labels: {
-                      show: true,
-                      total: {
-                        show: true,
-                        showAlways: true,
-                        label: 'Issues Found'
+      {
+        reportData ? <React.Fragment>
+          <div className='appPanel' style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '50px',
+          }}>
+            <div style={{
+              width: '100%',
+              paddingLeft: '30px'
+            }}>
+              <h1>
+                Issues found in {reportData ? reportData['issue_files'] : 0} file{reportData ? (reportData['issue_files'] != 1 ? "s" : "") : "s"}.
+              </h1>
+              <LinkButton
+                to={`/projects/${pathParams.projectid}/reports/last-report`}
+                title={"View the Latest Report"}
+                content={<React.Fragment>
+                  <span style={{
+                    paddingLeft: '5px'
+                  }}>View the Latest Report</span>
+                  <GoArrowRight style={{
+                    fontSize: '1.25rem',
+                  }} />
+                </React.Fragment>} />
+            </div>
+            <div>
+              <Chart
+                width="500px"
+                type='donut'
+                series={Object.keys(issueDataDonut).map((key) => {
+                  return issueDataDonut[key]
+                })
+                }
+                options={{
+                  theme: {
+                    mode: theme,
+                    palette: 'palette1'
+                  },
+                  chart: {
+                    id: "issues-count"
+                  },
+                  labels: Object.keys(issueDataDonut),
+                  dataLabels: {
+                    enabled: true,
+                  },
+                  plotOptions: {
+                    pie: {
+                      background: 'transparent',
+                      donut: {
+                        background: 'transparent',
+                        labels: {
+                          show: true,
+                          total: {
+                            show: true,
+                            showAlways: true,
+                            label: 'Issues Found'
+                          }
+                        }
                       }
                     }
-                  }
-                }
-              },
-            }}
-          />
-        </div>
-      </div>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '10px'
-      }}>
-        <div className='appPanel' style={{
-          flex: '1'
-        }}>
-          <h2 style={{
-            marginTop: '0'
+                  },
+                }}
+              />
+            </div>
+          </div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '10px'
           }}>
-            Progression of Issues over Time
-          </h2>
-          <Chart
-            options={chartOptions}
-            series={issueSeries}
-            type="line"
-            width="100%"
-            height="500px"
-            // height="350px"
-          />
-        </div>
-      </div>
+            <div className='appPanel' style={{
+              flex: '1'
+            }}>
+              <h2 style={{
+                marginTop: '0'
+              }}>
+                Progression of Issues over Time
+              </h2>
+              <Chart
+                options={chartOptions}
+                series={issueSeries}
+                type="line"
+                width="100%"
+                height="500px"
+              // height="350px"
+              />
+            </div>
+          </div>
+        </React.Fragment>
+          :
+          <div className="appPanel" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}>
+            <p>
+              There are no reports found for this project. Run a CodeFree test <b>from the CLI</b>,<br />or
+            </p>
+            <LinkButton className={'themeButton'} to={`/projects/${pathParams.projectid}/reports?upload`} title={'Upload a Report'} />
+          </div>
+      }
     </div>
   )
 }

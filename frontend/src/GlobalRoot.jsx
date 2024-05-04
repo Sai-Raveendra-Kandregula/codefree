@@ -21,6 +21,7 @@ import ErrorPage from './ErrorPage';
 import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
+import 'react-toastify/dist/ReactToastify.css';
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -182,7 +183,6 @@ function GlobalRoot() {
   }
 
   return (
-    <React.Fragment>
       <div className={`${GlobalRootStyles.appContent}`}>
         <nav className={`${GlobalRootStyles.appSidebar}`}>
           <div style={{
@@ -242,7 +242,6 @@ function GlobalRoot() {
           </div>
         </div>
       </div>
-    </React.Fragment>
   )
 }
 

@@ -1,6 +1,6 @@
 from typing import List
 from typing import Optional
-from sqlalchemy import String, DateTime
+from sqlalchemy import String, DateTime, Boolean
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
@@ -27,6 +27,7 @@ class User(CodeFreeBase):
     initials : Mapped[Optional[str]] = mapped_column(String(3))
     display_name: Mapped[Optional[str]] = mapped_column(String(30))
     email: Mapped[str] = mapped_column(String(30))
+    is_user_admin: Mapped[Boolean] = mapped_column(Boolean())
     password_salt: Mapped[str] = mapped_column(String(36)) # UUID
     password_hash: Mapped[str] = mapped_column(String(64)) # SHA512 Hash of Password + Salt
     created_on: Mapped[DateTime] = mapped_column(DateTime())
@@ -44,6 +45,7 @@ class User(CodeFreeBase):
             "initials" : self.initials,
             "display_name" : self.display_name,
             "email" : self.email,
+            "is_user_admin" : self.is_user_admin,
             "created_on" : self.created_on,
             "created_by" : self.created_by,
             "updated_on" : self.updated_on,
@@ -55,6 +57,7 @@ class PendingUser(CodeFreeBase):
 
     user_name: Mapped[str] = mapped_column(String(30), primary_key=True)
     email: Mapped[str] = mapped_column(String(30))
+    is_user_admin: Mapped[Boolean] = mapped_column(Boolean())
     password_salt: Mapped[Optional[str]] = mapped_column(String(36)) # UUID
     password_hash: Mapped[Optional[str]] = mapped_column(String(64)) # SHA512 Hash of Password + Salt
     invite_token: Mapped[Optional[str]] = mapped_column(String(36)) # Invite Token (UUID)

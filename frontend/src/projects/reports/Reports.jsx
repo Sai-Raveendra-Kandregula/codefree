@@ -169,7 +169,7 @@ function Reports() {
         justifyContent: 'center',
         gap: '10px'
       }}>
-        <input type='text' placeholder='Search Reports' />
+        <input type='text' placeholder='Search Reports' disabled={reportsList.length <= 0} />
         <LinkButton
           className={'themeButton'}
           title={"Upload Report"}
@@ -194,6 +194,7 @@ function Reports() {
         gap: '10px'
       }}>
         {
+          reportsList.length > 0 ?
           reportsList.map(({ id }) => {
             return <Link className='listItem' to={`/projects/${pathParams.projectid}/reports/${id}`} replace={false}>
               <HiOutlineDocumentReport style={{
@@ -202,6 +203,19 @@ function Reports() {
               <span>Report #{id}</span>
             </Link>
           })
+          :
+          <div className="appPanel" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}>
+            <p>
+              There are no reports found for this project. Run a CodeFree test <b>from the CLI</b>,<br />or
+            </p>
+            <LinkButton className={'themeButton'} to={`/projects/${pathParams.projectid}/reports?upload`} title={'Upload a Report'} />
+          </div>
         }
       </div>
     </div>

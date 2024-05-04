@@ -196,6 +196,27 @@ def get_project_all_reports(project:str, request : Request, response : Response,
     db_session.close()
     return out
 
+@projectsRouter.get("/reports/report-count", dependencies=[Depends(cookie)])
+def get_project_report_count(project:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+    # assuming project is actually the project slug
+    db_session = Session(engine)
+    project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
+    if project_id == -1:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {
+            "message" : 'Project Not Found'
+        }
+    
+    reports_all_query = db_session.query(Report).where(Report.project_id.is_(project_id))
+    reports_all_query_out = reports_all_query.all()
+    out = {
+        "count" : 0
+    }
+    if reports_all_query_out is not None:
+        out['count'] = len(reports_all_query_out)
+    db_session.close()
+    return out
+
 @projectsRouter.get("/reports/get-report", dependencies=[Depends(cookie)])
 def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
     db_session = Session(engine)

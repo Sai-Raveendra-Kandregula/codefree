@@ -29,7 +29,7 @@ function ConfigureProject() {
         gap: '10px'
       }}>
         <label htmlFor="project_id"><b>Project ID</b></label>
-        <input type="text" name="project_id" id="project_id" defaultValue={routeParams.projectid} value={routeParams.projectid} readOnly={true} />
+        <input type="text" name="project_id" id="project_id" defaultValue={routeParams.projectid} value={routeParams.projectid} disabled={true} />
       </div>
       <div style={{
         maxWidth: '500px',
@@ -56,13 +56,13 @@ function ConfigureProject() {
         flexDirection: 'row-reverse',
         gap: '10px',
       }}>
-        <LinkButton title={"Update Project Configuration"} icon={<IoCheckmark />} onClick={(e) => {
+        <LinkButton className={'themeButton'} title={"Update Project Configuration"} icon={<IoCheckmark />} onClick={(e) => {
           e.preventDefault()
           alert("Submit")
         }} />
         <LinkButton title={"Discard"} icon={<VscDiscard />} onClick={(e) => {
           e.preventDefault()
-          alert("Submit")
+          alert("Discard")
         }} />
       </div>
     </div>

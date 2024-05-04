@@ -15,6 +15,7 @@ import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
 import { globalRootLoader } from './GlobalRoot';
 import { reportListLoader } from './projects/reports/Reports';
+import { ToastContainer } from 'react-toastify';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -38,11 +39,11 @@ console.log(SERVER_ROOT_PATH)
 
 const SuspenseLayout = () => (
     <Suspense fallback={<Loading />}>
-      <Outlet />
+        <Outlet />
     </Suspense>
-  );
+);
 
-  console.log(SERVER_ROOT_PATH)
+console.log(SERVER_ROOT_PATH)
 
 const RoutesJSX = (
     <Route path={`/`} element={<SuspenseLayout />}>
@@ -54,7 +55,7 @@ const RoutesJSX = (
             <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
             <Route path={`/projects`} element={<ProjectsRoot />} >
                 <Route path={`/projects`} element={<ProjectsList />} />
-                 <Route path={`/projects/:projectid`} element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
+                <Route path={`/projects/:projectid`} element={<ProjectWrapper />} loader={projectInfoLoader} errorElement={<NotFound />}>
                     <Route path={`/projects/:projectid`} element={<ProjectHome />} />
                     <Route path={`/projects/:projectid/reports`} element={<Reports />} loader={reportListLoader} errorElement={<NotFound />} />
                     <Route path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} errorElement={<NotFound />} />
@@ -73,6 +74,7 @@ const router = createBrowserRouter(routes, {
 function App() {
     return (
         <div className="App">
+            <ToastContainer limit={3} />
             <RouterProvider router={router} />
         </div>
     );

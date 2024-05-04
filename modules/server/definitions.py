@@ -16,6 +16,7 @@ class UserData(BaseModel):
     user_name: str
     initials : Optional[str] = Field(None)
     display_name: Optional[str] = Field(None)
+    is_user_admin: Optional[bool] = Field(False)
     email: str
     created_on: datetime
     created_by: str
@@ -27,6 +28,7 @@ class NewUserData(BaseModel):
     email: str
     password : str
     invite_token : Optional[str] = Field(None)
+    is_user_admin : Optional[bool] = Field(False)
     created_on: datetime
     created_by: str
 

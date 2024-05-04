@@ -7,6 +7,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
+from modules.server.common import DEFAULT_USER, DEFAULT_PASS
 from modules.server.db_definitions.users import User, getPasswordHash, generateSalt
 
 from modules.server.database import engine 
@@ -22,21 +23,22 @@ USER_DATA = {
 
 # Testing
 db_session = Session(engine)
-def_user = db_session.query(User).where(User.user_name.is_('admin')).scalar()
-if def_user is None:
-    user_id = db_session.query(func.coalesce(func.max(User.id), 0)).scalar() + 1
+def_user = db_session.query(User).count()
+if def_user == 0:
+    user_id = 1
     salt = generateSalt()
-    pwd_hash = getPasswordHash("admin@123", salt)
+    pwd_hash = getPasswordHash(DEFAULT_PASS, salt)
     db_session.add(User(
         id=user_id,
-        user_name="admin",
+        user_name=DEFAULT_USER,
         email="sairaveendrakandregula@gmail.com",
+        is_user_admin = True,
         password_salt=salt,
         password_hash=pwd_hash,
         created_on=datetime.datetime.now(),
-        created_by="admin",
+        created_by=DEFAULT_USER,
         updated_on=datetime.datetime.now(),
-        updated_by="admin",
+        updated_by=DEFAULT_USER,
     ))
     db_session.commit()
 db_session.close()
@@ -47,7 +49,7 @@ def authenticate_user(userdata : UserLogin) -> status:
     user_info_db : User = db_session.query(User).where(User.user_name.is_(userdata.username)).scalar()
     if user_info_db is None:
         db_session.close()
-        return status.HTTP_404_NOT_FOUND
+        return status.HTTP_401_UNAUTHORIZED # Should be 404, but changed to 401 to prevent information leaks
 
     if getPasswordHash(userdata.password, user_info_db.password_salt) == user_info_db.password_hash:
         db_session.close()
@@ -107,8 +109,7 @@ async def invite_user(new_user : NewUserData, response: Response, user_data: Use
     db_session = Session(engine)
 
     # Check if user_data has permission to invite users
-
-
+    
 
     db_session.close()
     pass
