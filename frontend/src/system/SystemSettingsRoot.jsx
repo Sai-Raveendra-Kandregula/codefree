@@ -4,8 +4,7 @@ import { Outlet } from 'react-router-dom'
 function SystemSettingsRoot() {
   return (
     <div>
-        Wasssupppp
-        <Outlet/>
+      <Outlet/>
     </div>
   )
 }

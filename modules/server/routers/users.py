@@ -136,7 +136,7 @@ async def getUserByID(request : Request, response: Response, user_data: UserData
 
     return out
     
-@usersRouter.post("/user/modify-user", dependencies=[Depends(cookie)])
+@usersRouter.post("/user/modify", dependencies=[Depends(cookie)])
 async def getUserByID(newData : UserData , request : Request, response: Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
 
@@ -173,12 +173,18 @@ async def getUserByID(newData : UserData , request : Request, response: Response
         db_session.close()
         return newData
 
-@usersRouter.get("/user/all-users", dependencies=[Depends(cookie)])
+@usersRouter.get("/user/all", dependencies=[Depends(cookie)])
 async def all_users(user_data: UserData = Depends(verifier)):
-    return [user.as_dict() for user in User.objects.all()]
+    db_session = Session(engine)
+
+    users = db_session.query(User).all()
+
+    db_session.close()
+
+    return [user.as_dict() for user in users]
 
 
-@usersRouter.post("/user/invite-user", dependencies=[Depends(cookie)])
+@usersRouter.post("/user/invite", dependencies=[Depends(cookie)])
 async def invite_user(new_user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
 
@@ -188,6 +194,28 @@ async def invite_user(new_user : NewUserData, response: Response, user_data: Use
     db_session.close()
     pass
 
+@usersRouter.post("/user/delete", dependencies=[Depends(cookie)])
+async def create_user_acc(user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
+
+    # Check if cuurent user can delete this user
+    if ((user.user_name == user_data.user_name) or (not user_data.is_user_admin)):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return user
+
+    db_session = Session(engine)
+
+    user_db = db_session.query(User).where(User.user_name.is_(user.user_name)).scalar()
+
+    if(user_db is None):
+        db_session.close()
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return user
+
+    db_session.delete(user_db)
+    db_session.commit()
+    db_session.close()
+    return user
+
 @usersRouter.post("/user/create-account")
 async def create_user_acc(new_user : NewUserData, response: Response):
     db_session = Session(engine)
@@ -196,4 +224,3 @@ async def create_user_acc(new_user : NewUserData, response: Response):
 
     db_session.close()
     pass
-

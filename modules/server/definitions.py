@@ -25,12 +25,12 @@ class UserData(BaseModel):
 
 class NewUserData(BaseModel):
     user_name: str
-    email: str
-    password : str
+    email: Optional[str] = Field(None)
+    password : Optional[str] = Field(None)
     invite_token : Optional[str] = Field(None)
     is_user_admin : Optional[bool] = Field(False)
-    created_on: datetime
-    created_by: str
+    created_on: Optional[datetime] = Field(None)
+    created_by: Optional[str] = Field(None)
 
 class ProjectData(BaseModel):
     id : Optional[int] = Field(None, description="Project ID")

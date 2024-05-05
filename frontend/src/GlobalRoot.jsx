@@ -9,7 +9,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import * as TbIcons from 'react-icons/tb'
 
 import { BiUserCircle, BiLogIn } from "react-icons/bi";
-import { LuUser2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
+import { LuUser2, LuUsers2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
 
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
@@ -24,7 +24,7 @@ import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
 import 'react-toastify/dist/ReactToastify.css';
 import { userDataLoader } from './users/UserRoot';
-import { NameInitialsAvatar } from 'react-name-initials-avatar';
+import UserAvatar from './Components/UserAvatar';
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -116,20 +116,7 @@ function GlobalRoot() {
     return <React.Fragment>
       {
         rootLoaderData['user'] ?
-          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={
-            rootLoaderData['user']['avatar_data'] ?
-              <img id='avatar_preview' src={`${rootLoaderData['user']['avatar_data']}`} style={{
-                display: 'block',
-                height: '1.65rem',
-                width: '1.65rem',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-              }} />
-              :
-              <NameInitialsAvatar name={`${rootLoaderData['user']['display_name']}`} borderStyle='none'
-                bgColor={rootLoaderData['user']['avatar_color']} size='1.65rem' textColor='white' textSize={`${1.65 * (0.65 / 1.65)}rem`} />
-          } showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
+          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={rootLoaderData['user']} />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
             <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
             <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
             <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<LuLogOut />} />
@@ -141,8 +128,25 @@ function GlobalRoot() {
   }
 
   const sideBarItems = () => {
-    if (pathParams.userid && pathParams.userid == rootLoaderData['user']['user_name']) {
+    if((window.location.pathname).startsWith(SERVER_ROOT_PATH + "/system-preferences")){
+      return <React.Fragment>
+        <div style={{
+          padding: '10px'
+        }}>
+          <b>
+              System Preferences
+          </b>
+        </div>
+        {
+          <React.Fragment>
+            {/* <SideBarLink to={`/system-preferences`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} /> */}
+            <SideBarLink to={`/system-preferences/users`} title={'Users'} icon={<LuUsers2 />} />
+          </React.Fragment>
+        }
+      </React.Fragment>
+    }
 
+    if (pathParams.userid && pathParams.userid == rootLoaderData['user']['user_name']) {
       return <React.Fragment>
         <div style={{
           padding: '10px'

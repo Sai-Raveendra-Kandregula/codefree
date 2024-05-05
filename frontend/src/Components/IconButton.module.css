@@ -2,9 +2,12 @@
     border-radius: var(--border-radius);
     border: none;
     height: 32px;
+    width: 32px;
     aspect-ratio: 1;
-    font-size: 1.25rem;
+    font-size: 1rem;
     background: transparent;
+    flex-grow: 0;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -13,9 +16,10 @@
 }
 
 .buttonBase > svg{
-    min-width: 1.25rem !important;
-    max-width: 1.25rem !important;
-    height: 1.25rem !important;
+    min-width: 1em !important;
+    max-width: 1em !important;
+    height: 1em !important;
+    opacity: 0.6;
 }
 
 .buttonBase:hover{

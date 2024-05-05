@@ -4,7 +4,6 @@ import './Dropdown.css';
 import './TabView.css';
 import './Tooltip.css';
 import { BrowserRouter, Routes, Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches } from 'react-router-dom'
-import ProjectsRoot from './projects';
 import { useState, lazy, Suspense, useContext } from 'react';
 
 import Loading from './Loading';
@@ -13,21 +12,29 @@ import SignOut from './SignOut';
 import { NotFound } from './NotFoundContext';
 import { globalRootLoader } from './GlobalRoot';
 import { ToastContainer, toast } from 'react-toastify';
-import UserRoot from './users/UserRoot';
-import UserInfo from './users/UserInfo';
-import UserPreferences from './users/UserPreferences';
 import { StatusCodes } from 'http-status-codes';
-import SystemSettingsRoot from './system/SystemSettingsRoot';
 import { projectListLoader } from './projects/ProjectsList';
+import { userListLoader } from './system/SystemSettingsUsers';
+import UserModify from './users/UserModify';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
+
+const ProjectsRoot = lazy(() => import('./projects'));
 const ProjectWrapper = lazy(() => import('./projects/ProjectWrapper'));
 const ProjectsList = lazy(() => import('./projects/ProjectsList'));
 const ProjectHome = lazy(() => import('./projects/ProjectHome'));
+const ConfigureProject = lazy(() => import('./projects/ConfigureProject'));
+
 const Reports = lazy(() => import('./projects/reports/Reports'));
 const ReportViewer = lazy(() => import('./projects/reports/ReportViewer'));
-const ConfigureProject = lazy(() => import('./projects/ConfigureProject'));
+
+const UserRoot = lazy(() => import('./users/UserRoot'));
+const UserInfo = lazy(() => import('./users/UserInfo'));
+const UserPreferences = lazy(() => import('./users/UserPreferences'));
+
+const SystemSettingsRoot = lazy(() => import('./system/SystemSettingsRoot'));
+const SystemSettingsUsers = lazy(() => import('./system/SystemSettingsUsers'));
 
 export const useRouteData = (routeId) => {
     const matches = useMatches();
@@ -62,13 +69,14 @@ const RoutesJSX = (
             <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
             <Route path={`/user`} element={<UserRoot />}>
                 <Route path={`/user/:userid`} element={<Outlet />} >
-                    <Route path={`/user/:userid`} element={<UserInfo />} action={async ({ request, params }) => {
+                    <Route path={`/user/:userid`} element={<UserInfo />} />
+                    <Route path={`/user/:userid/edit`} element={<UserModify />} action={async ({ request, params }) => {
                         switch (request.method) {
                             case "POST": {
                                 let formData = await request.formData()
                                 let submitData = Object.fromEntries(formData)
                                 console.log(submitData)
-                                const resp = await fetch(`${SERVER_BASE_URL}/api/user/modify-user`, {
+                                const resp = await fetch(`${SERVER_BASE_URL}/api/user/modify`, {
                                     method: 'post',
                                     body: JSON.stringify(submitData),
                                     headers: {
@@ -93,9 +101,7 @@ const RoutesJSX = (
                 </Route>
             </Route>
             <Route path={`/projects`} element={<ProjectsRoot />} >
-                <Route path={`/projects`} element={<ProjectsList />} loader={projectListLoader} shouldRevalidate={({currentUrl}) => {
-                    return true
-                }} />
+                <Route path={`/projects`} element={<ProjectsList />} loader={projectListLoader} />
                 <Route path={`/projects/:projectid`} element={<ProjectWrapper />} >
                     <Route path={`/projects/:projectid`} element={<ProjectHome />} />
                     <Route path={`/projects/:projectid/reports`} element={<Reports />} />
@@ -103,7 +109,10 @@ const RoutesJSX = (
                     <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
                 </Route>
             </Route>
-            <Route path='/system-preferences' element={<SystemSettingsRoot />} />
+            <Route path='/system-preferences' element={<SystemSettingsRoot />} >
+                <Route path='/system-preferences' element={<Navigate to={`/system-preferences/users`} />} />
+                <Route path='/system-preferences/users' element={<SystemSettingsUsers />} loader={userListLoader} />
+            </Route>
         </Route>
     </Route>)
 

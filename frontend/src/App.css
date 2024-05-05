@@ -165,6 +165,7 @@ span.preBlockLineNumber {
 
 span.letter-avatar{
   text-decoration: none !important;
+  flex-shrink: 0;
 }
 
 .App {
