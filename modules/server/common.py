@@ -22,7 +22,11 @@ logger = logging.getLogger('uvicorn.error')
 
 
 SERVER_URL = os.getenv('SERVER_URL', "http://localhost:8080").removesuffix("/")
-ROOT_PATH = "/" + os.getenv('ROOT_PATH', "").removeprefix("/").removesuffix("/")
+ROOT_PATH_MID_URL = os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
+os.environ['ROOT_PATH_MID_URL'] = (("/" + ROOT_PATH_MID_URL) if len(ROOT_PATH_MID_URL) > 0 else "")
+ROOT_PATH = "/" + os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
+os.environ['ROOT_PATH'] = ROOT_PATH
+
 APP_DATA_PATH = os.getenv('CF_DATA_PATH', '/tmp').removesuffix("/")
 APP_CONF_PATH = os.getenv('CF_CONF_PATH', '/tmp').removesuffix("/")
 DEFAULT_USER = os.getenv('DEFAULT_USER', 'admin')

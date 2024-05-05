@@ -10,6 +10,8 @@ import subprocess
 import uvicorn.logging
 from uvicorn.supervisors import ChangeReload, Multiprocess
 
+from modules.server.common import ROOT_PATH
+
 from modules.server.database import init_db
 
 PORT=9000
@@ -63,7 +65,7 @@ if __name__ == "__main__":
             else:
                 logger.error("Error Configuring Apache.")
                 exit(1)
-            if (os.system("cat /etc/apache2/sites-available/000-default.template.conf | envsubst '$ROOT_PATH' > /etc/apache2/sites-available/000-default.conf") == 0):
+            if (os.system("cat /etc/apache2/sites-available/000-default.template.conf | envsubst '$ROOT_PATH $ROOT_PATH_MID_URL' > /etc/apache2/sites-available/000-default.conf") == 0):
                 pass
             else:
                 logger.error("Error Configuring Apache.")
@@ -95,7 +97,7 @@ if __name__ == "__main__":
             else:
                 logger.error("Error Configuring Apache.")
                 exit(1)
-            if (os.system("cat /etc/apache2/sites-available/000-default.template.dev.conf | envsubst '$ROOT_PATH' > /etc/apache2/sites-available/000-default.conf") == 0):
+            if (os.system("cat /etc/apache2/sites-available/000-default.template.dev.conf | envsubst '$ROOT_PATH $ROOT_PATH_MID_URL' > /etc/apache2/sites-available/000-default.conf") == 0):
                 pass
             else:
                 logger.error("Error Configuring Apache.")

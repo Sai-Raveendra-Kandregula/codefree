@@ -185,7 +185,7 @@ function ProjectsList() {
           projectsList.length &&
           <LinkButton
             className={'themeButton'}
-            title={"Create Project"}
+            title={"Create"}
             icon={<MdAdd style={{
               fontSize: '1.1rem'
             }} />}
