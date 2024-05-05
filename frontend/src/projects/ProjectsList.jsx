@@ -1,49 +1,60 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
 import {NameInitialsAvatar} from 'react-name-initials-avatar';
 import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { MdAdd, MdCheck, MdClose } from 'react-icons/md'
 import PopupModal from '../Components/Popup'
 import IconButton from '../Components/IconButton'
+import { toast } from 'react-toastify';
+
+export async function projectListLoader({params}) {
+  const resp = await fetch(`${SERVER_BASE_URL}/api/projects/all-projects`)
+  if (resp.status == 200) {
+    return resp.json()
+  }
+  else {
+    throw resp
+  }
+}
 
 function ProjectsList() {
   const navigate = useNavigate();
-  const [projectsList, setProjectsLists] = useState([])
+  const projectsList = useLoaderData()
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  function getProjects() {
+  // function getProjects() {
 
-    fetch(`${SERVER_BASE_URL}/api/projects/all-projects`).then(
-      (resp) => {
-        if (resp.status == 200) {
-          return resp.json()
-        }
-        else {
-          return null
-        }
-      }).then((data) => {
-        setProjectsLists(data)
-      }).catch((reason) => {
-        setProjectsLists([])
-      })
-  }
+  //   fetch(`${SERVER_BASE_URL}/api/projects/all-projects`).then(
+  //     (resp) => {
+  //       if (resp.status == 200) {
+  //         return resp.json()
+  //       }
+  //       else {
+  //         return null
+  //       }
+  //     }).then((data) => {
+  //       setProjectsLists(data)
+  //     }).catch((reason) => {
+  //       setProjectsLists([])
+  //     })
+  // }
 
 
   useEffect(() => {
-    getProjects();
+    // getProjects();
   }, [])
 
   function createProject() {
     const project_name = document.getElementById('project_name').value.trim()
     const project_slug = document.getElementById('project_slug').value.trim()
     if (project_name.length < 4) {
-      alert("Project Name has to be at least of length 3")
+      toast.warning("Project Name has to be at least of length 3")
       return
     }
     if (project_slug.length < 4) {
-      alert("Project Slug has to be at least of length 3")
+      toast.warning("Project Slug has to be at least of length 3")
       return
     }
     fetch(`${SERVER_BASE_URL}/api/projects/create-project`, {
@@ -57,9 +68,13 @@ function ProjectsList() {
       })
     }).then((resp) => {
       if (resp.status == 201) {
+        toast.success(`Project creation successful.`)
         searchParams.delete('create')
         setSearchParams(searchParams)
-        getProjects()
+        // getProjects()
+      }
+      else{
+        toast.error(`Error Creating Project (Code: ${resp.status})`)
       }
     })
   }
@@ -185,7 +200,7 @@ function ProjectsList() {
           projectsList.length &&
           <LinkButton
             className={'themeButton'}
-            title={"Create Project"}
+            title={"Create"}
             icon={<MdAdd style={{
               fontSize: '1.1rem'
             }} />}

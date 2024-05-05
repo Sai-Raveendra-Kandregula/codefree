@@ -64,7 +64,7 @@ function UserPreferences() {
             }}>
                 {
                     ["light", "dark", "system"].map((themeVal) => {
-                        return <div style={{
+                        return <div key={themeVal} style={{
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',

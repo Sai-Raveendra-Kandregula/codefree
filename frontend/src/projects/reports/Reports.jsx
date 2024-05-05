@@ -161,28 +161,31 @@ function Reports() {
           </div>
         </div>
       </PopupModal>
-      <div style={{
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        gap: '10px'
-      }}>
-        <input type='text' placeholder='Search Reports' disabled={reportsList.length <= 0} />
-        <LinkButton
-          className={'themeButton'}
-          title={"Upload Report"}
-          icon={<MdOutlineFileUpload style={{
-            fontSize: '1.1rem'
-          }} />}
-          to={`/projects/${pathParams.projectid}/reports?upload`}
-          style={{
-            fontSize: '0.9rem'
-          }}
-          replace={false}
-        />
-      </div>
+      {
+        reportsList.length > 0 &&
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          gap: '10px'
+        }}>
+          <input type='text' placeholder='Search Reports' disabled={reportsList.length <= 0} />
+          <LinkButton
+            className={'themeButton'}
+            title={"Upload"}
+            icon={<MdOutlineFileUpload style={{
+              fontSize: '1.1rem'
+            }} />}
+            to={`/projects/${pathParams.projectid}/reports?upload`}
+            style={{
+              fontSize: '0.9rem'
+            }}
+            replace={false}
+          />
+        </div>
+      }
       <div style={{
         padding: '0 0 20px 0',
         display: 'flex',

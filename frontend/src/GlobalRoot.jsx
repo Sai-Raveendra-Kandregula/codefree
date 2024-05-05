@@ -88,8 +88,8 @@ async function getUserName() {
 export async function globalRootLoader({ params }) {
   const out = {}
   out['user'] = await getUserName()
-  if(params.userid) {
-    out['userInfo'] = await userDataLoader({params})
+  if (params.userid) {
+    out['userInfo'] = await userDataLoader({ params })
   }
   if (params.projectid) {
     out['projectInfo'] = await projectInfoLoader({ params })
@@ -116,8 +116,20 @@ function GlobalRoot() {
     return <React.Fragment>
       {
         rootLoaderData['user'] ?
-          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<NameInitialsAvatar name={`${rootLoaderData['user']['display_name']}`} 
-            borderStyle='none' bgColor={rootLoaderData['user']['avatar_color']} size='1.65rem' textColor='white' textSize='0.65rem' />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
+          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={
+            rootLoaderData['user']['avatar_data'] ?
+              <img id='avatar_preview' src={`${rootLoaderData['user']['avatar_data']}`} style={{
+                display: 'block',
+                height: '1.65rem',
+                width: '1.65rem',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }} />
+              :
+              <NameInitialsAvatar name={`${rootLoaderData['user']['display_name']}`} borderStyle='none'
+                bgColor={rootLoaderData['user']['avatar_color']} size='1.65rem' textColor='white' textSize={`${1.65 * (0.65 / 1.65)}rem`} />
+          } showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
             <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
             <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
             <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<LuLogOut />} />
@@ -143,9 +155,9 @@ function GlobalRoot() {
         </div>
         {
           <React.Fragment>
-              <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
-              <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
-            </React.Fragment>
+            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
+            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
+          </React.Fragment>
         }
       </React.Fragment>
 
@@ -195,7 +207,7 @@ function GlobalRoot() {
         <SideBarLink to={'/home'} title={'Home'} icon={<GoHome />} />
         <SideBarLink to={'/projects'} title={'Projects'} icon={<GoProject />} />
         {
-          rootLoaderData['user'] && rootLoaderData['user']['is_user_admin'] && 
+          rootLoaderData['user'] && rootLoaderData['user']['is_user_admin'] &&
           <SideBarLink to={'/system-preferences'} title={"System Preferences"} icon={<LuSettings />} />
         }
       </React.Fragment>
