@@ -53,8 +53,10 @@ logger = logging.getLogger('uvicorn.error')
 
 
 SERVER_URL = os.getenv('SERVER_URL', "http://localhost:8080").removesuffix("/")
-ROOT_PATH_MID_URL = os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
-os.environ['ROOT_PATH_MID_URL'] = (("/" + ROOT_PATH_MID_URL) if len(ROOT_PATH_MID_URL) > 0 else "")
+ROOT_PATH_MID_URL = "/" + os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
+os.environ['ROOT_PATH_MID_URL'] = (ROOT_PATH_MID_URL if len(ROOT_PATH_MID_URL.removeprefix("/")) > 0 else "")
+ROOT_PATH_MID_URL = os.environ['ROOT_PATH_MID_URL']
+
 ROOT_PATH = "/" + os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
 os.environ['ROOT_PATH'] = ROOT_PATH
 

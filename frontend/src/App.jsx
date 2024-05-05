@@ -42,7 +42,7 @@ function setTitle(title = "") {
 
 const SERVER_BASE_URL = process.env.REACT_APP_SERVER_BASE_URL.replace(/^\/|\/$/g, "") || '' // Get Base url from env and remove any trailing slashes
 var tmp = process.env.REACT_APP_ROOT_PATH.replace(/^\/|\/$/g, "").toString()
-const SERVER_ROOT_PATH = tmp.length > 0 ? process.env.REACT_APP_ROOT_PATH.replace(/^\/|\/$/g, "") : '' // Get Base Path from env and remove any trailing slashes
+const SERVER_ROOT_PATH = tmp.length > 0 ? '/' + process.env.REACT_APP_ROOT_PATH.replace(/^\/|\/$/g, "") : '' // Get Base Path from env and remove any trailing slashes
 
 const SuspenseLayout = () => (
     <Suspense fallback={<Loading />}>

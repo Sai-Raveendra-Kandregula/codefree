@@ -15,6 +15,6 @@ docker run --rm -it \
     -e ENVIRONMENT=DEV \
     -e CHOKIDAR_USEPOLLING=true \
     -e WATCHPACK_POLLING=true \
+    --env-file .env \
     $RUN_OPTIONS \
     -v $CODEFREE_DIR:/codefree $IMAGE_TAG
-    # --env-file .env \
