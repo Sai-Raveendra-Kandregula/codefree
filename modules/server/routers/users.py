@@ -8,8 +8,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
-from modules.server.common import DEFAULT_USER, DEFAULT_USER_EMAIL, DEFAULT_PASS
-from modules.server.db_definitions.users import User, getPasswordHash, generateSalt
+from modules.server.common import DEFAULT_USER, DEFAULT_USER_EMAIL, DEFAULT_PASS, APP_DATA_PATH, mkdir_p, is_valid_base64_image
+from modules.server.db_definitions.users import User, getPasswordHash, generateSalt, getUserAvatarPath
 
 from modules.server.database import engine 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
@@ -107,8 +107,17 @@ async def del_session(response: Response, session_id: UUID = Depends(cookie)):
     }
 
 @usersRouter.get("/user/validate", dependencies=[Depends(cookie)])
-async def whoami(user_data: UserData = Depends(verifier)):
-    return user_data
+async def whoami(response : Response, user_data: UserData = Depends(verifier)):
+    db_session = Session(engine)
+
+    user_info_db : User = db_session.query(User).where(User.user_name.is_(user_data.user_name)).scalar()
+
+    if(user_info_db is not None):
+        db_session.close()
+        return user_info_db.as_dict()
+    else:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {}
 
 @usersRouter.get("/user/userdata/{userid}", dependencies=[Depends(cookie)])
 async def getUserByID(request : Request, response: Response, user_data: UserData = Depends(verifier)):
@@ -116,13 +125,16 @@ async def getUserByID(request : Request, response: Response, user_data: UserData
 
     user_info_db : User = db_session.query(User).where(User.user_name.is_(request.path_params.get('userid'))).scalar()
 
+    out = {}
+
     db_session.close()
 
     if(user_info_db is not None):
-        return user_info_db.as_dict()
+        out = user_info_db.as_dict()
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return {}
+
+    return out
     
 @usersRouter.post("/user/modify-user", dependencies=[Depends(cookie)])
 async def getUserByID(newData : UserData , request : Request, response: Response, user_data: UserData = Depends(verifier)):
@@ -136,9 +148,19 @@ async def getUserByID(newData : UserData , request : Request, response: Response
             user_info_db.email = newData.email
             user_info_db.updated_by = user_data.user_name
             user_info_db.updated_on = datetime.datetime.now(datetime.timezone.utc)
-            db_session.commit()
-            if(db_session.is_modified(user_info_db)):
-                response.status_code = status.HTTP_304_NOT_MODIFIED
+            if (newData.avatar_data is not None):
+                try:
+                    base64_portion = newData.avatar_data.split('base64,',)[1]
+                    is_valid_base64_image(base64_portion)
+                    with open(getUserAvatarPath(user_name=user_info_db.user_name), "w") as avatar_file:
+                        avatar_file.write(newData.avatar_data)
+                    db_session.commit()
+                    if(db_session.is_modified(user_info_db)):
+                        response.status_code = status.HTTP_304_NOT_MODIFIED
+                except Exception as e:
+                    db_session.close()
+                    response.status_code = status.HTTP_400_BAD_REQUEST
+                    return newData
             out = user_info_db.as_dict()
             db_session.close()
             return out
@@ -153,7 +175,7 @@ async def getUserByID(newData : UserData , request : Request, response: Response
 
 @usersRouter.get("/user/all-users", dependencies=[Depends(cookie)])
 async def all_users(user_data: UserData = Depends(verifier)):
-    return User.objects.all()
+    return [user.as_dict() for user in User.objects.all()]
 
 
 @usersRouter.post("/user/invite-user", dependencies=[Depends(cookie)])

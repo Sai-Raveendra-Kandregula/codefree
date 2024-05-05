@@ -14,7 +14,8 @@ class UserLogin(BaseModel):
 class UserData(BaseModel):
     user_name: str
     display_name: str = Field(None)
-    avatar_color: str
+    avatar_color: Optional[str] = Field(None)
+    avatar_data: Optional[str] = Field(None)
     is_user_admin: Optional[bool] = Field(False)
     email: str
     created_on: Optional[datetime] = Field(None)

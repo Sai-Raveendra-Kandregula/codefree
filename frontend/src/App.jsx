@@ -18,6 +18,7 @@ import UserInfo from './users/UserInfo';
 import UserPreferences from './users/UserPreferences';
 import { StatusCodes } from 'http-status-codes';
 import SystemSettingsRoot from './system/SystemSettingsRoot';
+import { projectListLoader } from './projects/ProjectsList';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -50,11 +51,13 @@ const SuspenseLayout = () => (
 );
 
 const RoutesJSX = (
-    <Route path={`/`} element={<SuspenseLayout />}>
+    <Route path={`/`} element={<SuspenseLayout />} errorElement={<NotFound />}>
         <Route path={`/sign-in`} element={<SignIn />} />
         <Route path={`/sign-out`} element={<SignOut />} />
         <Route path='*' element={<ErrorPage errorNumber={404} />} />
-        <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} errorElement={<NotFound />} shouldRevalidate={() => true}>
+        <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} shouldRevalidate={({ currentUrl }) => {
+            return true
+        }}>
             <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
             <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
             <Route path={`/user`} element={<UserRoot />}>
@@ -90,7 +93,9 @@ const RoutesJSX = (
                 </Route>
             </Route>
             <Route path={`/projects`} element={<ProjectsRoot />} >
-                <Route path={`/projects`} element={<ProjectsList />} />
+                <Route path={`/projects`} element={<ProjectsList />} loader={projectListLoader} shouldRevalidate={({currentUrl}) => {
+                    return true
+                }} />
                 <Route path={`/projects/:projectid`} element={<ProjectWrapper />} >
                     <Route path={`/projects/:projectid`} element={<ProjectHome />} />
                     <Route path={`/projects/:projectid/reports`} element={<Reports />} />

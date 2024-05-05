@@ -1,11 +1,13 @@
 from typing import List
 import datetime
+import os
 from typing import Optional
 from sqlalchemy import String, DateTime, Boolean
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
 from modules.server.db_definitions.common import CodeFreeBase
+from modules.server.common import APP_DATA_PATH, mkdir_p
 
 def generateInviteToken() -> str:
     import uuid
@@ -19,6 +21,10 @@ def getPasswordHash(password : str, salt : str) -> str:
     import hashlib
     return hashlib.sha512((password + salt).encode('utf-8')).hexdigest()
 
+def getUserAvatarPath(user_name : str):
+    path = os.path.join(APP_DATA_PATH, 'users', 'avatars')
+    mkdir_p(path)
+    return os.path.join(path, user_name)
 
 class User(CodeFreeBase):
     __tablename__ = "user"
@@ -39,7 +45,7 @@ class User(CodeFreeBase):
         return f"User(user_name={self.user_name!r})"
     
     def as_dict(self):
-        return {
+        out = {
             "user_name" : self.user_name,
             "display_name" : self.display_name,
             "email" : self.email,
@@ -50,6 +56,15 @@ class User(CodeFreeBase):
             "updated_on" : self.updated_on.timestamp() * 1000, # sec to milli sec for JS Usage
             "updated_by" : self.updated_by,
         }
+
+        avatar_path = getUserAvatarPath(user_name=self.user_name)
+        if(os.path.exists(avatar_path)):
+            with open(avatar_path, "r") as avatar:
+                out['avatar_data'] = avatar.read()
+        else:
+            out['avatar_data'] = None
+
+        return out
    
 class PendingUser(CodeFreeBase):
     __tablename__ = "pendinguser"

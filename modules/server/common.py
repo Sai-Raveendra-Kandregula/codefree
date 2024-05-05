@@ -3,6 +3,37 @@ import logging
 import dotenv
 import errno
 
+import base64
+import io
+from PIL import Image
+
+def is_valid_base64_image(image_string):
+    # checking valid base64 image string 
+    try:
+        image = base64.b64decode(image_string)
+        img = Image.open(io.BytesIO(image))
+    except Exception:
+        raise Exception('file is not valid base64 image')
+    # end of check base64 image string
+    
+    # checking image format I want to support
+    if img.format.lower() in ["jpg", "jpeg", "png"]:
+        
+        # if you need to check image dimension
+        # width, height = img.size
+        # if width < 400 and height < 400:
+        #     return True
+        # else:
+        #     raise Exception(
+        #         'image size exceeded, width and height must be less than 400 pixels')
+        
+        return True
+
+        # end of checking dimentions
+        
+    else:
+        raise Exception('Image is not valid, only \'base64\' image (jpg, jpeg, png) is valid')
+
 def mkdir_p(path): # mkdir -p implementation
     try:
         os.makedirs(path)
