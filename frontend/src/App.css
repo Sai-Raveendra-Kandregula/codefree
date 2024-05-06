@@ -1,5 +1,4 @@
-@import url(./Roboto.css);
-@import url(./RobotoMono.css);
+/* App Styles */
 
 :root, .light {
   --header-height: 50px;
@@ -36,7 +35,7 @@
 
 * {
   color: inherit;
-  font-family: 'Roboto', unset;
+  font-family: Inter;
 }
 
 a {
@@ -181,7 +180,7 @@ span.letter-avatar{
 .sideBarLink {
   box-sizing: border-box;
   height: 40px;
-  padding: 0 10px;
+  padding: 0 15px;
 
   display: flex;
   flex-direction: row;
@@ -354,7 +353,7 @@ span.letter-avatar{
   justify-content: flex-start;
   min-height: 30px;
   gap: 15px;
-  font-weight: 600;
+  font-weight: 500;
 
   background: var(--card-background);
   border: 1px solid var(--border-color);

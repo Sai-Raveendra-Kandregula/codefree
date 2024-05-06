@@ -11,14 +11,17 @@ import LinkButton from '../Components/LinkButton';
 import { toast } from 'react-toastify';
 import UserAvatar from '../Components/UserAvatar';
 
-function UserInfo() {
+function UserInfo({
+    currentUserInfo = false
+}) {
     const pathParams = useParams();
     const currentUserData = useRouteData('0-3')['user']
-    const userData = useRouteData('0-3')['userInfo']
+    const externalUserData = useRouteData('0-3')['userInfo']
+    const userData = currentUserInfo ? currentUserData : externalUserData
 
     return (
         <div style={{
-            padding: '20px',
+            padding: '30px',
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
@@ -38,6 +41,7 @@ function UserInfo() {
                         marginLeft: '5px'
                     }}>(id : {userData['user_name']})</span>
                 </h2>
+                <IconButton to={`/admin-area/users/${userData['user_name']}`} title={`Open User in Admin Area`} />
                 <LinkButton className={'themeButton'} icon={<LuPencil />} 
                     to={`/user/${userData['user_name']}/edit`} 
                     title={`Edit`} />

@@ -16,6 +16,7 @@ import { StatusCodes } from 'http-status-codes';
 import { projectListLoader } from './projects/ProjectsList';
 import { userListLoader } from './system/SystemSettingsUsers';
 import UserModify from './users/UserModify';
+import SystemSettingsUserInfo from './system/SystemSettingsUserInfo';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -68,6 +69,7 @@ const RoutesJSX = (
             <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
             <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
             <Route path={`/user`} element={<UserRoot />}>
+                <Route path={`/user/profile`} element={<UserInfo currentUserInfo={true} />} />
                 <Route path={`/user/:userid`} element={<Outlet />} >
                     <Route path={`/user/:userid`} element={<UserInfo />} />
                     <Route path={`/user/:userid/edit`} element={<UserModify />} action={async ({ request, params }) => {
@@ -84,10 +86,10 @@ const RoutesJSX = (
                                     },
                                     credentials: 'include'
                                 })
-                                if(resp.status == StatusCodes.OK){
+                                if (resp.status == StatusCodes.OK) {
                                     toast.success("User updated Successfully.")
                                 }
-                                else if(resp.status == StatusCodes.NOT_FOUND){
+                                else if (resp.status == StatusCodes.NOT_FOUND) {
                                     toast.error("User not found.")
                                 }
                                 return await resp.json()
@@ -109,9 +111,10 @@ const RoutesJSX = (
                     <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
                 </Route>
             </Route>
-            <Route path='/system-preferences' element={<SystemSettingsRoot />} >
-                <Route path='/system-preferences' element={<Navigate to={`/system-preferences/users`} />} />
-                <Route path='/system-preferences/users' element={<SystemSettingsUsers />} loader={userListLoader} />
+            <Route path='/admin-area' element={<SystemSettingsRoot />} >
+                <Route path='/admin-area' element={<Navigate to={`/admin-area/users`} />} />
+                <Route path='/admin-area/users' element={<SystemSettingsUsers />} loader={userListLoader} />
+                <Route path='/admin-area/users/:userid' element={<SystemSettingsUserInfo />} />
             </Route>
         </Route>
     </Route>)

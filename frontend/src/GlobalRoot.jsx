@@ -128,19 +128,19 @@ function GlobalRoot() {
   }
 
   const sideBarItems = () => {
-    if((window.location.pathname).startsWith(SERVER_ROOT_PATH + "/system-preferences")){
+    if((window.location.pathname).startsWith(SERVER_ROOT_PATH + "/admin-area")){
       return <React.Fragment>
         <div style={{
           padding: '10px'
         }}>
           <b>
-              System Preferences
+              Admin Area
           </b>
         </div>
         {
           <React.Fragment>
             {/* <SideBarLink to={`/system-preferences`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} /> */}
-            <SideBarLink to={`/system-preferences/users`} title={'Users'} icon={<LuUsers2 />} />
+            <SideBarLink to={`/admin-area/users`} title={'Users'} icon={<LuUsers2 />} exact={false} />
           </React.Fragment>
         }
       </React.Fragment>
@@ -159,7 +159,7 @@ function GlobalRoot() {
         </div>
         {
           <React.Fragment>
-            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
+            <SideBarLink to={`/user/profile`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
             <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
           </React.Fragment>
         }
@@ -212,7 +212,7 @@ function GlobalRoot() {
         <SideBarLink to={'/projects'} title={'Projects'} icon={<GoProject />} />
         {
           rootLoaderData['user'] && rootLoaderData['user']['is_user_admin'] &&
-          <SideBarLink to={'/system-preferences'} title={"System Preferences"} icon={<LuSettings />} />
+          <SideBarLink to={'/admin-area'} title={"Manage CodeFree"} icon={<LuSettings />} />
         }
       </React.Fragment>
     }
@@ -260,7 +260,7 @@ function GlobalRoot() {
           alignItems: 'center',
           justifyContent: 'flex-start',
           padding: '0 20px',
-          gap: '5px',
+          gap: '7.5px',
           position: 'sticky',
           top: '0',
           zIndex: '999',

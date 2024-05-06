@@ -9,11 +9,23 @@ function SideBarLink({
   to,
   icon,
   title,
+  exact=true,
   ...props
 }) {
+
+  const locationMatches = [SERVER_ROOT_PATH + to, SERVER_ROOT_PATH + to + "/"]
+
+  const locationMatched = () => {
+    if(exact){
+      return locationMatches.includes(window.location.pathname)
+    }
+    
+    return window.location.pathname.startsWith(SERVER_ROOT_PATH + to)
+  };
+
   return (<React.Fragment>
     <Link 
-      className={`sideBarLink ${[SERVER_ROOT_PATH + to, SERVER_ROOT_PATH + to + "/"].includes(window.location.pathname) ? "active" : ""} ${className ? className : ""}`} 
+      className={`sideBarLink ${locationMatched() ? "active" : ""} ${className ? className : ""}`} 
       to={to} 
       title={title} 
       replace={false}
@@ -24,6 +36,7 @@ function SideBarLink({
         overflowX: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
+        fontWeight: 500,
       }}>{title}</span>
     </Link>
   </React.Fragment>

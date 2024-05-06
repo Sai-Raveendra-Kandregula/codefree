@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.4",
+    "@fontsource/inter": "^5.0.18",
     "@table-library/react-table-library": "^4.1.7",
     "apexcharts": "^3.48.0",
     "http-status-codes": "^2.3.0",

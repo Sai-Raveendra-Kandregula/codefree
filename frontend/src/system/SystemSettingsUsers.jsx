@@ -115,8 +115,8 @@ function SystemSettingsUsers() {
                 textWrap: 'pretty',
                 fontSize: '0.8rem'
             }}>
-                Created by <Link to={`/user/${item['created_by']}`}>{item['created_by']}</Link><br />
-                Modified by <Link to={`/user/${item['updated_by']}`}>{item['updated_by']}</Link>
+                Created by <Link to={`/admin-area/users/${item['created_by']}`}>{item['created_by']}</Link><br />
+                Modified by <Link to={`/admin-area/users/${item['updated_by']}`}>{item['updated_by']}</Link>
             </div>
         },
         {
@@ -166,7 +166,7 @@ function SystemSettingsUsers() {
     const ROW_PROPS = {
         key: (item) => item['user_name'],
         onClick: (item) => {
-            navigate(`/user/${item['user_name']}`)
+            navigate(`/admin-area/users/${item['user_name']}`)
         }
     }
 
