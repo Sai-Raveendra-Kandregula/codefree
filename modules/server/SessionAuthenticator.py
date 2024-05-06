@@ -10,6 +10,8 @@ from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
 
+from sqlalchemy.orm import Session
+
 from modules.server.definitions import UserData
 
 from modules.server.db_definitions.users import User
@@ -58,8 +60,20 @@ class BasicVerifier(SessionVerifier[UUID, UserData]):
         return self._auth_http_exception
 
     def verify_session(self, model: UserData) -> bool:
-        """If the session exists, it is valid"""
-        return True
+        """If the user and session exists, it is valid"""
+
+        valid = False
+
+        db_session = Session(engine)
+
+        try:
+            if (db_session.query(User).where(User.user_name.is_(model.user_name)).scalar() is not None):
+                valid = True
+        except:
+            pass
+
+        db_session.close()
+        return valid
 
 
 verifier = BasicVerifier(

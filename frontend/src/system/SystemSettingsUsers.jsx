@@ -47,7 +47,7 @@ function SystemSettingsUsers() {
         `,
         HeaderRow: `
             background: transparent;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
 
             .th {
                 padding: 5px 10px;
@@ -65,7 +65,7 @@ function SystemSettingsUsers() {
         Row: `
             cursor: pointer;
             background: transparent;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             
             .td {
                 padding: 5px 10px;
@@ -113,7 +113,7 @@ function SystemSettingsUsers() {
         {
             label: 'Status', renderCell: (item) => <div style={{
                 textWrap: 'pretty',
-                fontSize: '0.75rem'
+                fontSize: '0.8rem'
             }}>
                 Created by <Link to={`/user/${item['created_by']}`}>{item['created_by']}</Link><br />
                 Modified by <Link to={`/user/${item['updated_by']}`}>{item['updated_by']}</Link>
@@ -122,7 +122,7 @@ function SystemSettingsUsers() {
         {
             label: 'Activity Status', renderCell: (item) => <div style={{
                 textWrap: 'pretty',
-                fontSize: '0.75rem'
+                fontSize: '0.8rem'
             }}>Modified on {new Date(item['updated_on']).toLocaleDateString()}</div>
         },
         {
