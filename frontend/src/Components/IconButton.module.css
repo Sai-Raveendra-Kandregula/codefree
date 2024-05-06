@@ -16,10 +16,10 @@
 }
 
 .buttonBase > svg{
-    min-width: 1em !important;
-    max-width: 1em !important;
-    height: 1em !important;
-    opacity: 0.6;
+    min-width: 1.2em !important;
+    max-width: 1.2em !important;
+    height: 1.2em !important;
+    opacity: 0.75;
 }
 
 .buttonBase:hover{

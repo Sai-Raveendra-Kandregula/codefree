@@ -57,6 +57,7 @@
     justify-content: flex-start;
     gap: 5px;
 
+    z-index: 9999;
     width: clamp(250px, 20%, 300px);
     height: calc(100vh);
     max-height: calc(100vh);
