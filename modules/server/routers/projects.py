@@ -336,6 +336,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
     db_session.close()
     response.status_code = status.HTTP_201_CREATED
     return {
+        "report_id" : report_id,
         "report_url" : f"{SERVER_URL}/projects/{report.project_id}/reports/{report_id}"
     }
 

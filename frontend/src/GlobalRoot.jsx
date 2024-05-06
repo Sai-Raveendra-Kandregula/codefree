@@ -200,7 +200,10 @@ function GlobalRoot() {
             : <React.Fragment>
               <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']}
                 icon={<ProjectIcon />} />
-              <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
+                {
+                  rootLoaderData['reportList'] && rootLoaderData['reportList'].length > 0 &&
+                  <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
+                }
               <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<LuSettings />} />
             </React.Fragment>
         }
@@ -277,7 +280,8 @@ function GlobalRoot() {
           <Breadcrumbs />
         </div>
         <div style={{
-          minHeight: 'calc(100vh - var(--header-height) )'
+          minHeight: 'calc(100vh - var(--header-height) )',
+          height: 'calc(100vh - var(--header-height) )',
         }}>
           <Outlet />
         </div>

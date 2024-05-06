@@ -10,6 +10,37 @@ import ToolTip from '../Components/ToolTip';
 import LinkButton from '../Components/LinkButton';
 import { toast } from 'react-toastify';
 import UserAvatar from '../Components/UserAvatar';
+import { StatusCodes } from 'http-status-codes';
+import { SERVER_BASE_URL, SERVER_ROOT_PATH } from '../App'
+
+
+export const modifyUserAction = async ({ request, params }) => {
+    switch (request.method) {
+        case "POST": {
+            let formData = await request.formData()
+            let submitData = Object.fromEntries(formData)
+            console.log(submitData)
+            const resp = await fetch(`${SERVER_BASE_URL}/api/user/modify`, {
+                method: 'POST',
+                body: JSON.stringify(submitData),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+            if (resp.status == StatusCodes.OK) {
+                toast.success("User updated Successfully.")
+            }
+            else if (resp.status == StatusCodes.NOT_FOUND) {
+                toast.error("User not found.")
+            }
+            return await resp.json()
+        }
+        default: {
+            throw new Response("", { status: 405 });
+        }
+    }
+}
 
 function UserModify() {
     const pathParams = useParams();
@@ -74,7 +105,7 @@ function UserModify() {
                     {`Edit \"${userData['user_name']}\" user`}
                 </h2>
             </div>
-            <Form method='post'
+            <Form method='POST'
                 action={`/user/${userData['user_name']}`}
                 style={{
                     width: '100%',

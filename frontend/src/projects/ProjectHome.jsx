@@ -3,15 +3,18 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import ActivityRings from "react-activity-rings"
 import Chart from "react-apexcharts";
 
-import { SERVER_BASE_URL } from '../App'
+import { SERVER_BASE_URL, useRouteData } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { vmin } from '../Helpers'
 import { BiArrowFromLeft } from 'react-icons/bi';
 import { GoArrowRight } from 'react-icons/go';
+import { NameInitialsAvatar } from 'react-name-initials-avatar';
 
 function ProjectHome() {
   const pathParams = useParams()
   const navigate = useNavigate();
+
+  const projectInfo = useRouteData('0-3')['projectInfo']
 
   const [reportData, setReportData] = useState(null)
   const [reportsList, setReportsLists] = useState([])
@@ -123,11 +126,22 @@ function ProjectHome() {
 
   return (
     <div style={{
-      padding: '20px',
+      padding: '30px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '10px',
+      gap: '15px',
     }}>
+      {
+        projectInfo && <h2 style={{
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+          margin: '0'
+        }}>
+          <NameInitialsAvatar name={projectInfo['name']} bgColor={projectInfo['avatar_color']} textColor='white' borderStyle='none' />
+          {projectInfo['name']}
+        </h2>
+      }
       {
         reportData ? <React.Fragment>
           <div className='appPanel' style={{
@@ -226,12 +240,13 @@ function ProjectHome() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            textAlign: 'center'
+            textAlign: 'center',
+            marginTop: '15px'
           }}>
             <p>
               There are no reports found for this project. Run a CodeFree test <b>from the CLI</b>,<br />or
             </p>
-            <LinkButton className={'themeButton'} to={`/projects/${pathParams.projectid}/reports?upload`} title={'Upload a Report'} />
+            <LinkButton className={'themeButton'} to={`/projects/${pathParams.projectid}/reports/upload`} title={'Upload a Report'} />
           </div>
       }
     </div>

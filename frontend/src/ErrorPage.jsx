@@ -31,7 +31,10 @@ const CFAppErrors = {
     <LinkButton icon={<IoArrowBack />} to={'/home'} title='Go Back Home' style={{
       fontSize: '1rem'
     }} />
-  </React.Fragment>
+  </React.Fragment>,
+  504: <React.Fragment>
+    Unable to Connect to Server. Please try again later, or contact Administrator if the issue persists.
+  </React.Fragment>,
 }
 
 function ErrorPage({
@@ -39,9 +42,14 @@ function ErrorPage({
 }) {
   const navigate = useNavigate()
 
+  if(typeof(errorNumber) === typeof(TypeError())){
+    errorNumber = 504
+  }
+
   if (errorNumber == StatusCodes.UNAUTHORIZED) {
     navigate(`/sign-in?redirect=${window.location.href}`)
   }
+
 
   useEffect(() => {
     if (window.localStorage.getItem("app-theme") == "dark") {
