@@ -19,24 +19,31 @@ def output_server(args, output: List[CheckerOutput] = []):
     server_url : str = args.serverUrl
     server_url = server_url.removesuffix("/") + "/"
 
+    commit_info : str = None
     out_obj = {}
     out_obj['timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
+    if(args.commit):
+        out_obj['commit_info'] = args.commit
+        commit_info = json.dumps(args.commit)
     out_obj['data'] = [item.dict() for item in output]
+    
 
     uploadUrl = urllib.parse.urljoin(server_url, 'api/reports/upload-report')
     resp : requests.Response
     
     resp = ServerSession.post(uploadUrl, json={
         "project_id": args.cfProject,
+        "commit_info" : commit_info,
         "report": out_obj
     })
     if(resp.status_code == status.HTTP_201_CREATED):
         progress_printer("Report Uploaded Successfully.")
-        print(f"It can be accessed at {resp.json()['report_url']}")
+        progress_printer(f"It can be accessed at : ")
+        print(f"{resp.json()['report_url']}")
     elif(resp.status_code == status.HTTP_406_NOT_ACCEPTABLE):
-        error_printer("Report Upload Failed.\nError : Invalid Report")
+        error_printer("Report Upload Failed : Invalid Report")
     elif(resp.status_code == status.HTTP_409_CONFLICT):
-        error_printer(f"Report Upload Failed.\Report Already Exists : {resp.json()['report_url']}")
+        error_printer(f"Report Upload Failed : Already Exists at {resp.json()['report_url']}")
     else:
         error_printer(f"Report Upload Failed. (HTTP Status Code : {resp.status_code})")
 

@@ -36,6 +36,8 @@ class ProjectData(BaseModel):
     id : Optional[int] = Field(None, description="Project ID")
     slug : str
     name : str
+    git_remote_url : Optional[str] = Field(None)
+    git_remote_commit_url : Optional[str] = Field(None)
 
 class ProjectConfig(BaseModel):
     slug : str

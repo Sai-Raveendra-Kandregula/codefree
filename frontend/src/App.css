@@ -1,5 +1,13 @@
 /* App Styles */
 
+:root {
+  --centered-content-width: clamp(60%, 750px, 100%);
+  --centered-wide-content-width: clamp(75%, 900px, 100%);
+  --centered-content-margin: 0 auto;
+
+  --button-height: 35px;
+}
+
 :root, .light {
   --header-height: 50px;
   --header-padding: 15px;
@@ -51,7 +59,7 @@ input[type=text],
 input[type=email],
 input[type=password] {
   box-sizing: border-box;
-  height: 35px;
+  height: 30px;
   background-color: var(--select-background);
   border: 1px solid var(--control-border-color);
   border-radius: var(--border-radius);
@@ -75,8 +83,7 @@ input[type=submit],
 input[type=reset] {
   box-sizing: border-box;
   font-family: inherit;
-  height: 35px;
-  width: min-content;
+  height: var(--button-height);
   padding: 5px 10px;
 
   display: flex;
@@ -167,6 +174,10 @@ span.letter-avatar{
   flex-shrink: 0;
 }
 
+*:is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600 !important;
+}
+
 .App {
   height: 100vh;
   max-height: 100vh;
@@ -215,7 +226,7 @@ span.letter-avatar{
 
 .linkButton {
   box-sizing: border-box;
-  height: 35px;
+  height: var(--button-height);
   width: min-content;
   padding: 5px 10px;
 

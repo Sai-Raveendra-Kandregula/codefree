@@ -1,0 +1,15 @@
+tr.header-row{
+    background: var(--background);
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid var(--border-bottom);
+    z-index: 999;
+}
+
+tr.clickable-row{
+    cursor: pointer;
+}
+
+tr.clickable-row:hover{
+    background: var(--button-overlay);
+}

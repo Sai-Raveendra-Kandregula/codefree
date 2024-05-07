@@ -5,8 +5,7 @@ function ProjectsRoot() {
   return (
     <div style={{
       height: '100%',
-      maxHeight: '100%',
-      overflowY: 'hidden'
+      maxHeight: '100%'
   }}>
         <Outlet />
     </div>

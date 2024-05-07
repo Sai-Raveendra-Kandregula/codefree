@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Link, Outlet, useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import useBreadcrumbs from "use-react-router-breadcrumbs";
 
-import { CiLight, CiDark } from "react-icons/ci";
 import { GoHome, GoProject, GoGear, GoCodeSquare } from "react-icons/go";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 
@@ -14,11 +13,10 @@ import { LuUser2, LuUsers2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftO
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
 import SideBarLink from './Components/SideBarLink';
-import { SERVER_BASE_URL, SERVER_ROOT_PATH } from './App';
+import { SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import LinkButton from './Components/LinkButton';
 import { AppContext } from './NotFoundContext';
-import ErrorPage from './ErrorPage';
 import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
@@ -48,11 +46,21 @@ export function toTitleCase(str) {
 }
 
 const Breadcrumbs = () => {
-  const breadcrumbs = useBreadcrumbs();
+
+  const userData = useRouteData('0-3')['userInfo']
+  const projectInfo = useRouteData('0-3')['projectInfo']
+
+  const routes = [
+    { path: "/user/:userid", breadcrumb: userData && userData['display_name'] },
+    { path: "/admin-area/users/:userid", breadcrumb: userData && userData['display_name'] },
+    { path: "/projects/:projectid", breadcrumb: projectInfo && projectInfo['name'] },
+  ]
+
+  const breadcrumbs = useBreadcrumbs(routes);
   return (
     <React.Fragment>
       {breadcrumbs.map(({ breadcrumb, key }, ind) => {
-        const crumb = <Link key={key} className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{toTitleCase(breadcrumb.props.children)}</Link>
+        const crumb = <Link key={key} className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{breadcrumb.props.children}</Link>
         if (ind == 0) {
           return
         }
@@ -202,7 +210,7 @@ function GlobalRoot() {
                 icon={<ProjectIcon />} />
                 {
                   rootLoaderData['reportList'] && rootLoaderData['reportList'].length > 0 &&
-                  <SideBarLink to={`/projects/${pathParams.projectid}/reports`} title={'Reports'} icon={<GoCodeSquare />} />
+                  <SideBarLink to={`/projects/${pathParams.projectid}/reports`} exact={false} title={'Reports'} icon={<GoCodeSquare />} />
                 }
               <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<LuSettings />} />
             </React.Fragment>
@@ -212,7 +220,7 @@ function GlobalRoot() {
     else {
       return <React.Fragment>
         <SideBarLink to={'/home'} title={'Home'} icon={<GoHome />} />
-        <SideBarLink to={'/projects'} title={'Projects'} icon={<GoProject />} />
+        <SideBarLink to={'/projects'} title={'Projects'} exact={false} icon={<GoProject />} />
         {
           rootLoaderData['user'] && rootLoaderData['user']['is_user_admin'] &&
           <SideBarLink to={'/admin-area'} title={"Manage CodeFree"} icon={<LuSettings />} />

@@ -9,6 +9,8 @@ import json
 def output_json(args, output: List[CheckerOutput] = []):
     out_obj = {}
     out_obj['timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
+    if(args.commit):
+        out_obj['commit_info'] = args.commit
     out_obj['data'] = [item.dict() for item in output]
     json_string = json.dumps(out_obj, indent=(2 if args.jsonUsePretty else None))
     args.outputFile.write(json_string)

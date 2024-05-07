@@ -1,10 +1,13 @@
 from __future__ import annotations
 from enum import Enum
+import os
+import subprocess
 from typing import Dict, List, Callable, Any, TypeAlias
 from argparse import Namespace
 
 import fnmatch
 import re
+import json
 
 from modules.cf_output import get_progress_printer, get_error_printer
 import pandas as pd
@@ -46,6 +49,18 @@ class CheckingModule():
     @classmethod
     def register(cls, module):
         cls.__checking_modules.append(module)
+
+    @classmethod
+    def get_git_commit(cls, args : Namespace) -> dict | None:
+        if(os.system(f"cd {args.path} ; git rev-parse --is-inside-work-tree | grep true > /dev/null") == 0):
+            # Is a git directory
+            path : str = args.path
+            path = path.removesuffix("/")
+            fmt = "--pretty=format:{\"hash\":\"%H\",\"author\":\"%an\",\"date\":\"%ad\",\"email\":\"%aE\",\"subject\":\"%s\",\"body\": \"%b\",\"notes\":\"%N\",\"commitDate\":\"%ai\",\"age\":\"%cr\"}"
+            process = subprocess.Popen(['git', '--git-dir', f"{path}/.git", 'log', '-n 1', fmt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+            stdout, stderr = process.communicate()
+            return json.loads(stdout)
+        return None
 
     @classmethod
     def run_checks(cls, args : Namespace) -> List[Any]:

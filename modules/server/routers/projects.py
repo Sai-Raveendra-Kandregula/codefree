@@ -93,21 +93,28 @@ def getReportStats(report : dict):
         'critical_count' : critical_count,
     }
 
-def saveReportFile(report : dict, destination_file : str):
-    with open(destination_file, "w") as dest:
-        json.dump(obj=report, fp=dest)
-
 def getProjectReportsPath(slug : str):
     path = os.path.join(APP_DATA_PATH, slug, 'reports')
     mkdir_p(path)
     return path
+
+def saveReportFile(report : dict, destination_file : str):
+    dest = open(destination_file, "w")
+    json.dump(obj=report, fp=dest)
+    dest.close()
 
 # Testing
 db_session = Session(engine)
 result = db_session.query(Project).where(Project.slug.is_('logger')).scalar()
 if result == None:
     project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
-    db_session.add(Project(id=project_id, name="Logger", slug="logger", avatar_color=rand_color.generate(luminosity="dark")[0]))
+    db_session.add(Project(id=project_id, 
+                           name="Logger", 
+                           slug="logger", 
+                           avatar_color=rand_color.generate(luminosity="dark")[0],
+                           git_remote_url="https://github.com/Sai-Raveendra-Kandregula/logger",
+                           git_remote_commit_url="https://github.com/Sai-Raveendra-Kandregula/logger/commit",
+                        ))
     db_session.commit()
 db_session.close()
 
@@ -124,7 +131,14 @@ def create_project(project : ProjectData, request : Request, response : Response
     max_project_id = db_session.query(func.max(Project.id)).scalar()
     project.id = max_project_id + 1
 
-    db_session.add(Project(id=project.id, name=project.name, slug=project.slug, avatar_color=rand_color.generate(luminosity="dark")[0]))
+    db_session.add(Project(
+        id=project.id, 
+        name=project.name, 
+        slug=project.slug, 
+        avatar_color=rand_color.generate(luminosity="dark")[0],
+        git_remote_url=project.git_remote_url,
+        git_remote_commit_url=project.git_remote_commit_url,
+    ))
     db_session.commit()
     db_session.close()
 
@@ -144,13 +158,12 @@ def get_all_projects(request : Request, response : Response, user_data: UserData
 @projectsRouter.get("/projects/get-project", dependencies=[Depends(cookie)])
 def get_project(slug:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
-    projects_slug_query = db_session.query(Project).where(Project.slug.is_(slug))
-    projects_slug_query_out = projects_slug_query.scalar()
+    projects_slug_query = db_session.query(Project).where(Project.slug.is_(slug)).scalar()
     out= {}
     response.status_code = status.HTTP_404_NOT_FOUND
-    if projects_slug_query_out is not None:
+    if projects_slug_query is not None:
         response.status_code = status.HTTP_200_OK
-        out = projects_slug_query_out.as_dict()
+        out = projects_slug_query.as_dict()
     db_session.close()
     return out
 
@@ -232,10 +245,12 @@ def get_project_report(project:str, report:str, request : Request, response : Re
             report_data_obj['report'] = json.load(fp)
             db_session.close()
             return report_data_obj
-    except:
+    except Exception as e:
         response.status_code = status.HTTP_404_NOT_FOUND
         db_session.close()
-        return {}
+        return {
+            "error" : str(e)
+        }
 
 @projectsRouter.get("/reports/get-stats", dependencies=[Depends(cookie)])
 def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
@@ -308,7 +323,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
         }
     
     relative_path = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
-    filepath = os.path.join(getProjectReportsPath("logger"), relative_path)
+    filepath = os.path.join(getProjectReportsPath(report.project_id), relative_path)
     saveReportFile(report_data, filepath)
     stats = getReportStats(report_data)
 
@@ -330,6 +345,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
         major_issues = stats['major_count'],
         critical_issues = stats['critical_count'],
         issue_files = stats['file_count'],
+        commit_info = json.dumps(report_data['commit_info']) if 'commit_info' in report_data else None,
     ))
 
     db_session.commit()
@@ -386,10 +402,10 @@ def export_project_report(project:str, report:str, request : Request, response :
                 # return report_data
             else:
                 # Output Modules that generate files by themselves
-                report_ts : datetime = datetime.fromtimestamp(report_data['timestamp'] / 1000)
+                report_ts : datetime.datetime = datetime.datetime.fromtimestamp(report_data['timestamp'] / 1000)
                 issue_items = report_data['data']
                 issue_items_cls = [ CheckerOutput(dict_data=item) for item in issue_items ]
-                now = datetime.now()
+                now = datetime.datetime.now()
                 directory = f'/tmp/codefree_exports/{now.strftime("%Y%m%d_%H%M%S")}'
                 mkdir_p(directory)
                 base_filename = f'report_{project}_{report}_{report_ts.strftime("%Y%m%d_%H%M%S")}'

@@ -68,9 +68,7 @@ function App() {
             <Route path={`/sign-in`} element={<SignIn />} action={signInAction} />
             <Route path={`/sign-out`} element={<SignOut />} />
             <Route path='*' element={<ErrorPage errorNumber={404} />} />
-            <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} shouldRevalidate={({ currentUrl }) => {
-                return true
-            }}>
+            <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} shouldRevalidate={() => true}>
                 <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
                 <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
                 <Route path={`/user`} element={<UserRoot />}>

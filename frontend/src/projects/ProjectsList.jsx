@@ -26,7 +26,7 @@ function ProjectsList() {
   return (
     <div style={{
       height: '100%',
-      padding: '0 20px 0 20px'
+      padding: '30px'
     }}>
       <h2 style={{
         display: 'flex',

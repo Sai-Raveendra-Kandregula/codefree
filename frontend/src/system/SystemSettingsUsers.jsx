@@ -20,6 +20,8 @@ import IconButton from '../Components/IconButton'
 import { LuPencil, LuTrash2 } from 'react-icons/lu'
 import { StatusCodes } from 'http-status-codes'
 import { toast } from 'react-toastify'
+import UserLink from '../Components/UserLink'
+import CFTable from '../Components/CFTable'
 
 export async function userListLoader({ params }) {
     const resp = await fetch(`${SERVER_BASE_URL}/api/user/all`, {
@@ -44,13 +46,20 @@ function SystemSettingsUsers() {
     const theme = useTheme({
         Table: `
             background: transparent;
+            height: auto;
+            overflow-y : visible;
+        `,
+        Body: `
+            overflow-y : visible;
         `,
         HeaderRow: `
-            background: transparent;
+            background: var(--background);
             font-size: 0.9rem;
+            position : sticky;
+            top : 0;
 
             .th {
-                padding: 5px 10px;
+                padding: 10px 20px;
                 border-bottom: 1px solid var(--border-color);
             }
 
@@ -66,10 +75,16 @@ function SystemSettingsUsers() {
             cursor: pointer;
             background: transparent;
             font-size: 0.9rem;
+            overflow : visible;
             
             .td {
-                padding: 5px 10px;
+                padding: 10px 20px;
+                overflow : visible;
                 // border-bottom: 1px solid var(--border-color);
+            }
+
+            .td > div{
+                overflow : visible;
             }
 
             .td:first-of-type{
@@ -113,10 +128,11 @@ function SystemSettingsUsers() {
         {
             label: 'Status', renderCell: (item) => <div style={{
                 textWrap: 'pretty',
-                fontSize: '0.8rem'
+                fontSize: '0.8rem',
+                overflow: 'visible'
             }}>
-                Created by <Link to={`/admin-area/users/${item['created_by']}`}>{item['created_by']}</Link><br />
-                Modified by <Link to={`/admin-area/users/${item['updated_by']}`}>{item['updated_by']}</Link>
+                Created by <UserLink admin_url={true} user_id={item['created_by']} /><br />
+                Modified by <UserLink admin_url={true} user_id={item['updated_by']} />
             </div>
         },
         {
@@ -140,7 +156,7 @@ function SystemSettingsUsers() {
                 }} />
                 <IconButton icon={<LuTrash2 />} title={`Delete ${item['display_name']}`} onClick={(e) => {
                     e.preventDefault();
-                    if(window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)){
+                    if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
                         fetch(`${SERVER_BASE_URL}/api/user/delete`, {
                             method: 'post',
                             headers: {
@@ -148,11 +164,11 @@ function SystemSettingsUsers() {
                             },
                             body: JSON.stringify(item)
                         }).then((resp) => {
-                            if(resp.status == StatusCodes.OK){
+                            if (resp.status == StatusCodes.OK) {
                                 toast.success(`User Deletion Successfully`)
                                 revalidator.revalidate()
                             }
-                            else{
+                            else {
                                 toast.error(`User Deletion Failed : ${resp.statusText}`)
                             }
                         })
@@ -165,6 +181,7 @@ function SystemSettingsUsers() {
 
     const ROW_PROPS = {
         key: (item) => item['user_name'],
+        title: (item) => item['display_name'],
         onClick: (item) => {
             navigate(`/admin-area/users/${item['user_name']}`)
         }
@@ -172,21 +189,25 @@ function SystemSettingsUsers() {
 
     return (
         <div style={{
+            boxSizing: 'border-box',
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
+            height: '100%'
         }}>
             <h2 style={{
-                margin: '0'
+                width: 'var(--centered-wide-content-width)',
+                margin: 'var(--centered-content-margin)',
             }}>
                 Users
             </h2>
             <div style={{
-                width: '100%',
+                width: 'var(--centered-wide-content-width)',
+                margin: 'var(--centered-content-margin)',
                 display: 'flex',
                 flexDirection: 'row',
-                alignItems: 'stretch',
+                alignItems: 'center',
                 justifyContent: 'center',
                 gap: '10px'
             }}>
@@ -206,7 +227,17 @@ function SystemSettingsUsers() {
             </div>
             {
                 userList && userList.length > 0 &&
-                <CompactTable data={{ nodes: userList }} theme={theme} columns={COLUMNS} rowProps={ROW_PROPS} layout={{ fixedHeader: true }} />
+                <div style={{
+                    width: 'var(--centered-wide-content-width)',
+                    margin: 'var(--centered-content-margin)',
+                    height: '100%',
+                    maxHeight: '100%',
+                    overflowY: 'auto',
+                    position: 'relative',
+                }}>
+                    {/* <CompactTable data={{ nodes: userList }} theme={theme} columns={COLUMNS} rowProps={ROW_PROPS} layout={{ fixedHeader: true }} /> */}
+                    <CFTable data={userList} ROW_PROPS={ROW_PROPS} COLUMNS={COLUMNS} />
+                </div>
             }
         </div>
     )

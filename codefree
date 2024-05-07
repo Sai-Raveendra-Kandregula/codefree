@@ -44,6 +44,16 @@ if __name__ == "__main__":
             else:
                 progress_printer("Prechecks successful.")
 
+    progress_printer("Checking if directory is a Git Repository...")
+    commit = CheckingModule.get_git_commit(args=args)
+    if(commit is None):
+        progress_printer("Not a Git Repository.")
+    else:
+        progress_printer("Found a Git Repository.")
+        progress_printer(f"Running tests for commit : {commit['subject']} ({commit['hash']})")
+        args.commit = commit
+
+
     progress_printer("\nRunning CodeFree Analysis...")
 
     try:
