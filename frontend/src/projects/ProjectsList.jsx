@@ -31,7 +31,8 @@ function ProjectsList() {
       <h2 style={{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: '0',
       }}>
         <span>
           Projects List

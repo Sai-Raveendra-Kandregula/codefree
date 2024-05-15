@@ -15,11 +15,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import { StatusCodes } from 'http-status-codes';
 import { projectListLoader } from './projects/ProjectsList';
 import { userListLoader } from './system/SystemSettingsUsers';
-import UserModify, { modifyUserAction } from './users/UserModify';
-import SystemSettingsUserInfo from './system/SystemSettingsUserInfo';
+import UserModify, { ModifyUserAction } from './users/UserModify';
 import ProjectsCreate, { projectCreateAction } from './projects/ProjectsCreate';
 import CreateReport from './projects/reports/ReportCreate';
 import { signInAction } from './SignIn';
+import SystemSettingsUserCreate from './system/SystemSettingsUserCreate';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -74,8 +74,9 @@ function App() {
                 <Route path={`/user`} element={<UserRoot />}>
                     <Route path={`/user/profile`} element={<UserInfo currentUserInfo={true} />} />
                     <Route path={`/user/:userid`} element={<Outlet />} >
-                        <Route path={`/user/:userid`} element={<UserInfo />} />
-                        <Route path={`/user/:userid/edit`} element={<UserModify />} action={modifyUserAction} />
+                        <Route path={`/user/:userid`} element={<Navigate to={'profile'} relative={true} />} />
+                        <Route path={`/user/:userid/profile`} element={<UserInfo />} />
+                        <Route path={`/user/:userid/edit`} element={<UserModify />} action={ModifyUserAction} />
                         <Route path={`/user/:userid/preferences`} element={<UserPreferences />} />
                     </Route>
                 </Route>
@@ -93,7 +94,8 @@ function App() {
                 <Route path='/admin-area' element={<SystemSettingsRoot />} >
                     <Route path='/admin-area' element={<Navigate to={`/admin-area/users`} />} />
                     <Route path='/admin-area/users' element={<SystemSettingsUsers />} loader={userListLoader} />
-                    <Route path='/admin-area/users/:userid' element={<SystemSettingsUserInfo />} />
+                    <Route path='/admin-area/users/create-user' element={<SystemSettingsUserCreate />} />
+                    <Route path='/admin-area/users/:userid' element={<UserInfo adminMode={true} />} />
                 </Route>
             </Route>
         </Route>)

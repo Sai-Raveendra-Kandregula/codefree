@@ -14,12 +14,11 @@ import { StatusCodes } from 'http-status-codes';
 import { SERVER_BASE_URL, SERVER_ROOT_PATH } from '../App'
 
 
-export const modifyUserAction = async ({ request, params }) => {
+export const ModifyUserAction = async ({ request, params }) => {
     switch (request.method) {
         case "POST": {
             let formData = await request.formData()
             let submitData = Object.fromEntries(formData)
-            console.log(submitData)
             const resp = await fetch(`${SERVER_BASE_URL}/api/user/modify`, {
                 method: 'POST',
                 body: JSON.stringify(submitData),
@@ -30,6 +29,9 @@ export const modifyUserAction = async ({ request, params }) => {
             })
             if (resp.status == StatusCodes.OK) {
                 toast.success("User updated Successfully.")
+                setTimeout(() => {
+                    window.location.href = `${SERVER_ROOT_PATH}/user/${params.userid}`
+                }, 1000)
             }
             else if (resp.status == StatusCodes.NOT_FOUND) {
                 toast.error("User not found.")
@@ -93,10 +95,13 @@ function UserModify() {
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
+            width: 'var(--centered-content-width)',
+            margin: 'var(--centered-content-margin)',
         }}>
             <div style={{
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                width: '100%'
             }}>
                 <h2 style={{
                     flex: '1',
@@ -106,14 +111,15 @@ function UserModify() {
                 </h2>
             </div>
             <Form method='POST'
-                action={`/user/${userData['user_name']}`}
+                action={`/user/${userData['user_name']}/edit`}
                 style={{
                     width: '100%',
                     height: '100%',
                     height: 'max-content',
                 }}>
                 <table style={{
-                    borderSpacing: '5px 15px'
+                    borderSpacing: '5px 15px',
+                    width: '100%',
                 }}>
                     <tbody>
                         <tr style={{
@@ -129,7 +135,7 @@ function UserModify() {
                         </tr>
                         <tr>
                             <td colSpan={3} style={{
-                                alignContent: 'center'
+                                alignContent: 'left'
                             }}>
                                 <div id='user_avatar_data_label'>
                                     <label htmlFor="user_avatar_data">

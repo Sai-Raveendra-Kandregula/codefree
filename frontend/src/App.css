@@ -224,6 +224,11 @@ span.letter-avatar{
   width: 20px;
 }
 
+.overlayButton {
+  border: 1px solid var(--border-color) !important;
+  background: var(--button-overlay) !important;
+}
+
 .linkButton {
   box-sizing: border-box;
   height: var(--button-height);
@@ -252,19 +257,28 @@ span.letter-avatar{
 .buttonBase {
   border-radius: var(--border-radius);
   border: none;
-  height: 32px;
+  height: var(--button-height);
   aspect-ratio: 1;
-  font-size: 1.25rem;
+  font-size: 1rem;
   background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all linear 0.1s;
+  color: var(--foreground) !important;
+  text-decoration: none;
 }
 
-.buttonBase:hover {
-  background: rgba(125, 125, 125, 0.2);
+.buttonBase > svg{
+  min-width: 1.2em !important;
+  max-width: 1.2em !important;
+  height: 1.2em !important;
+  opacity: 0.75;
+}
+
+.buttonBase:hover{
+  background: rgba(125,125,125,0.2);
 }
 
 .headerButton {
@@ -404,8 +418,8 @@ span.letter-avatar{
 #user_avatar_data_label{
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 20px;
   cursor: pointer;
 }
 

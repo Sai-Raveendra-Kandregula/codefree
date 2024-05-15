@@ -52,6 +52,8 @@ const Breadcrumbs = () => {
 
   const routes = [
     { path: "/user/:userid", breadcrumb: userData && userData['display_name'] },
+    { path: "/admin-area", breadcrumb: "Admin Area" },
+    { path: "/admin-area/users/create-user", breadcrumb: "Create User" },
     { path: "/admin-area/users/:userid", breadcrumb: userData && userData['display_name'] },
     { path: "/projects/:projectid", breadcrumb: projectInfo && projectInfo['name'] },
   ]
@@ -167,7 +169,7 @@ function GlobalRoot() {
         </div>
         {
           <React.Fragment>
-            <SideBarLink to={`/user/profile`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
+            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/profile`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
             <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
           </React.Fragment>
         }

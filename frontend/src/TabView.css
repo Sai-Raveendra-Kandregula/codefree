@@ -3,7 +3,7 @@
     box-sizing: content-box;
     display: flex;
     /* height: 35px; */
-    min-height: 35px;
+    min-height: var(--button-height);
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;

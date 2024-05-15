@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useLoaderData, useNavigate, useRevalidator } from 'react-router-dom'
+import { Link, useLoaderData, useNavigate, useRevalidator, useSearchParams } from 'react-router-dom'
 import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { IoAddOutline, IoPencil } from 'react-icons/io5'
@@ -41,88 +41,28 @@ function SystemSettingsUsers() {
 
     const revalidator = useRevalidator()
 
+    const [searchParams, setSearchParams] = useSearchParams()
+
     var userList = useLoaderData()
 
-    const theme = useTheme({
-        Table: `
-            background: transparent;
-            height: auto;
-            overflow-y : visible;
-        `,
-        Body: `
-            overflow-y : visible;
-        `,
-        HeaderRow: `
-            background: var(--background);
-            font-size: 0.9rem;
-            position : sticky;
-            top : 0;
-
-            .th {
-                padding: 10px 20px;
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .th:first-of-type{
-                text-align: left;
-            }
-
-            .th:not(:first-of-type){
-                text-align: center;
-            }
-        `,
-        Row: `
-            cursor: pointer;
-            background: transparent;
-            font-size: 0.9rem;
-            overflow : visible;
-            
-            .td {
-                padding: 10px 20px;
-                overflow : visible;
-                // border-bottom: 1px solid var(--border-color);
-            }
-
-            .td > div{
-                overflow : visible;
-            }
-
-            .td:first-of-type{
-                text-align: left;
-            }
-            
-            .td:not(:first-of-type){
-                text-align: center;
-            }
-            
-            &:last-child .td {
-                border-bottom: none;
-            }
-    
-            &:hover .td {
-                background: var(--button-overlay);
-            }
-          `,
-    });
+    const theme = {
+        td: {
+            padding: '10px',
+        },
+        th: {
+            padding: '10px',
+            borderBottom: '1px solid var(--border-color)'
+        }
+    };
 
     const COLUMNS = [
         {
-            label: 'User', renderCell: (item) => <span style={{
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                overflowX: 'hidden'
-            }} title={item['display_name']}>
-                <UserAvatar userData={item} size={1.25} />
-                <span style={{
-                    overflowX: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                }}>
-                    {item['display_name']}
-                </span>
-            </span>
+            label: 'User', renderCell: (item) =>
+                <UserLink showAvatar={true} avatarSize={1.25} admin_url={true} user_id={item['user_name']} user_data={item} style={{
+                    'textAlign': 'left',
+                    'width': '100%',
+                    paddingLeft: '10px'
+                }} />
         },
         { label: 'Email', renderCell: (item) => <span title={item['email']}>{item['email']}</span> },
         {
@@ -142,18 +82,18 @@ function SystemSettingsUsers() {
             }}>Modified on {new Date(item['updated_on']).toLocaleDateString()}</div>
         },
         {
-            label: 'Actions',
+            label: <span style={{
+                paddingRight: '10px'
+            }}>Actions</span>,
             renderCell: (item) => <div style={{
                 display: 'flex',
                 justifyContent: 'center',
                 gap: '5px',
                 flexGrow: 0,
                 flexShrink: 0,
+                paddingRight: '10px'
             }}>
-                <IconButton icon={<LuPencil />} title={`Edit ${item['display_name']}`} onClick={(e) => {
-                    e.preventDefault();
-                    navigate(`/user/${item['user_name']}/edit`)
-                }} />
+                <IconButton to={`/user/${item['user_name']}/edit`} icon={<LuPencil />} title={`Edit ${item['display_name']}`} />
                 <IconButton icon={<LuTrash2 />} title={`Delete ${item['display_name']}`} onClick={(e) => {
                     e.preventDefault();
                     if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
@@ -218,7 +158,7 @@ function SystemSettingsUsers() {
                     icon={<IoAddOutline style={{
                         fontSize: '1.1rem'
                     }} />}
-                    // to={`/projects/${pathParams.projectid}/reports?upload`}
+                    to={`/admin-area/users/create-user`}
                     style={{
                         fontSize: '0.9rem'
                     }}
@@ -236,7 +176,11 @@ function SystemSettingsUsers() {
                     position: 'relative',
                 }}>
                     {/* <CompactTable data={{ nodes: userList }} theme={theme} columns={COLUMNS} rowProps={ROW_PROPS} layout={{ fixedHeader: true }} /> */}
-                    <CFTable data={userList} ROW_PROPS={ROW_PROPS} COLUMNS={COLUMNS} />
+                    <CFTable
+                        theme={theme}
+                        data={userList}
+                        ROW_PROPS={ROW_PROPS}
+                        COLUMNS={COLUMNS} />
                 </div>
             }
         </div>
