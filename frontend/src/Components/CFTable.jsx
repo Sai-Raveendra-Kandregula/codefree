@@ -9,7 +9,8 @@ function CFTable({
         title: (item) => { },
         onClick: (item) => { },
     },
-    theme = {}
+    theme = {},
+    showHeader=true
 }) {
     return (
         <table style={{
@@ -17,17 +18,20 @@ function CFTable({
             textAlign: 'center',
             borderCollapse: 'collapse'
         }}>
-            <thead>
-                <tr className='header-row'>
-                    {
-                        COLUMNS.map((col, ind) => {
-                            return <th key={col['label']} style={theme.th ? theme.th : {}}>
-                                {col['label']}
-                            </th>
-                        })
-                    }
-                </tr>
-            </thead>
+            {
+                showHeader &&
+                <thead>
+                    <tr className='header-row'>
+                        {
+                            COLUMNS.map((col, ind) => {
+                                return <th key={col['label']} style={theme.th ? theme.th : {}}>
+                                    {col['label']}
+                                </th>
+                            })
+                        }
+                    </tr>
+                </thead>
+            }
             <tbody>
                 {
                     data.map((item, row_ind) => {
@@ -40,11 +44,19 @@ function CFTable({
                             } : null}
                             style={{
                                 cursor: ROW_PROPS.onClick ? 'pointer' : 'initial'
-                            }}
+                            ,   borderRadius: 'var(--border-radius)'
+                        }}
                         >
                             {
-                                COLUMNS.map((col) => {
-                                    const out = <td key={`${col['label']}_${row_ind}`} style={theme.td ? theme.td : {}}>
+                                COLUMNS.map((col, col_ind, col_arr) => {
+                                    const out = <td key={`${col['label']}_${row_ind}`} style={
+                                         {
+                                            borderRadius: theme.rowRadius ? 
+                                            `${col_ind == 0 ? theme.rowRadius : 0} ${col_ind == col_arr.length - 1 ? theme.rowRadius : 0} ${col_ind == col_arr.length - 1 ? theme.rowRadius : 0} ${col_ind == 0 ? theme.rowRadius : 0}`                                           
+                                            : '0',
+                                            ...theme.td
+                                        }
+                                        }>
                                         {col['renderCell'](item)}
                                     </td>
                                     

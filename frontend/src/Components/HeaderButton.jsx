@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { IoChevronDownOutline } from "react-icons/io5";
@@ -22,6 +22,7 @@ function HeaderButton({
 }) {
 
   const dropdownRef = useRef();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   return (<React.Fragment>
     {
@@ -44,18 +45,20 @@ function HeaderButton({
     {
       type == HEADER_BUTTON_TYPES.DROPDOWN &&
       <div
-        className={`headerButton ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
+        className={`headerButton ${isDropdownOpen && 'open'} ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
         title={title}
         {...props}>
-        <div className="headerButtonDropdownSummary"
+        <div className={`headerButtonDropdownSummary`}
           onClick={() => {
             if (dropdownRef.current.children.length > 0) {
               dropdownRef.current.classList.add('show')
+              setIsDropdownOpen(true)
 
               setTimeout(() => {
                 window.addEventListener('click', function (e) {
                   if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                     dropdownRef.current.classList.remove('show')
+                    setIsDropdownOpen(false)
                   }
                 }, { once: true })
               }, 10)

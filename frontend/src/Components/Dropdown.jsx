@@ -48,7 +48,7 @@ function DropdownButton({
       className={`dropdownButton ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
       title={title}
       {...props}>
-      <div className="dropdownButtonDropdownSummary"
+      <div className={`dropdownButtonDropdownSummary ${isDropdownOpen && 'open'}`}
         onClick={(e) => {
           e.stopPropagation()
           if (dropdownRef.current.children.length > 0) {

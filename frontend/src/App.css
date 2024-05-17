@@ -281,6 +281,10 @@ span.letter-avatar{
   background: rgba(125,125,125,0.2);
 }
 
+.buttonBase.open{
+  background: rgba(125, 125, 125, 0.2);
+}
+
 .headerButton {
   position: relative;
   overflow-y: visible;
@@ -324,7 +328,7 @@ span.letter-avatar{
   flex-direction: column;
   box-sizing: border-box;
   padding: 5px;
-  border-radius: calc(var(--border-radius) + 5px);
+  border-radius: calc(var(--border-radius));
   border: 1px solid var(--border-color);
   background: var(--background);
 
@@ -336,6 +340,7 @@ span.letter-avatar{
 
 .headerButtonDropDown .sideBarLink {
   height: 30px;
+  border-radius: calc(var(--border-radius) - 5px);
 }
 
 .headerButtonDropDown.show {

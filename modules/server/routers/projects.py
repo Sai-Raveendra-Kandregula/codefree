@@ -151,7 +151,17 @@ def get_all_projects(request : Request, response : Response, user_data: UserData
     projects_all_query_out = db_session.query(Project).all()
     out = []
     if projects_all_query_out is not None:
-        out = [ project.as_dict() for project in projects_all_query_out ]
+        # out = [ project.as_dict() for project in projects_all_query_out ]
+        for project in projects_all_query_out:
+            project_out = project.as_dict()
+            req = Request(scope=request.scope)
+            resp = Response()
+            stats = get_report_stats(project=project.slug, report='last-report', request=req, response=resp, user_data=user_data)
+            if 'id' in stats:
+                stats['report_id'] = stats.pop('id')
+            project_out.update(stats)
+            out.append(project_out)
+
     db_session.close()
     return out
 
@@ -208,7 +218,7 @@ def get_project_report_count(project:str, request : Request, response : Response
     return out
 
 @projectsRouter.get("/reports/get-report", dependencies=[Depends(cookie)])
-def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
+def get_project_report(project:str, report:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
     if project_id == -1:
@@ -253,7 +263,7 @@ def get_project_report(project:str, report:str, request : Request, response : Re
         }
 
 @projectsRouter.get("/reports/get-stats", dependencies=[Depends(cookie)])
-def get_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
+def get_report_stats(project:str, report:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
     db_session = Session(engine)
     try:
         project_id = db_session.query(Project.id).where(Project.slug.is_(project)).scalar()
