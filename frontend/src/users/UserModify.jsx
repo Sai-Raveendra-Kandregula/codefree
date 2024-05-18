@@ -46,8 +46,8 @@ export const ModifyUserAction = async ({ request, params }) => {
 
 function UserModify() {
     const pathParams = useParams();
-    const currentUserData = useRouteData('0-3')['user']
-    const userData = useRouteData('0-3')['userInfo']
+    const currentUserData = useRouteData('0-0')['user']
+    const userData = useRouteData('0-0')['userInfo']
 
     const navigate = useNavigate();
 

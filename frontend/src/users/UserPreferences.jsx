@@ -3,8 +3,8 @@ import { useRouteData } from '../App'
 import { toTitleCase } from '../GlobalRoot'
 
 function UserPreferences() {
-    const currentUserData = useRouteData('0-3')['user']
-    const userData = useRouteData('0-3')['userInfo']
+    const currentUserData = useRouteData('0-0')['user']
+    const userData = useRouteData('0-0')['userInfo']
 
     const [themePreference, setThemePreference] = useState(window.localStorage.getItem("app-theme") || "system");
 

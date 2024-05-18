@@ -16,7 +16,7 @@ function CreateReport() {
   const pathParams = useParams()
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const reportsList = useRouteData('0-3')['reportList'];
+  const reportsList = useRouteData('0-0')['reportList'];
 
   const [dragOverHasFiles, setDragOverHasFiles] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);

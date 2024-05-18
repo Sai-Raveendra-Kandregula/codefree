@@ -3,8 +3,8 @@ import './Charts.css';
 import './Dropdown.css';
 import './TabView.css';
 import './Tooltip.css';
-import { BrowserRouter, Routes, Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches, useNavigate } from 'react-router-dom'
-import { useState, lazy, Suspense, useContext } from 'react';
+import { Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches, useNavigate } from 'react-router-dom'
+import { lazy, Suspense } from 'react';
 
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
@@ -12,14 +12,13 @@ import SignOut from './SignOut';
 import { NotFound } from './NotFoundContext';
 import { globalRootLoader } from './GlobalRoot';
 import { ToastContainer, toast } from 'react-toastify';
-import { StatusCodes } from 'http-status-codes';
 import { projectListLoader } from './projects/ProjectsList';
 import { userListLoader } from './system/SystemSettingsUsers';
 import UserModify, { ModifyUserAction } from './users/UserModify';
 import ProjectsCreate, { projectCreateAction } from './projects/ProjectsCreate';
 import CreateReport from './projects/reports/ReportCreate';
 import { signInAction } from './SignIn';
-import SystemSettingsUserCreate from './system/SystemSettingsUserCreate';
+import SignUp from './SignUp';
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -65,9 +64,6 @@ const SuspenseLayout = () => (
 function App() {
     const RoutesJSX = (
         <Route path={`/`} element={<SuspenseLayout />} errorElement={<NotFound />}>
-            <Route path={`/sign-in`} element={<SignIn />} action={signInAction} />
-            <Route path={`/sign-out`} element={<SignOut />} />
-            <Route path='*' element={<ErrorPage errorNumber={404} />} />
             <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} shouldRevalidate={() => true}>
                 <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
                 <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
@@ -98,10 +94,14 @@ function App() {
                     <Route path='/admin-area/users/:userid' element={<UserInfo adminMode={true} />} />
                 </Route>
             </Route>
+            <Route path={`/sign-in`} element={<SignIn />} action={signInAction} />
+            <Route path={`/sign-up`} element={<SignUp />} />
+            <Route path={`/sign-out`} element={<SignOut />} />
+            <Route path='*' element={<ErrorPage errorNumber={404} />} />
         </Route>)
-    
+
     const routes = createRoutesFromElements(RoutesJSX);
-    
+
     const router = createBrowserRouter(routes, {
         basename: `${SERVER_ROOT_PATH}`
     })

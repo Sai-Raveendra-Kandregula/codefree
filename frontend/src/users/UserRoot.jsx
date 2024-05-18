@@ -32,7 +32,7 @@ export async function currentUserDataLoader({ params }) {
 function UserRoot() {
     const pathParams = useParams()
 
-    const userData = useRouteData('0-3')['user']
+    const userData = useRouteData('0-0')['user']
 
     if(pathParams.userid == null){
         return <Navigate to={`/user/${userData['user_name']}`} />

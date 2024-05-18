@@ -1,18 +1,21 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import LinkButton from '../Components/LinkButton'
+import {useRouteData} from '../App'
 import { IoCheckmark } from "react-icons/io5";
 import { VscDiscard } from "react-icons/vsc";
 
 function ConfigureProject() {
+    const navigate = useNavigate()
     const routeParams = useParams()
+    const projectData = useRouteData('0-0')['projectInfo']
   return (
     <div style={{
-      padding: '20px'
+      padding: '20px',
+      width: 'var(--centered-content-width)',
+      margin: 'var(--centered-content-margin)',
   }}>
-    <h2 style={{
-      marginTop : '0px'
-    }}>
+    <h2>
       Configure Project
     </h2>
 
@@ -29,7 +32,7 @@ function ConfigureProject() {
         gap: '10px'
       }}>
         <label htmlFor="project_id"><b>Project ID</b></label>
-        <input type="text" name="project_id" id="project_id" defaultValue={routeParams.projectid} disabled={true} />
+        <input type="text" name="project_id" id="project_id" defaultValue={projectData['slug']} disabled={true} />
       </div>
       <div style={{
         maxWidth: '500px',
@@ -38,9 +41,9 @@ function ConfigureProject() {
         gap: '10px'
       }}>
         <label htmlFor="project_name"><b>Project Name</b></label>
-        <input type="text" name="project_name" id="project_name" />
+        <input type="text" name="project_name" id="project_name" defaultValue={projectData['name']} />
       </div>
-      <div style={{
+      {/* <div style={{
         maxWidth: '500px',
         display: 'flex',
         flexDirection: 'row',
@@ -48,7 +51,7 @@ function ConfigureProject() {
       }}>
         <input type="checkbox" name="project_webhooks" id="project_webhooks" />
         <label htmlFor="project_webhooks"><b>Enable Webhooks</b></label>
-      </div>
+      </div> */}
       <div style={{
         marginTop: '5px',
         maxWidth: '500px',
@@ -56,13 +59,15 @@ function ConfigureProject() {
         flexDirection: 'row-reverse',
         gap: '10px',
       }}>
-        <LinkButton className={'themeButton'} title={"Update Project Configuration"} icon={<IoCheckmark />} onClick={(e) => {
+        <LinkButton className={'themeButton'} title={"Save All"} icon={<IoCheckmark />} onClick={(e) => {
           e.preventDefault()
           alert("Submit")
         }} />
-        <LinkButton title={"Discard"} icon={<VscDiscard />} onClick={(e) => {
+        <LinkButton title={"Discard"} icon={<VscDiscard />} to={`/projects/${projectData['slug']}`} onClick={(e) => {
           e.preventDefault()
-          alert("Discard")
+          if(window.confirm("Discard changes?")){
+            navigate(`/projects/${projectData['slug']}`)
+          }
         }} />
       </div>
     </div>

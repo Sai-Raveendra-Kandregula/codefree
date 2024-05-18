@@ -14,7 +14,7 @@ function ProjectHome() {
   const pathParams = useParams()
   const navigate = useNavigate();
 
-  const projectInfo = useRouteData('0-3')['projectInfo']
+  const projectInfo = useRouteData('0-0')['projectInfo']
 
   const [reportData, setReportData] = useState(null)
   const [reportsList, setReportsLists] = useState([])

@@ -46,8 +46,8 @@ export function toTitleCase(str) {
 
 const Breadcrumbs = () => {
 
-  const userData = useRouteData('0-3')['userInfo']
-  const projectInfo = useRouteData('0-3')['projectInfo']
+  const userData = useRouteData('0-0')['userInfo']
+  const projectInfo = useRouteData('0-0')['projectInfo']
 
   const routes = [
     { path: "/user/:userid", breadcrumb: userData && userData['display_name'] },

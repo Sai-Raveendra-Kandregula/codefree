@@ -24,7 +24,7 @@ function Reports() {
   const navigate = useNavigate()
   const pathParams = useParams()
 
-  const reportsList = useRouteData('0-3')['reportList'];
+  const reportsList = useRouteData('0-0')['reportList'];
 
   useEffect(() => {
     if (reportsList.length == 0) {

@@ -10,8 +10,8 @@ function UserInfo({
     currentUserInfo = false,
     adminMode=false
 }) {
-    const currentUserData = useRouteData('0-3')['user']
-    const externalUserData = useRouteData('0-3')['userInfo']
+    const currentUserData = useRouteData('0-0')['user']
+    const externalUserData = useRouteData('0-0')['userInfo']
     const userData = currentUserInfo ? currentUserData : externalUserData
 
     return (

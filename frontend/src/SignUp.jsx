@@ -8,7 +8,7 @@ import LinkButton from './Components/LinkButton'
 import { ReactComponent as CFLogo } from './assets/CF_Logo.svg'
 import { collapseToast, toast } from 'react-toastify'
 
-export const signInAction = async ({ request, params }) => {
+export const signUpAction = async ({ request, params }) => {
   switch (request.method) {
     case "POST": {
       let formData = await request.formData()
@@ -53,7 +53,7 @@ export const signInAction = async ({ request, params }) => {
   }
 }
 
-function SignIn() {
+function SignUp() {
   const navigate = useNavigate()
   const submit = useSubmit();
 
@@ -122,7 +122,7 @@ function SignIn() {
             width: '150px',
             height: 'auto'
           }} />
-          Sign in to CodeFree
+          Register to CodeFree
         </h3>
         <div style={{
           display: 'flex',
@@ -137,24 +137,13 @@ function SignIn() {
           display: 'flex',
           width: '100%',
           gap: '10px',
-          justifyContent: 'center'
+          justifyContent: 'flex-end'
         }}>
-          <div style={{
-            display: 'flex',
-            // width: '100%',
-            flex: 1.5,
-            gap: '5px',
-            alignItems: 'center',
-            justifyContent: 'flex-start'
-          }}>
-            <input type="checkbox" name="Keep Signed In" id="keepSignedIn" />
-            <label htmlFor="keepSignedIn">Keep Me Signed In</label>
-          </div>
           <LinkButton
-            to={"/sign-in"}
+            to={"/sign-up"}
             className={'themeButton'}
             style={{
-              flex: 0.5
+              flex: 0.25
             }}
             onClick={(e) => {
               e.preventDefault()
@@ -165,7 +154,7 @@ function SignIn() {
               formdata.append('keepSignedIn', document.getElementById('keepSignedIn').checked)
 
               submit(formdata, { 'method': 'POST' })
-            }} title={"Sign In"} />
+            }} title={"Sign Up"} />
         </div>
         <div style={{
           display: 'flex',
@@ -173,14 +162,14 @@ function SignIn() {
           gap: '5px',
           justifyContent: 'flex-end'
         }}>
-          Not registered?
+          Already registered?
           <Link
-            to={"/sign-up"}
-            title={"Sign Up"} >Create an Account.</Link>
+            to={"/sign-in"}
+            title={"Sign In"} >Sign in instead.</Link>
         </div>
       </div>
     </div>
   )
 }
 
-export default SignIn
+export default SignUp

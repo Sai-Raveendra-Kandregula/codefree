@@ -28,7 +28,6 @@ function UserInfoHover({
 
             const isLinkInTopHalfOfViewport = viewportOffset.bottom < ((window.innerHeight || document.documentElement.clientHeight) / 2)
 
-            // console.log(isLinkInTopHalfOfViewport)
             if (isLinkInTopHalfOfViewport) {
                 setShowInfo("top")
             }

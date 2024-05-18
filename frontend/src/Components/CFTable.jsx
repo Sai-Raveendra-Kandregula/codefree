@@ -55,10 +55,7 @@ function CFTable({
                         }}
                         >
                             {
-                                COLUMNS.map((col, col_ind, col_arr) => {
-                                    console.log(breakpoint)
-                                    console.log(col['showOnlyIn'])
-                                    
+                                COLUMNS.map((col, col_ind, col_arr) => {                                    
                                     if(col['showOnlyIn'] && !col['showOnlyIn'].includes(breakpoint)){
                                         return null;
                                     }

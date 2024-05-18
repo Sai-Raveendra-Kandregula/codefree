@@ -43,8 +43,8 @@ function ReportViewer() {
         return searchParams.get("groupBy") || (groupingMapping[viewType].length > 0 ? groupingMapping[viewType][0] : "")
     });
 
-    const projectInfo = useRouteData('0-3')['projectInfo']
-    const reportData = useRouteData('0-3')['reportData']
+    const projectInfo = useRouteData('0-0')['projectInfo']
+    const reportData = useRouteData('0-0')['reportData']
     const [transformedReportData, setTransformedReportData] = useState({})
 
     useEffect(() => {
@@ -248,7 +248,8 @@ function ReportViewer() {
                             <ToolTip popup={
                                 reportData &&
                                 <table style={{
-                                    whiteSpace: 'nowrap'
+                                    width: '100%',
+                                    whiteSpace: 'nowrap',
                                 }}>
                                     <tbody>
                                         <tr>
