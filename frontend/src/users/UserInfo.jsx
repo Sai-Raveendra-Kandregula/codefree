@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { Form, Link, useParams, useSearchParams } from 'react-router-dom'
+import React, { } from 'react'
 import { useRouteData } from '../App';
 import IconButton from '../Components/IconButton';
-import { IoCheckmark, IoCamera } from 'react-icons/io5';
 import { LuPencil, LuUsers2 } from 'react-icons/lu';
-import { TbQuestionMark } from "react-icons/tb";
-import { VscDiscard } from 'react-icons/vsc';
-import ToolTip from '../Components/ToolTip';
 import LinkButton from '../Components/LinkButton';
-import { toast } from 'react-toastify';
 import UserAvatar from '../Components/UserAvatar';
 import UserLink from '../Components/UserLink';
 
@@ -16,7 +10,6 @@ function UserInfo({
     currentUserInfo = false,
     adminMode=false
 }) {
-    const pathParams = useParams();
     const currentUserData = useRouteData('0-3')['user']
     const externalUserData = useRouteData('0-3')['userInfo']
     const userData = currentUserInfo ? currentUserData : externalUserData

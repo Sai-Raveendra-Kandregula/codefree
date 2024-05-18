@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useLoaderData, useNavigate, useRevalidator, useSearchParams } from 'react-router-dom'
 import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
@@ -22,6 +22,8 @@ import { StatusCodes } from 'http-status-codes'
 import { toast } from 'react-toastify'
 import UserLink from '../Components/UserLink'
 import CFTable from '../Components/CFTable'
+import PopupModal from '../Components/Popup'
+import SystemSettingsUserCreate from './SystemSettingsUserCreate'
 
 export async function userListLoader({ params }) {
     const resp = await fetch(`${SERVER_BASE_URL}/api/user/all`, {
@@ -41,7 +43,7 @@ function SystemSettingsUsers() {
 
     const revalidator = useRevalidator()
 
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [openCreatePopup, setOpenCreatePopup] = useState(false)
 
     var userList = useLoaderData()
 
@@ -66,7 +68,9 @@ function SystemSettingsUsers() {
         },
         { label: 'Email', renderCell: (item) => <span title={item['email']}>{item['email']}</span> },
         {
-            label: 'Status', renderCell: (item) => <div style={{
+            label: 'Status', 
+            showOnlyIn: ['lg', 'xl'],
+            renderCell: (item) => <div style={{
                 textWrap: 'pretty',
                 fontSize: '0.8rem',
                 overflow: 'visible'
@@ -76,7 +80,9 @@ function SystemSettingsUsers() {
             </div>
         },
         {
-            label: 'Activity Status', renderCell: (item) => <div style={{
+            label: 'Activity Status', 
+            showOnlyIn: ['lg', 'xl'],
+            renderCell: (item) => <div style={{
                 textWrap: 'pretty',
                 fontSize: '0.8rem'
             }}>Modified on {new Date(item['updated_on']).toLocaleDateString()}</div>
@@ -152,6 +158,9 @@ function SystemSettingsUsers() {
                 gap: '10px'
             }}>
                 <input type='text' placeholder='Search Users' />
+                <PopupModal open={openCreatePopup} onClose={() => setOpenCreatePopup(false)}>
+                    <SystemSettingsUserCreate />
+                </PopupModal>
                 <LinkButton
                     className={'themeButton'}
                     title={"Add User"}
@@ -164,6 +173,7 @@ function SystemSettingsUsers() {
                     replace={false}
                     onClick={(e) => {
                         e.preventDefault()
+                        setOpenCreatePopup(true)
                     }}
                 />
             </div>

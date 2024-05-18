@@ -6,7 +6,7 @@
   
   .dropdownButtonDropdownSummary {
     box-sizing: border-box;
-    height: 40px;
+    height: var(--button-height);
     padding: 0 10px;
   
     display: flex;
@@ -16,7 +16,7 @@
     gap: 10px;
   
     border: 1px solid transparent;
-    border-radius: var(--border-radius);
+    border-radius: var(--button-border-radius);
     color: inherit;
     font-weight: 500;
   
@@ -40,7 +40,7 @@
     flex-direction: column;
     box-sizing: border-box;
     padding: 5px;
-    border-radius: calc(var(--border-radius) + 5px);
+    border-radius: calc(var(--border-radius));
     border: 1px solid var(--border-color);
     background: var(--background);
   
@@ -55,6 +55,7 @@
   
   .dropdownButtonDropDown .sideBarLink {
     height: 30px;
+    border-radius: calc(var(--border-radius) - 2.5px);
   }
   
   .dropdownButtonDropDown.show {

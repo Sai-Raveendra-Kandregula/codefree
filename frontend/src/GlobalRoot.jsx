@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { Link, Outlet, useLoaderData, useNavigate, useParams } from 'react-router-dom'
+import React, { useContext, useState } from 'react'
+import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
 import useBreadcrumbs from "use-react-router-breadcrumbs";
 
-import { GoHome, GoProject, GoGear, GoCodeSquare } from "react-icons/go";
+import { GoHome, GoProject, GoCodeSquare } from "react-icons/go";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 
 import * as TbIcons from 'react-icons/tb'
 
-import { BiUserCircle, BiLogIn } from "react-icons/bi";
+import { BiLogIn } from "react-icons/bi";
 import { LuUser2, LuUsers2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
 
 import GlobalRootStyles from './styles/globalroot.module.css'
@@ -15,7 +15,6 @@ import IconButton from './Components/IconButton'
 import SideBarLink from './Components/SideBarLink';
 import { SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
-import LinkButton from './Components/LinkButton';
 import { AppContext } from './NotFoundContext';
 import { projectInfoLoader } from './projects/ProjectWrapper';
 import { reportDataLoader } from './projects/reports/ReportViewer';
@@ -63,10 +62,10 @@ const Breadcrumbs = () => {
     <React.Fragment>
       {breadcrumbs.map(({ breadcrumb, key }, ind) => {
         const crumb = <Link key={key} className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{breadcrumb.props.children}</Link>
-        if (ind == 0) {
-          return
+        if (ind === 0) {
+          return null
         }
-        if (ind == 1) {
+        if (ind === 1) {
           return crumb
         }
         else {
@@ -87,7 +86,7 @@ async function getUserName() {
   const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
     credentials: "include"
   })
-  if (resp.status != 200) {
+  if (resp.status !== 200) {
     window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
   }
   else {
@@ -113,7 +112,6 @@ export async function globalRootLoader({ params }) {
 
 function GlobalRoot() {
 
-  const navigate = useNavigate();
   const pathParams = useParams();
 
   const { lastReport } = useContext(AppContext);
@@ -202,7 +200,7 @@ function GlobalRoot() {
             {
               rootLoaderData['reportList'].map((report) => {
                 return <SideBarLink key={report['id']} to={`/projects/${pathParams.projectid}/reports/${report['id']}`}
-                  className={pathParams.reportid && pathParams.reportid.toLowerCase() == 'last-report' && report['id'] == lastReport && "active"}
+                  className={pathParams.reportid && pathParams.reportid.toLowerCase() === 'last-report' && report['id'] == lastReport && "active"}
                   title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
               })
             }
@@ -292,6 +290,8 @@ function GlobalRoot() {
         <div style={{
           minHeight: 'calc(100vh - var(--header-height) )',
           height: 'calc(100vh - var(--header-height) )',
+          width: '100%',
+          overflowX: 'auto'
         }}>
           <Outlet />
         </div>

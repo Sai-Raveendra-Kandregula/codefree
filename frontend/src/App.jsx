@@ -94,7 +94,7 @@ function App() {
                 <Route path='/admin-area' element={<SystemSettingsRoot />} >
                     <Route path='/admin-area' element={<Navigate to={`/admin-area/users`} />} />
                     <Route path='/admin-area/users' element={<SystemSettingsUsers />} loader={userListLoader} />
-                    <Route path='/admin-area/users/create-user' element={<SystemSettingsUserCreate />} />
+                    {/* <Route path='/admin-area/users/create-user' element={<SystemSettingsUserCreate />} /> */}
                     <Route path='/admin-area/users/:userid' element={<UserInfo adminMode={true} />} />
                 </Route>
             </Route>

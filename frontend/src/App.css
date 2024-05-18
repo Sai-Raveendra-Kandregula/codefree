@@ -5,40 +5,42 @@
   --centered-wide-content-width: clamp(75%, 900px, 100%);
   --centered-content-margin: 0 auto;
 
-  --button-height: 35px;
+  --button-height: 32.5px;
 }
 
 :root, .light {
   --header-height: 50px;
   --header-padding: 15px;
   --border-radius: 7.5px;
+  --button-border-radius: 5px;
   --background: #eaecf1;
   --foreground: #010101;
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
-  --header-background: #0d0d0d;
   --nav-panel-background: #d8dce6;
-  --theme-color: #00457d;
+  --theme-color: rgb(0, 101, 103);
 
   --card-background: rgba(255, 255, 255, 0.5);
   --select-background: rgba(255, 255, 255, 0.5);
   --button-overlay: rgba(255, 255, 255, 0.5);
   --control-overlay-bg: rgba(255, 255, 255, 0.5);
+  --link-color: rgb(0, 56, 57);
 }
 
 :root.dark, .dark {
-  --background: rgb(7, 7, 12);
+  --background: rgb(17, 17, 22);
   --foreground: #FEFEFE;
   --border-color: #3939397d;
   --control-border-color: #2e2e2e;
-  --header-background: rgb(0, 0, 8);
-  --nav-panel-background: rgb(0, 0, 8);
-  --theme-color: #00457d;
+  --nav-panel-background: rgb(22, 22, 30);
+  --theme-color: rgb(0, 101, 103);
 
   --card-background: rgba(255, 255, 255, 0.075);
   --select-background: rgba(255, 255, 255, 0.1);
   --button-overlay: rgba(255, 255, 255, 0.075);
   --control-overlay-bg: rgba(255, 255, 255, 0.075);
+
+  --link-color: rgb(0, 177, 180);
 }
 
 * {
@@ -48,10 +50,10 @@
 
 a {
   text-decoration: none;
-  color: #0062ff;
+  color: var(--link-color);
 }
 
-a:hover>* {
+a:hover, a:hover * {
   text-decoration: underline;
 }
 
@@ -93,7 +95,7 @@ input[type=reset] {
   gap: 5px;
 
   border: 1px solid transparent;
-  border-radius: var(--border-radius);
+  border-radius: var(--button-border-radius);
   color: var(--foreground);
   font-weight: 500;
   border: 1px solid var(--control-border-color);
@@ -200,7 +202,7 @@ span.letter-avatar{
   gap: 10px;
 
   border: 1px solid transparent;
-  border-radius: var(--border-radius);
+  border-radius: var(--button-border-radius);
   color: inherit;
   font-weight: 500;
 
@@ -242,7 +244,7 @@ span.letter-avatar{
   gap: 5px;
 
   border: 1px solid transparent;
-  border-radius: var(--border-radius);
+  border-radius: var(--button-border-radius);
   color: var(--foreground);
   font-weight: 500;
   border: 1px solid var(--control-border-color);
@@ -255,7 +257,7 @@ span.letter-avatar{
 }
 
 .buttonBase {
-  border-radius: var(--border-radius);
+  border-radius: var(--button-border-radius);
   border: none;
   height: var(--button-height);
   aspect-ratio: 1;
@@ -292,8 +294,8 @@ span.letter-avatar{
 
 .headerButtonDropdownSummary {
   box-sizing: border-box;
-  height: 30px;
-  min-width: 30px;
+  height: var(--button-height);
+  min-width: var(--button-height);
   /* padding: 0 10px; */
 
   display: flex;
@@ -303,7 +305,7 @@ span.letter-avatar{
   gap: 10px;
 
   border: 1px solid transparent;
-  border-radius: var(--border-radius);
+  border-radius: var(--button-border-radius);
   color: inherit;
   font-weight: 500;
   font-size: 1.15rem;

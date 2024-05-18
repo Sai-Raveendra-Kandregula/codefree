@@ -1,4 +1,5 @@
 import React from 'react'
+import {useBreakpoint} from '../hooks/useBreakpoint'
 import '../styles/CFTable.css'
 
 function CFTable({
@@ -12,6 +13,9 @@ function CFTable({
     theme = {},
     showHeader=true
 }) {
+
+    const breakpoint = useBreakpoint();
+
     return (
         <table style={{
             width: '100%',
@@ -25,6 +29,9 @@ function CFTable({
                     <tr className='header-row'>
                         {
                             COLUMNS.map((col, ind) => {
+                                if(col['showOnlyIn'] && !col['showOnlyIn'].includes(breakpoint)){
+                                    return null;
+                                }
                                 return <th key={col['label']} style={theme.th ? theme.th : {}}>
                                     {col['label']}
                                 </th>
@@ -45,15 +52,21 @@ function CFTable({
                             } : null}
                             style={{
                                 cursor: ROW_PROPS.onClick ? 'pointer' : 'initial'
-                            ,   borderRadius: 'var(--border-radius)'
                         }}
                         >
                             {
                                 COLUMNS.map((col, col_ind, col_arr) => {
+                                    console.log(breakpoint)
+                                    console.log(col['showOnlyIn'])
+                                    
+                                    if(col['showOnlyIn'] && !col['showOnlyIn'].includes(breakpoint)){
+                                        return null;
+                                    }
+                                    
                                     const out = <td key={`${col['label']}_${row_ind}`} style={
                                          {
                                             borderRadius: theme.rowRadius ? 
-                                            `${col_ind == 0 ? theme.rowRadius : 0} ${col_ind == col_arr.length - 1 ? theme.rowRadius : 0} ${col_ind == col_arr.length - 1 ? theme.rowRadius : 0} ${col_ind == 0 ? theme.rowRadius : 0}`                                           
+                                            `${col_ind === 0 ? theme.rowRadius : 0} ${col_ind === col_arr.length - 1 ? theme.rowRadius : 0} ${col_ind === col_arr.length - 1 ? theme.rowRadius : 0} ${col_ind === 0 ? theme.rowRadius : 0}`                                           
                                             : '0',
                                             ...theme.td
                                         }

@@ -7826,6 +7826,11 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
+react-multi-email@^1.0.23:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/react-multi-email/-/react-multi-email-1.0.23.tgz#68729f7ef67c7fd655a4270ed403317783a43147"
+  integrity sha512-oM3betpJD2mLuoBGdKi6qEcbPCeTOHr9vN7X+ekDUvoi6c1dM8fMlX48bwSI/O1klv50sU3EorexF0Q+lezQHA==
+
 react-name-initials-avatar@^0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/react-name-initials-avatar/-/react-name-initials-avatar-0.0.7.tgz#e1b68cebec672e99b55f876778c35e31e7f7a84c"

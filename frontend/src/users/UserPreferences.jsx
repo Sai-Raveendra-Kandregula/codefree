@@ -47,6 +47,8 @@ function UserPreferences() {
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
+            width: 'var(--centered-wide-content-width)',
+            margin: 'var(--centered-content-margin)',
         }}>
             <h2 style={{
                 margin: '0'
@@ -60,6 +62,7 @@ function UserPreferences() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'flex-start',
+                flexWrap: 'wrap',
                 gap: '15px'
             }}>
                 {
@@ -71,6 +74,8 @@ function UserPreferences() {
                             justifyContent: 'center',
                             gap: '15px',
                             cursor: 'pointer',
+                            width: 'auto',
+                            maxWidth: '100%'
                         }} onClick={() => {
                             setThemePreference(themeVal)
                         }}>
@@ -78,21 +83,28 @@ function UserPreferences() {
                                 background: 'var(--background)',
                                 color: 'var(--foreground)',
                                 border: themePreference == themeVal ? `2px solid var(--theme-color)` : `2px solid var(--border-color)`,
-                                borderRadius: `calc(var(--border-radius) + 0.5rem)`,
-                                padding: '0.5rem',
+                                borderRadius: `calc(var(--border-radius))`,
+                                padding: '1.25rem',
                                 boxShadow: '0px 2px 20px rgba(0, 0, 0, 0.35)',
-                                minHeight: '5rem',
-                                width: '12.5rem',
+                                height: '10rem',
+                                width: '15rem',
                                 boxSizing: 'border-box',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: '5px',
-                                pointerEvents: 'none',
+                                // pointerEvents: 'none',
                                 userSelect: 'none',
                             }}>
-                                This is how it looks.
-                                <button className='themeButton'>Theme</button>
-                                <button>Standard</button>
+                                This is how text looks.
+                                <a href='#' onClick={(e)=>{
+                                    e.preventDefault()
+                                }}>This is how links look.</a>
+                                <button className='themeButton' onClick={(e)=>{
+                                    e.preventDefault()
+                                }}>Theme Button</button>
+                                <button onClick={(e)=>{
+                                    e.preventDefault()
+                                }}>Standard Button</button>
                             </div>
                             {toTitleCase(themeVal)}
                         </div>

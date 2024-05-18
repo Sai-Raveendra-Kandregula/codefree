@@ -2,7 +2,14 @@ import React from 'react'
 
 function SystemSettingsUserCreate() {
   return (
-    <div>SystemSettingsUserCreate</div>
+    <div className='appPanel'>
+      <h3 style={{
+        margin: 0
+      }}>
+        Invite Users
+      </h3>
+      
+    </div>
   )
 }
 

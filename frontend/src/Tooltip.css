@@ -33,7 +33,7 @@
     flex-direction: column;
     box-sizing: border-box;
     padding: 10px;
-    border-radius: calc(var(--border-radius) + 5px);
+    border-radius: calc(var(--border-radius));
     border: 1px solid var(--border-color);
     background: var(--background);
 
@@ -48,6 +48,7 @@
 
 .tooltipPopup .sideBarLink {
     height: 30px;
+    border-radius: calc(var(--border-radius) - 5px);
 }
 
 .tooltipPopup.show {

@@ -3,12 +3,13 @@ import Popup from 'reactjs-popup';
 
 function PopupModal({
     children,
+    open,
     onOpen,
     onClose,
     ...props
 }) {
     return (
-        <Popup position="center center" {...props} onOpen={onOpen} onClose={onClose}>
+        <Popup position="center center" open={open} {...props} onOpen={onOpen} onClose={onClose}>
             {children}
         </Popup>
     )
