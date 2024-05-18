@@ -158,11 +158,13 @@ function SystemSettingsUsers() {
                     icon={<IoAddOutline style={{
                         fontSize: '1.1rem'
                     }} />}
-                    to={`/admin-area/users/create-user`}
                     style={{
                         fontSize: '0.9rem'
                     }}
                     replace={false}
+                    onClick={(e) => {
+                        e.preventDefault()
+                    }}
                 />
             </div>
             {

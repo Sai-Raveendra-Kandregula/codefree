@@ -340,7 +340,8 @@ span.letter-avatar{
 
 .headerButtonDropDown .sideBarLink {
   height: 30px;
-  border-radius: calc(var(--border-radius) - 5px);
+  border-radius: calc(var(--border-radius) - 2.5px);
+  padding: 0 10px;
 }
 
 .headerButtonDropDown.show {

@@ -16,7 +16,8 @@ function CFTable({
         <table style={{
             width: '100%',
             textAlign: 'center',
-            borderCollapse: 'collapse'
+            borderCollapse: 'collapse',
+            ...theme['table']
         }}>
             {
                 showHeader &&

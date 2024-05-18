@@ -26,8 +26,14 @@ function ProjectsList() {
 
 
   const theme = {
+    table: {
+      borderCollapse: 'separate',
+      borderSpacing: '0 5px',
+    },
     td: {
       padding: '10px 20px',
+      backgroundColor: 'var(--button-overlay)',
+      marginBotton: '10px',
     },
     th: {
       padding: '10px 20px',
