@@ -17,6 +17,7 @@ class UserData(BaseModel):
     avatar_color: Optional[str] = Field(None)
     avatar_data: Optional[str] = Field(None)
     is_user_admin: Optional[bool] = Field(False)
+    read_only: Optional[bool] = Field(False)
     email: str
     created_on: Optional[datetime] = Field(None)
     created_by: Optional[str] = Field(None)
@@ -29,6 +30,7 @@ class NewUserData(BaseModel):
     password : Optional[str] = Field(None)
     invite_token : Optional[str] = Field(None)
     is_user_admin : Optional[bool] = Field(False)
+    read_only: Optional[bool] = Field(False)
     created_on: Optional[datetime] = Field(None)
     created_by: Optional[str] = Field(None)
 

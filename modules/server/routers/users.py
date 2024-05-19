@@ -29,6 +29,7 @@ if def_user == 0:
         email=DEFAULT_USER_EMAIL,
         avatar_color=rand_color.generate(luminosity='dark')[0],
         is_user_admin = True,
+        read_only = False,
         password_salt=salt,
         password_hash=pwd_hash,
         created_on=datetime.datetime.now(datetime.timezone.utc),
@@ -41,7 +42,8 @@ if def_user == 0:
         display_name="Test User",
         email=DEFAULT_USER_EMAIL,
         avatar_color=rand_color.generate(luminosity='dark')[0],
-        is_user_admin = True,
+        is_user_admin = False,
+        read_only = True,
         password_salt=salt,
         password_hash=pwd_hash,
         created_on=datetime.datetime.now(datetime.timezone.utc),
@@ -138,6 +140,10 @@ async def getUserByID(request : Request, response: Response, user_data: UserData
     
 @usersRouter.post("/user/modify", dependencies=[Depends(cookie)])
 async def getUserByID(newData : UserData , request : Request, response: Response, user_data: UserData = Depends(verifier)):
+    if(not user_data.is_user_admin and user_data.read_only):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {}
+    
     db_session = Session(engine)
 
     user_info_db : User = db_session.query(User).where(User.user_name.is_(newData.user_name)).scalar()
@@ -186,8 +192,11 @@ async def all_users(user_data: UserData = Depends(verifier)):
 
 @usersRouter.post("/user/invite", dependencies=[Depends(cookie)])
 async def invite_user(new_user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
-    db_session = Session(engine)
+    if(not user_data.is_user_admin and user_data.read_only):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {}
 
+    db_session = Session(engine)
     # Check if user_data has permission to invite users
     
 
@@ -196,6 +205,10 @@ async def invite_user(new_user : NewUserData, response: Response, user_data: Use
 
 @usersRouter.post("/user/delete", dependencies=[Depends(cookie)])
 async def create_user_acc(user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
+
+    if(not user_data.is_user_admin and user_data.read_only):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {}
 
     # Check if cuurent user can delete this user
     if ((user.user_name == user_data.user_name) or (not user_data.is_user_admin)):

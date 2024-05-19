@@ -120,8 +120,11 @@ db_session.close()
 
 @projectsRouter.post("/projects/create-project", dependencies=[Depends(cookie)])
 def create_project(project : ProjectData, request : Request, response : Response, user_data: UserData = Depends(verifier)):
-    db_session = Session(engine)
+    if(not user_data.is_user_admin and user_data.read_only):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {}
 
+    db_session = Session(engine)
     existing = db_session.query(Project).where(Project.slug.is_(project.slug)).scalar()
     if existing is not None:
         db_session.close()
@@ -301,8 +304,12 @@ def get_report_stats(project:str, report:str, request : Request, response : Resp
 
 @projectsRouter.post("/reports/upload-report", dependencies=[Depends(cookie)])
 def upload_project_report(report : ReportData, request : Request, response : Response, user_data: UserData = Depends(verifier), uploadedVia : str = "CodeFree CLI" ):
-    db_session = Session(engine)
+    if(not user_data.is_user_admin and user_data.read_only):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {}
 
+
+    db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(report.project_id)).scalar()
     if project_id == -1:
         response.status_code = status.HTTP_404_NOT_FOUND
