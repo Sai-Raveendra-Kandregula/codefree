@@ -21,7 +21,7 @@ function UserAvatar({
                     }} />
                     :
                     <NameInitialsAvatar
-                        name={`${userData['display_name']}`}
+                        name={`${'display_name' in userData ? userData['display_name'] : userData['user_name']}}`}
                         borderStyle='none'
                         bgColor={userData['avatar_color']}
                         size={`${size * 1.65}rem`}

@@ -13,7 +13,7 @@ import { NotFound } from './NotFoundContext';
 import { globalRootLoader } from './GlobalRoot';
 import { ToastContainer, toast } from 'react-toastify';
 import { projectListLoader } from './projects/ProjectsList';
-import { userListLoader } from './system/SystemSettingsUsers';
+import { pendingUserListLoader, userListLoader } from './system/SystemSettingsUsers';
 import UserModify, { ModifyUserAction } from './users/UserModify';
 import ProjectsCreate, { projectCreateAction } from './projects/ProjectsCreate';
 import CreateReport from './projects/reports/ReportCreate';
@@ -89,7 +89,9 @@ function App() {
                 </Route>
                 <Route path='/admin-area' element={<SystemSettingsRoot />} >
                     <Route path='/admin-area' element={<Navigate to={`/admin-area/users`} />} />
-                    <Route path='/admin-area/users' element={<SystemSettingsUsers />} loader={userListLoader} />
+                    <Route path='/admin-area/users' element={<Navigate to={'/admin-area/users/all'} />} />
+                    <Route path='/admin-area/users/all' element={<SystemSettingsUsers />} loader={userListLoader} />
+                    <Route path='/admin-area/users/pending' element={<SystemSettingsUsers pendingUsers={true} />} loader={pendingUserListLoader} />
                     {/* <Route path='/admin-area/users/create-user' element={<SystemSettingsUserCreate />} /> */}
                     <Route path='/admin-area/users/:userid' element={<UserInfo adminMode={true} />} />
                 </Route>

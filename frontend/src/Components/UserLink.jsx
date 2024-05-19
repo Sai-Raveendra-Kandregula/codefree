@@ -89,6 +89,8 @@ function UserLink({
     user_id = null,
     admin_url = false,
     user_data = null,
+    load_user_data=true,
+    use_link=true,
     showAvatar = false,
     avatarSize = 1.25,
     style = {}
@@ -114,10 +116,10 @@ function UserLink({
     }
 
     useEffect(() => {
-        if (!user_data && user_id) {
+        if (!user_data && user_id && load_user_data) {
             getUserData()
         }
-    }, [user_id])
+    }, [user_data, user_id, load_user_data])
 
 
     if (user_id == null && user_data == null) {
@@ -135,9 +137,16 @@ function UserLink({
                     showAvatar &&
                     <UserAvatar userData={userData} size={avatarSize} />
                 }
-                <Link to={admin_url ? `/admin-area/users/${userData['user_name']}` : `/user/${userData['user_name']}`}>
-                    {userData['display_name']}
-                </Link>
+                {
+                    use_link ?
+                    <Link to={admin_url ? `/admin-area/users/${userData['user_name']}` : `/user/${userData['user_name']}`}>
+                        {userData['display_name']}
+                    </Link>
+                    :
+                    <span>
+                        {'display_name' in userData ? userData['display_name'] : userData['user_name']}
+                    </span>
+                }
             </div>
         </UserInfoHover>
     )

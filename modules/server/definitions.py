@@ -26,7 +26,9 @@ class UserData(BaseModel):
 
 class NewUserData(BaseModel):
     user_name: str
+    display_name: str = Field(None)
     email: Optional[str] = Field(None)
+    avatar_color: Optional[str] = Field(None)
     password : Optional[str] = Field(None)
     invite_token : Optional[str] = Field(None)
     is_user_admin : Optional[bool] = Field(False)
@@ -41,20 +43,8 @@ class ProjectData(BaseModel):
     git_remote_url : Optional[str] = Field(None)
     git_remote_commit_url : Optional[str] = Field(None)
 
-class ProjectConfig(BaseModel):
-    slug : str
-    git_repo : Optional[dict] = Field(None)
-
 class ReportData(BaseModel):
     id : Optional[int] = Field(None, description="Report ID")
     project_id : str
     tags : Optional[List[str]] = Field([], description="Report Tags")
     report : dict
-
-class User_Permission():
-    display : str
-
-class User_Role(Enum):
-    VIEWER = 0,
-    PROJECT_ADMIN = 7,
-    SYSTEM_ADMIN = 15,

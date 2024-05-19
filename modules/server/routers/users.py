@@ -9,13 +9,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
 from modules.server.common import DEFAULT_USER, DEFAULT_USER_EMAIL, DEFAULT_PASS, APP_DATA_PATH, mkdir_p, is_valid_base64_image
-from modules.server.db_definitions.users import User, getPasswordHash, generateSalt, getUserAvatarPath
+from modules.server.db_definitions.users import User, PendingUser, getPasswordHash, generateSalt, getUserAvatarPath
 
 from modules.server.database import engine 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
-from modules.server.definitions import UserLogin, UserData, NewUserData, User_Role
+from modules.server.definitions import UserLogin, UserData, NewUserData
 
 rand_color = randomcolor.RandomColor()
+
+def generateUserAvatarColor():
+    return rand_color.generate(luminosity='dark')[0]
 
 # Testing
 db_session = Session(engine)
@@ -40,7 +43,7 @@ if def_user == 0:
     db_session.add(User(
         user_name="test",
         display_name="Test User",
-        email=DEFAULT_USER_EMAIL,
+        email="test@example.com",
         avatar_color=rand_color.generate(luminosity='dark')[0],
         is_user_admin = False,
         read_only = True,
@@ -189,6 +192,15 @@ async def all_users(user_data: UserData = Depends(verifier)):
 
     return [user.as_dict() for user in users]
 
+@usersRouter.get("/user/all-pending", dependencies=[Depends(cookie)])
+async def all_pending_users(user_data: UserData = Depends(verifier)):
+    db_session = Session(engine)
+
+    users = db_session.query(PendingUser).all()
+
+    db_session.close()
+
+    return [user.as_dict() for user in users]
 
 @usersRouter.post("/user/invite", dependencies=[Depends(cookie)])
 async def invite_user(new_user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
@@ -234,6 +246,35 @@ async def create_user_acc(new_user : NewUserData, response: Response):
     db_session = Session(engine)
 
     # Check if users can sign-up
+    user_info_db = db_session.query(User).where(User.user_name.is_(new_user.user_name)).scalar()
+    if(user_info_db is not None):        
+        response.status_code = status.HTTP_409_CONFLICT
+        db_session.close()
+        return {
+            'message' : 'User with given Username already exists'
+        }
+    
+    user_info_db = db_session.query(User).where(User.email.is_(new_user.email)).scalar()
+    if(user_info_db is not None):        
+        response.status_code = status.HTTP_409_CONFLICT
+        db_session.close()
+        return {
+            'message' : 'User with given Email Address already exists'
+        }
 
+    db_session.add(PendingUser(
+        user_name=new_user.user_name,
+        display_name= new_user.display_name,
+        email=new_user.email,
+        avatar_color=generateUserAvatarColor(),
+        is_user_admin=new_user.is_user_admin,
+        read_only=new_user.read_only,
+        password_salt="",
+        password_hash="",
+        invite_token=new_user.invite_token,
+        created_on=datetime.datetime.now(datetime.timezone.utc),
+        created_by=new_user.user_name
+    ))
+    db_session.commit()
     db_session.close()
-    pass
+    return {}

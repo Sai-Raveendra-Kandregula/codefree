@@ -13,7 +13,7 @@ from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, Checke
 from modules import cf_output
 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
-from modules.server.definitions import UserData, UserLogin, SessionData, ProjectData, ReportData
+from modules.server.definitions import UserData, ProjectData, ReportData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, SERVER_URL, mkdir_p
 

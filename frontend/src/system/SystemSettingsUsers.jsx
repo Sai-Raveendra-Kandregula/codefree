@@ -17,7 +17,7 @@ import {
 import { useTheme } from "@table-library/react-table-library/theme";
 import { CompactTable } from '@table-library/react-table-library/compact';
 import IconButton from '../Components/IconButton'
-import { LuPencil, LuTrash2 } from 'react-icons/lu'
+import { LuCheck, LuPencil, LuTrash2 } from 'react-icons/lu'
 import { StatusCodes } from 'http-status-codes'
 import { toast } from 'react-toastify'
 import UserLink from '../Components/UserLink'
@@ -38,7 +38,22 @@ export async function userListLoader({ params }) {
     }
 }
 
-function SystemSettingsUsers() {
+export async function pendingUserListLoader({ params }) {
+    const resp = await fetch(`${SERVER_BASE_URL}/api/user/all-pending`, {
+        credentials: "include"
+    })
+    if (resp.status != 200) {
+        // window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
+        throw resp
+    }
+    else {
+        return resp.json()
+    }
+}
+
+function SystemSettingsUsers({
+    pendingUsers = false
+}) {
     const navigate = useNavigate()
 
     const revalidator = useRevalidator()
@@ -125,6 +140,100 @@ function SystemSettingsUsers() {
         }
     ];
 
+    const COLUMNS_PENDING = [
+        {
+            label: 'User', renderCell: (item) =>
+                <UserLink showAvatar={true} avatarSize={1.25} 
+                    load_user_data={false} 
+                    use_link={false} user_id={item['user_name']} 
+                    user_data={item} 
+                    style={{
+                    'textAlign': 'left',
+                    'width': '100%',
+                    'paddingLeft': '10px'
+                }} />
+        },
+        { label: 'Email', renderCell: (item) => <span title={item['email']}>{item['email']}</span> },
+        {
+            label: 'Created By', 
+            showOnlyIn: ['lg', 'xl'],
+            renderCell: (item) => <div style={{
+                textWrap: 'pretty',
+                fontSize: '0.8rem',
+                overflow: 'visible'
+            }}>
+                {item['user_name'] === item['created_by'] ? 
+                    "Signing Up" 
+                    : 
+                    <UserLink admin_url={true} user_id={item['created_by']} />
+                }
+            </div>
+        },
+        {
+            label: 'Created On', 
+            showOnlyIn: ['lg', 'xl'],
+            renderCell: (item) => <div style={{
+                textWrap: 'pretty',
+                fontSize: '0.8rem'
+            }}>{new Date(item['created_on']).toLocaleDateString()}</div>
+        },
+        {
+            label: <span style={{
+                paddingRight: '10px'
+            }}>Actions</span>,
+            renderCell: (item) => <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '5px',
+                flexGrow: 0,
+                flexShrink: 0,
+                paddingRight: '10px'
+            }}>
+                <IconButton icon={<LuCheck />} title={`Approve ${item['user_name']}`} onClick={(e) => {
+                    e.preventDefault();
+                    // if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
+                    //     fetch(`${SERVER_BASE_URL}/api/user/delete`, {
+                    //         method: 'post',
+                    //         headers: {
+                    //             'Content-Type': 'application/json'
+                    //         },
+                    //         body: JSON.stringify(item)
+                    //     }).then((resp) => {
+                    //         if (resp.status == StatusCodes.OK) {
+                    //             toast.success(`User Deletion Successfully`)
+                    //             revalidator.revalidate()
+                    //         }
+                    //         else {
+                    //             toast.error(`User Deletion Failed : ${resp.statusText}`)
+                    //         }
+                    //     })
+                    // }
+                }} />
+                <IconButton icon={<LuTrash2 />} title={`Deny ${item['user_name']}`} onClick={(e) => {
+                    e.preventDefault();
+                    // if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
+                    //     fetch(`${SERVER_BASE_URL}/api/user/delete`, {
+                    //         method: 'post',
+                    //         headers: {
+                    //             'Content-Type': 'application/json'
+                    //         },
+                    //         body: JSON.stringify(item)
+                    //     }).then((resp) => {
+                    //         if (resp.status == StatusCodes.OK) {
+                    //             toast.success(`User Deletion Successfully`)
+                    //             revalidator.revalidate()
+                    //         }
+                    //         else {
+                    //             toast.error(`User Deletion Failed : ${resp.statusText}`)
+                    //         }
+                    //     })
+                    // }
+                }} />
+            </div>,
+            width: '50px'
+        }
+    ];
+
     const ROW_PROPS = {
         key: (item) => item['user_name'],
         title: (item) => item['display_name'],
@@ -146,7 +255,7 @@ function SystemSettingsUsers() {
                 width: 'var(--centered-wide-content-width)',
                 margin: 'var(--centered-content-margin)',
             }}>
-                Users
+                {pendingUsers ? "Pending Users" : "Users"}
             </h2>
             <div style={{
                 width: 'var(--centered-wide-content-width)',
@@ -192,7 +301,7 @@ function SystemSettingsUsers() {
                         theme={theme}
                         data={userList}
                         ROW_PROPS={ROW_PROPS}
-                        COLUMNS={COLUMNS} />
+                        COLUMNS={pendingUsers ? COLUMNS_PENDING : COLUMNS} />
                 </div>
             }
         </div>

@@ -80,7 +80,6 @@ class PendingUser(CodeFreeBase):
     password_salt: Mapped[Optional[str]] = mapped_column(String(36), default=None) # UUID
     password_hash: Mapped[Optional[str]] = mapped_column(String(64), default=None) # SHA512 Hash of Password + Salt
     invite_token: Mapped[Optional[str]] = mapped_column(String(36), default=None, unique=True) # Invite Token (UUID)
-    invite_expires_in: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(), default=None)
     created_on: Mapped[datetime.datetime] = mapped_column(DateTime())
     created_by: Mapped[str] = mapped_column(String(30))
 
