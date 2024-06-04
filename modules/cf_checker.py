@@ -59,7 +59,7 @@ class CheckingModule():
             fmt = "--pretty=format:{\"hash\":\"%H\",\"author\":\"%an\",\"date\":\"%ad\",\"email\":\"%aE\",\"subject\":\"%s\",\"body\": \"%b\",\"notes\":\"%N\",\"commitDate\":\"%ai\",\"age\":\"%cr\"}"
             process = subprocess.Popen(['git', '--git-dir', f"{path}/.git", 'log', '-n 1', fmt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
             stdout, stderr = process.communicate()
-            return json.loads(stdout)
+            return json.loads(stdout, strict=False)
         return None
 
     @classmethod

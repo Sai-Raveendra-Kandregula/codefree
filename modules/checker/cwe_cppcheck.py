@@ -43,9 +43,10 @@ def run_cppcheck_cwe(args, rootpath:str):
     
     popen_cmd = [f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout']
 
-    for includePath in args.includePaths:
-        if os.path.exists(includePath):
-            popen_cmd.append(f'-I{includePath}')
+    for includePathItem in args.includePaths:
+        for includePath in includePathItem.split(" "):
+            if os.path.exists(includePath):
+                popen_cmd.append(f'-I{includePath}')
 
     process = Popen(popen_cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
