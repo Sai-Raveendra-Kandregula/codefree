@@ -1,0 +1,28 @@
+services:
+  codefree:
+    build: 
+      context: .
+      dockerfile: ./Docker/server.Dockerfile
+    container_name: codefree_server
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-PROD}
+    restart: "always"
+  cf_web:
+    build: 
+      context: .
+      dockerfile: ./Docker/ui.Dockerfile
+    container_name: codefree_web
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-PROD}
+    restart: "always"
+  cf_proxy:
+    build: 
+      context: .
+      dockerfile: ./Docker/proxy.Dockerfile
+    container_name: codefree_proxy
+    ports:
+      - 8080:8080
+    depends_on:
+      - codefree
+      - cf_web
+    restart: "always"
