@@ -1,0 +1,12 @@
+extends: default
+role:
+  red:
+    font-color: #d70000
+  orange:
+    font-color: #e08b00
+  yellow:
+    font-color: #d6e000
+  green:
+    font-color: #00b61c
+  blue:
+    font-color: #33b5ff

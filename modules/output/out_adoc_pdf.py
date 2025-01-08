@@ -15,6 +15,18 @@ NEWLINE = '\n'
 def filename_to_id(filename: str):
     return filename.replace('.', '_').replace('/', '_').replace('\\', '_')
 
+def checker_severity_to_color(severity: CheckerSeverity):
+    if severity == CheckerSeverity.CRITICAL:
+        return "red"
+    elif severity == CheckerSeverity.MAJOR:
+        return "orange"
+    elif severity == CheckerSeverity.MINOR:
+        return "yellow"
+    elif severity == CheckerSeverity.INFO:
+        return "blue"
+    else:
+        return "black"
+
 def generate_asciidoc(args, output: List[CheckerOutput] = []):
     # timestamp = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
     commit_info = None
@@ -52,20 +64,23 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
         
         group_data : dict[str, list[CheckerOutput]] = {}
         for item in output:
-            if item.file_name not in group_data:
-                group_data[item.file_name] = []
-            group_data[item.file_name].append(item)
+            if filename_to_id(item.file_name) not in group_data:
+                group_data[filename_to_id(item.file_name)] = []
+            group_data[filename_to_id(item.file_name)].append(item)
         
-        for file_name in group_data.keys():
-            group_data[file_name].sort(key=lambda x: x._module.module_type.value)
-            report_data += f"\n=== {item.file_name} [[{filename_to_id(item.file_name)}]]\n"
+        for file_name_id in group_data.keys():
+            group_data[file_name_id].sort(key=lambda x: (x.error_info.severity.value if x.error_info is not None else CheckerSeverity.INFO.value), reverse=True)
+            group_data[file_name_id].sort(key=lambda x: x._module.module_type.value)
+            report_data += f"\n=== {item.file_name} [[{file_name_id}]]\n"
             item : CheckerOutput
-            for item in group_data[file_name]:
+            for item in group_data[file_name_id]:
                 if item._module.module_type == CheckerTypes.CODE:
                     report_data += f"\n==== Code Check\n"
                     report_data += f"\n===== Description\n{item.error_info.description}\n"
                     report_data += f"\n===== Module\n{item._module.module_name_friendly}\n"
-                    report_data += f"\n===== Severity\n{item.error_info.severity.name}\n"
+                    if item.error_info.symbol:
+                        report_data += f"\n===== Symbol\n{item.error_info.symbol}\n"
+                    report_data += f"\n===== Severity\n[{checker_severity_to_color(item.error_info.severity)}]#{item.error_info.severity.name}#\n"
                     if item.error_info.suggestion:
                         report_data += f"\n===== Recommendation\n{item.error_info.suggestion}\n"
                     
@@ -75,11 +90,15 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
                         report_data += f"\n===== CWE\n{', '.join([str(i) for i in item.cwe_info.cwe_list])}\n"
                         if item.cwe_info.additional_info:
                             report_data += f"\n===== References\n{item.cwe_info.additional_info}\n"
+                    if item.misra_info:
+                        report_data += f"\n===== MISRA Rule Number\n{item.misra_info.rule_number}\n"
+                        if item.misra_info.additional_info:
+                            report_data += f"\n===== References\n{item.misra_info.additional_info}\n"
                     report_data += "\n"
                 elif item._module.module_type == CheckerTypes.STYLE:
                     report_data += f"\n==== Style Check\n"
                     report_data += f"\n===== Module\n{item._module.module_name_friendly}\n"
-                    report_data += f"\n===== Style Check Result\n{'Passed.' if item.style_info.passed else 'Failed.'}\n"
+                    report_data += f"\n===== Style Check Result\n{'[green]#Passed#' if item.style_info.passed else '[red]#Failed#'}\n"
                     report_data += "\n"
     return report_data
 
@@ -96,7 +115,7 @@ FormattingModule.register(adoc_format_obj)
 def output_pdf(args, output: List[CheckerOutput] = []):
     raw_ascii_doc = generate_asciidoc(args, output)
     import subprocess
-    subprocess.run(["asciidoctor-pdf", "-o", "-", "-"], input=raw_ascii_doc.encode('utf-8'), stdout=args.outputFile)
+    subprocess.run(["asciidoctor-pdf", "--theme", "codefree", "-a", f"pdf-themesdir={os.path.join(os.path.dirname(__file__), 'pdf_resources/themes')}", "-o", "-", "-"], input=raw_ascii_doc.encode('utf-8'), stdout=args.outputFile)
 
 pdf_format_obj = FormattingModule()
 pdf_format_obj.formatStr = "pdf"

@@ -14,8 +14,8 @@ import pandas as pd
 
 class CheckerSeverity(Enum):
     INFO = 0
-    MINOR = 1,
-    MAJOR = 2,
+    MINOR = 1
+    MAJOR = 2
     CRITICAL = 3
 
 class CheckerTypes(Enum):
