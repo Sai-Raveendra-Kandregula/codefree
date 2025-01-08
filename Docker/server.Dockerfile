@@ -18,7 +18,7 @@ COPY ./codefree /codefree/
 RUN ln -sf /codefree/codefree /usr/bin/codefree
 
 RUN mkdir /code # Prefer mounting your code directories under this directory
-
+RUN mkdir /opt/codefree
 EXPOSE 8000
 
 WORKDIR /codefree

@@ -60,7 +60,7 @@ ROOT_PATH_MID_URL = os.environ['ROOT_PATH_MID_URL']
 ROOT_PATH = "/" + os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
 os.environ['ROOT_PATH'] = ROOT_PATH
 
-APP_DATA_PATH = os.getenv('CF_DATA_PATH', '/tmp').removesuffix("/")
+APP_DATA_PATH = '/opt/codefree'
 APP_CONF_PATH = os.getenv('CF_CONF_PATH', '/tmp').removesuffix("/")
 DEFAULT_USER = os.getenv('DEFAULT_USER', 'admin')
 DEFAULT_USER_EMAIL = os.getenv('DEFAULT_USER_EMAIL', 'admin@example.com')

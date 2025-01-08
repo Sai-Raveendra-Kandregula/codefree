@@ -9,7 +9,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from modules.server.db_definitions.common import CodeFreeBase
+from .common import CodeFreeBase
 
 class Project(CodeFreeBase):
     __tablename__ = "project"

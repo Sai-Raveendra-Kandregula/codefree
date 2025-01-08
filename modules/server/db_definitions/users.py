@@ -1,3 +1,4 @@
+import errno
 from typing import List
 import datetime
 import os
@@ -6,8 +7,17 @@ from sqlalchemy import String, DateTime, Boolean
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from modules.server.db_definitions.common import CodeFreeBase
-from modules.server.common import APP_DATA_PATH, mkdir_p
+from .common import CodeFreeBase
+
+APP_DATA_PATH='/opt/codefree'
+
+def mkdir_p(path): # mkdir -p implementation
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else: raise
 
 def generateInviteToken() -> str:
     import uuid

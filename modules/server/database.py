@@ -7,7 +7,7 @@ from modules.server.common import APP_DATA_PATH, mkdir_p, logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-engine = create_engine(f"sqlite:///{APP_DATA_PATH}/codefree.sqlite", echo=False)
+engine = create_engine(f"sqlite:////opt/codefree/codefree.sqlite", echo=False)
 
 def init_db():
     logger.info("Initialising DB...")

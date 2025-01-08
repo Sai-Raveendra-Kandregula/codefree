@@ -9,6 +9,7 @@ services:
       # - ./modules/:/codefree/modules/
       # - ./main.py:/codefree/main.py
       # - ./codefree:/codefree/codefree
+      # - ./VERSION:/codefree/VERSION
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-PROD}
     restart: "always"
