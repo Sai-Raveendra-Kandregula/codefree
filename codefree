@@ -28,8 +28,8 @@ if __name__ == "__main__":
         
         data = json.load(args.transformJson)
         args.transformJson.close()
-        if 'commit' in data:
-            args.commit = data['commit']
+        if 'commit_info' in data:
+            args.commit = data['commit_info']
         if 'data' not in data:
             error_printer("Invalid JSON File. 'data' key not found.")
             exit(1)

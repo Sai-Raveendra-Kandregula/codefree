@@ -31,7 +31,7 @@ class ComplianceStandards(Enum):
 CheckingFunction : TypeAlias = Callable[[ Namespace, str ], List[Any]]
 
 class CheckingModule():
-    __checking_modules = []
+    __checking_modules = {}
 
     __checker_output : List[Any] = []
 
@@ -42,13 +42,23 @@ class CheckingModule():
     checker_help : str
     compliance_standard : ComplianceStandards = ComplianceStandards.NONE
     
-    @classmethod
-    def modules(cls):
-        return cls.__checking_modules
+    def __str__(self):
+        return f"<CheckingModule : {self.module_name} : {self.module_type.name} : {self.compliance_standard.name}>"
+    
+    def __repr__(self):
+        return f"<CheckingModule : {self.module_name} : {self.module_type.name} : {self.compliance_standard.name}>"
     
     @classmethod
-    def register(cls, module):
-        cls.__checking_modules.append(module)
+    def modules(cls):
+        return list(cls.__checking_modules.values())
+    
+    @classmethod
+    def get_module(cls, module_name : str, compliance_standard : ComplianceStandards = ComplianceStandards.NONE) -> CheckingModule:
+        return cls.__checking_modules[f"{module_name}_{compliance_standard.name}"]
+    
+    @classmethod
+    def register(cls, module : CheckingModule):
+        cls.__checking_modules[f"{module.module_name}_{module.compliance_standard.name}"] = module
 
     @classmethod
     def get_git_commit(cls, args : Namespace) -> dict | None:
@@ -208,11 +218,11 @@ class CheckerOutput():
         elif dict_data is not None:
             self.file_name = dict_data['File Name']
 
-            module = CheckingModule()
-            module.module_name = dict_data['Module Name']
-            module.module_type = getattr(CheckerTypes, dict_data['Module Type'].upper())
-            module.compliance_standard = getattr(ComplianceStandards, dict_data['Compliance Standard'].upper()) if 'Compliance Standard' in dict_data else ComplianceStandards.NONE
-            self._module = module
+            # module.module_name = dict_data['Module Name']
+            # module.module_type = getattr(CheckerTypes, dict_data['Module Type'].upper())
+            # module.compliance_standard = getattr(ComplianceStandards, dict_data['Compliance Standard'].upper()) if 'Compliance Standard' in dict_data else ComplianceStandards.NONE
+            compliance_standard : ComplianceStandards = getattr(ComplianceStandards, dict_data['Compliance Standard'].upper()) if 'Compliance Standard' in dict_data else ComplianceStandards.NONE
+            self._module = CheckingModule.get_module(dict_data['Module Name'], compliance_standard)
 
             if self._module.module_type == CheckerTypes.STYLE:
                 self.style_info = StyleInfo()

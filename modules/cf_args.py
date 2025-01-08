@@ -145,6 +145,15 @@ def load_args() -> argparse.Namespace:
             action="store_false",
             help=f"Do not calculate Issue Statistics."
         )
+    
+    outputGroup.add_argument(
+            f"--project-name",
+            dest="projectName",
+            type=str,
+            default=None,
+            action="store",
+            help=f"Project Name to be used in Reports."
+        )
 
     out_module : FormattingModule
     for out_module in format_modules:

@@ -41,7 +41,7 @@ def run_cppcheck_cwe(args, rootpath:str):
         error_printer("Bundled CPPCheck Binary not found. Skipping...")
         return out
     
-    popen_cmd = [f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout']
+    popen_cmd = [f'{cppcheck_path}','--enable=all', '--force', '--verbose', '--suppress=missingIncludeSystem', '--max-ctu-depth=4', '--check-level=exhaustive', '-q', '--xml', f'{rootpath}', '--output-file=/dev/stdout']
 
     for includePathItem in args.includePaths:
         for includePath in includePathItem.split(" "):
