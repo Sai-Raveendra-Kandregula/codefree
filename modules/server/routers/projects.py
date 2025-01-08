@@ -1,4 +1,3 @@
-import io
 import os
 import json
 import datetime
@@ -431,12 +430,22 @@ def export_project_report(project:str, report:str, request : Request, response :
             try:
                 out_args = outputArgs()
                 out_args.outputFile = tempfile.NamedTemporaryFile(mode='w+t')
-                CheckerStats.calculateStats(args=out_args)                        
-                format_module.formatter(out_args, issue_items_cls)
+                def process_output():
+                    CheckerStats.calculateStats(args=out_args)                        
+                    format_module.formatter(out_args, issue_items_cls)
+                process_output()
+                
                 def file_stream():
                     with open(out_args.outputFile.name, 'rb') as file:
-                        yield from file
-                background_tasks.add_task(out_args.outputFile.close)
+                        while True:
+                            data = file.read(2048)
+                            if not data:
+                                break
+                            yield data
+                
+                def cleanup_output():
+                    out_args.outputFile.close()
+                background_tasks.add_task(cleanup_output)
                 return StreamingResponse(
                     content=file_stream(),
                     status_code=status.HTTP_200_OK,
