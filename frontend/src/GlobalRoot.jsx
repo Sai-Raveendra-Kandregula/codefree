@@ -270,7 +270,7 @@ function GlobalRoot() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          padding: '0 20px',
+          padding: '0 20px 0 15px',
           gap: '7.5px',
           position: 'sticky',
           top: '0',
@@ -278,9 +278,6 @@ function GlobalRoot() {
         }}>
           {
             sidebarHidden && <IconButton title="Expand Nav Pane" icon={<LuPanelLeftOpen />}
-              style={{
-                marginRight: '10px'
-              }}
               onClick={(e) => {
                 setSidebarHidden(false)
               }} />

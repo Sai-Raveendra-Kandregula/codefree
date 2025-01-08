@@ -287,6 +287,10 @@ span.letter-avatar{
   background: rgba(125, 125, 125, 0.2);
 }
 
+.iconButton {
+  padding: 0;
+}
+
 .headerButton {
   position: relative;
   overflow-y: visible;

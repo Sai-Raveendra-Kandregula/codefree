@@ -9,9 +9,11 @@
 
 .breadCrumbLink{
     color: var(--foreground);
-    font-weight: 600;
     font-size: 0.85rem;
-    opacity: 0.8;
+}
+
+.breadCrumbLink:last-of-type{
+    font-weight: 600;
 }
 
 .appSidebar {

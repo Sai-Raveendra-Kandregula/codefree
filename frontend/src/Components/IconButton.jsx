@@ -11,11 +11,11 @@ function IconButton({
   ...props
 }) {
   return ( to ?
-    <Link to={to} className={`buttonBase ${overlay && 'overlayButton'} ${className ? className : ''}`} {...props}>
+    <Link to={to} className={`buttonBase iconButton ${overlay && 'overlayButton'} ${className ? className : ''}`} {...props}>
         {icon}
     </Link>
     :
-    <button className={`buttonBase ${className ? className : ''}`} {...props}>
+    <button className={`buttonBase iconButton ${className ? className : ''}`} {...props}>
         {icon}
     </button>
   )

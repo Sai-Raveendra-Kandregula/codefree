@@ -2,6 +2,7 @@
 
 .issueItemAccordian{
     display: flex;
+    flex-direction: column;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background: var(--card-background);
@@ -13,10 +14,12 @@
 
 .issueItemAccordian summary{
     position: relative;
+    box-sizing: border-box;
     padding: 0 20px;
     cursor: pointer;
     
     height: 50px;
+    align-self: stretch;
     display: flex;
     align-items: center;
     justify-content: space-between;

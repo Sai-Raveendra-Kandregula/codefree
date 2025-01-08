@@ -6,9 +6,9 @@ import reportViewerStyles from '../../styles/reportViewer.module.css'
 
 import { IoCloudDownloadOutline, IoInformationCircleOutline } from "react-icons/io5";
 import { VscJson } from "react-icons/vsc";
-import { TbCsv } from "react-icons/tb";
+import { TbCsv, TbPdf } from "react-icons/tb";
 import { RiFileExcel2Line } from "react-icons/ri";
-import { IoArrowBack } from "react-icons/io5";
+import { SiAsciidoctor } from "react-icons/si";
 import { SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
 import LinkButton from '../../Components/LinkButton';
@@ -230,6 +230,26 @@ function ReportViewer() {
                                             >
                                                 <TbCsv />
                                                 Export as CSV
+                                            </a>
+                                            <a className='sideBarLink' title={"Export as PDF"}
+                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=pdf`}
+                                                download={true}
+                                                onClick={() => {
+                                                    close()
+                                                }}
+                                            >
+                                                <TbPdf />
+                                                Export as PDF
+                                            </a>
+                                            <a className='sideBarLink' title={"Export as Ascii Doc"}
+                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=adoc`}
+                                                download={true}
+                                                onClick={() => {
+                                                    close()
+                                                }}
+                                            >
+                                                <SiAsciidoctor />
+                                                Export as Ascii Doc
                                             </a>
                                             <a className='sideBarLink' title={"Export as JSON"}
                                                 href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=json`}
