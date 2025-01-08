@@ -57,7 +57,7 @@ def run_cppcheck_cwe(args, rootpath:str):
 
     xml_out = stdout.decode()
 
-    # print(xml_out)
+    # progress_printer("XML : " + xml_out)
 
     root = ET.fromstring(xml_out)
 

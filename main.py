@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import dotenv
 dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 

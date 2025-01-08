@@ -52,7 +52,7 @@ class CheckingModule():
 
     @classmethod
     def get_git_commit(cls, args : Namespace) -> dict | None:
-        if(os.system(f"cd {args.path} ; git rev-parse --is-inside-work-tree | grep true > /dev/null") == 0):
+        if(os.system(f"git config --global --add safe.directory {args.path} ; cd {args.path} ; git rev-parse --is-inside-work-tree | grep true > /dev/null") == 0):
             # Is a git directory
             path : str = args.path
             path = path.removesuffix("/")
