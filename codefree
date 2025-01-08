@@ -11,8 +11,6 @@ from modules.cf_output import *
 from modules.output import *
 from modules.checker import *
 
-import json
-
 if __name__ == "__main__":
     
     args = cf_args.load_args()
@@ -20,46 +18,62 @@ if __name__ == "__main__":
     progress_printer = get_progress_printer(args=args)
     error_printer = get_error_printer(args=args)
     
-    progress_printer("Path : " + args.path)
-    if args.optionsFile != None:
-        progress_printer("Using Options File from : " + args.path)
-    if len(args.includePaths) > 0:
-        progress_printer("Include Paths : " + " : ".join(args.includePaths))
-    if args.outputFile is not None:
-        progress_printer("Output File : " + os.path.realpath(args.outputFile.name))
-        progress_printer("Output Format : " + args.formatClass)
-    elif args.formatClass == 'server':
-        progress_printer("Output : Upload to CodeFree Server")
+    if getattr(args, 'path', None) is not None:
+        progress_printer("Path : " + args.path)
+        if args.optionsFile != None:
+            progress_printer("Using Options File from : " + args.path)
+    
+    if args.transformJson is not None:
+        progress_printer("Transforming JSON File : " + os.path.realpath(args.transformJson.name))
+        
+        data = json.load(args.transformJson)
+        args.transformJson.close()
+        if 'commit' in data:
+            args.commit = data['commit']
+        if 'data' not in data:
+            error_printer("Invalid JSON File. 'data' key not found.")
+            exit(1)
+        out_data : list = data['data']
+        out_data_cls = [ CheckerOutput(dict_data=item) for item in out_data ]
+        CheckingModule.set_output(out_data_cls)
     else:
-        progress_printer("Output File : stdout")
-        progress_printer("Output Format : JSON")
+        if len(args.includePaths) > 0:
+            progress_printer("Include Paths : " + " : ".join(args.includePaths))
+        if args.outputFile is not None:
+            progress_printer("Output File : " + os.path.realpath(args.outputFile.name))
+            progress_printer("Output Format : " + args.formatClass)
+        elif args.formatClass == 'server':
+            progress_printer("Output : Upload to CodeFree Server")
+        else:
+            progress_printer("Output File : stdout")
+            progress_printer("Output Format : JSON")
 
-    format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
-    if(format_module.preCheck is not None):
-        if(isinstance(format_module.preCheck, (types.FunctionType, types.BuiltinFunctionType))):
-            progress_printer("Running Prechecks...")
-            if(not format_module.preCheck(args)):
-                error_printer("Precheck Failed.")
-                exit(1)
-            else:
-                progress_printer("Prechecks successful.")
+        format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
+        if(format_module.preCheck is not None):
+            if(isinstance(format_module.preCheck, (types.FunctionType, types.BuiltinFunctionType))):
+                progress_printer("Running Prechecks...")
+                if(not format_module.preCheck(args)):
+                    error_printer("Precheck Failed.")
+                    exit(1)
+                else:
+                    progress_printer("Prechecks successful.")
 
-    progress_printer("Checking if directory is a Git Repository...")
-    commit = CheckingModule.get_git_commit(args=args)
-    if(commit is None):
-        progress_printer("Not a Git Repository.")
-    else:
-        progress_printer("Found a Git Repository.")
-        progress_printer(f"Running tests for commit : {commit['subject']} ({commit['hash']})")
-        args.commit = commit
+        progress_printer("Checking if directory is a Git Repository...")
+        commit = CheckingModule.get_git_commit(args=args)
+        if(commit is None):
+            progress_printer("Not a Git Repository.")
+        else:
+            progress_printer("Found a Git Repository.")
+            progress_printer(f"Running tests for commit : {commit['subject']} ({commit['hash']})")
+            args.commit = commit
 
 
-    progress_printer("\nRunning CodeFree Analysis...")
+        progress_printer("\nRunning CodeFree Analysis...")
 
-    try:
-        CheckingModule.run_checks(args=args)
-    except KeyboardInterrupt:
-        print("Recieved Interrupt, Partials Results will be written to Output.")
+        try:
+            CheckingModule.run_checks(args=args)
+        except KeyboardInterrupt:
+            progress_printer("Recieved Interrupt, Partials Results will be written to Output.")
 
     CheckerStats.calculateStats(args=args)
     CheckerStats.printStats(args=args)

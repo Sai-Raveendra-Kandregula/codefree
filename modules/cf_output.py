@@ -27,15 +27,16 @@ class FormatOption:
 FormatFunction : TypeAlias = Callable[[ Any, List[Any] ], str]
 
 def get_error_printer(args):
-    error_printer = lambda *fmt: print(*fmt, file=sys.stderr)
-
+    def error_printer(*fmt):
+        print(*fmt, file=sys.stderr)
+        sys.stderr.flush()
     return error_printer
 
 def get_progress_printer(args):
-    progress_printer = lambda *fmt: print(*fmt)
-
-    if not args.printProgress:
-        progress_printer = lambda *fmt: None
+    def progress_printer(*fmt):
+        if args.printProgress:
+            print(*fmt)
+            sys.stdout.flush()
     return progress_printer
 
 class FormattingModule():

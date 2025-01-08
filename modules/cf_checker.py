@@ -99,6 +99,11 @@ class CheckingModule():
     @classmethod
     def get_output(cls):
         return cls.__checker_output
+    
+    @classmethod
+    def set_output(cls, out : list[CheckerOutput]):
+        cls.__checker_output.clear()
+        cls.__checker_output.extend(out)
 
 
 class ErrorInfo():
