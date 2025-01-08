@@ -133,4 +133,5 @@ class UserSession(CodeFreeBase):
             "session_end" : self.session_end.timestamp() * 1000, # sec to milli sec for JS Usage
             "session_ip" : self.session_ip,
             "session_user_agent" : self.session_user_agent,
+            "last_activity" : self.last_activity.timestamp() * 1000, # sec to milli sec for JS Usage
         }
