@@ -11,6 +11,7 @@ RUN pip install -r /codefree/requirements.txt
 
 COPY ./modules/ /codefree/modules/
 COPY ./main.py /codefree/
+COPY ./VERSION /codefree/
 COPY ./Docker/entrypoint.sh /codefree/
 
 COPY ./codefree /codefree/

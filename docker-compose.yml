@@ -4,6 +4,10 @@ services:
       context: .
       dockerfile: ./Docker/server.Dockerfile
     container_name: codefree_server
+    volumes:
+      # - ./modules/:/codefree/modules/
+      # - ./main.py:/codefree/main.py
+      # - ./codefree:/codefree/codefree
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-PROD}
     restart: "always"
@@ -12,6 +16,8 @@ services:
       context: .
       dockerfile: ./Docker/ui.Dockerfile
     container_name: codefree_web
+    volumes:
+      # - ./frontend:/codefree_ui
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-PROD}
     restart: "always"

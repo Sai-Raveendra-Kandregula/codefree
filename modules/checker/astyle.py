@@ -9,7 +9,7 @@ from modules import cf_output
 
 astyle_module = CheckingModule()
 astyle_module.module_name = "AStyle"
-astyle_module.module_name_friendly = "Astyle"
+astyle_module.module_name_friendly = "AStyle"
 astyle_module.module_type = CheckerTypes.STYLE
 
 def get_c_files(path:str) -> List[str]:

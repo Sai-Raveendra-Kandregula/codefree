@@ -52,7 +52,7 @@ CONTACT_EMAIL = "sairaveendrakandregula@gmail.com"
 logger = logging.getLogger('uvicorn.error')
 
 
-SERVER_URL = os.getenv('SERVER_URL', "http://localhost:8080").removesuffix("/")
+SERVER_URL = os.getenv('SERVER_URL', "").removesuffix("/")
 ROOT_PATH_MID_URL = "/" + os.getenv('ROOT_PATH', "").removesuffix("/").removeprefix("/")
 os.environ['ROOT_PATH_MID_URL'] = (ROOT_PATH_MID_URL if len(ROOT_PATH_MID_URL.removeprefix("/")) > 0 else "")
 ROOT_PATH_MID_URL = os.environ['ROOT_PATH_MID_URL']

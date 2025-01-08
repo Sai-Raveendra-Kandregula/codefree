@@ -46,6 +46,7 @@ class FormattingModule():
     formatHelp: str
     handlesOutputInternally : bool
     hasNoOutputFile : bool
+    extension : str | None
     preCheck : types.FunctionType
 
     __default = None
@@ -56,6 +57,7 @@ class FormattingModule():
         self.handlesOutputInternally = False
         self.hasNoOutputFile = False
         self.preCheck = None
+        self.extension = None
 
     def __str__(self):
         return str({

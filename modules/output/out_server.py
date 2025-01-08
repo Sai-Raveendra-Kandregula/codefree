@@ -28,7 +28,7 @@ def output_server(args, output: List[CheckerOutput] = []):
     out_obj['data'] = [item.dict() for item in output]
     
 
-    uploadUrl = urllib.parse.urljoin(server_url, 'api/reports/upload-report')
+    uploadUrl = urllib.parse.urljoin(server_url, '/api/reports/upload-report')
     resp : requests.Response
     
     resp = ServerSession.post(uploadUrl, json={

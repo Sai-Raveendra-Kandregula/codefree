@@ -7,10 +7,10 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, JSONResponse
 import randomcolor
 
-from modules.output import out_xlsx
-from modules.output import out_csv
-from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, CheckerSeverity, ComplianceStandards
-from modules import cf_output
+from modules.output import *
+from modules.checker import *
+from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, CheckerSeverity, ComplianceStandards, CheckingModule
+from modules.cf_output import FormattingModule
 
 from modules.server.SessionAuthenticator import verifier, cookie, backend
 from modules.server.definitions import UserData, ProjectData, ReportData
@@ -375,8 +375,10 @@ def upload_project_report(report : ReportData, request : Request, response : Res
 
 @projectsRouter.get("/reports/export-report", dependencies=[Depends(cookie)])
 def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
-    formats = [ "json", "csv", "xlsx" ]
-    if format.lower() not in formats:
+    
+    format_module : FormattingModule = FormattingModule.get_module(format)
+    
+    if format_module is None or format_module.hasNoOutputFile:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {}
     db_session = Session(engine)
@@ -422,6 +424,7 @@ def export_project_report(project:str, report:str, request : Request, response :
                 report_ts : datetime.datetime = datetime.datetime.fromtimestamp(report_data['timestamp'] / 1000)
                 issue_items = report_data['data']
                 issue_items_cls = [ CheckerOutput(dict_data=item) for item in issue_items ]
+                CheckingModule.set_output(issue_items_cls)
                 now = datetime.datetime.now()
                 directory = f'/tmp/codefree_exports/{now.strftime("%Y%m%d_%H%M%S")}'
                 mkdir_p(directory)
@@ -431,20 +434,10 @@ def export_project_report(project:str, report:str, request : Request, response :
                 class outputArgs():
                     outputFile = open(filename, 'w+')
                     calculateStats = True
+                    projectName = project
                 try:
-                    file_formats = [ "json", "csv", "xlsx" ]
-                    if format.lower() not in file_formats:
-                        response.status_code = status.HTTP_400_BAD_REQUEST
-                        return {}
-                    
-                    if format.lower() == 'csv':
-                        out_csv.csv_format_obj.formatter(outputArgs(), issue_items_cls)
-                    elif format.lower() == 'xlsx':
-                        # Calculate Stats
-                        for item in issue_items_cls:
-                            CheckerStats.count_item(item)
-                        
-                        out_xlsx.xlsx_format_obj.formatter(outputArgs(), issue_items_cls)
+                    CheckerStats.calculateStats(args=outputArgs())                        
+                    format_module.formatter(outputArgs(), issue_items_cls)
 
                     return FileResponse(
                         path=filename,
