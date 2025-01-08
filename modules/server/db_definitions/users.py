@@ -110,4 +110,27 @@ class PendingUser(CodeFreeBase):
             out["display_name"] = self.display_name
 
         return out
-   
+
+class UserSession(CodeFreeBase):
+    __tablename__ = "usersession"
+
+    user_name: Mapped[str] = mapped_column(String(30), primary_key=True)
+    session_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    session_start: Mapped[datetime.datetime] = mapped_column(DateTime())
+    session_end: Mapped[datetime.datetime] = mapped_column(DateTime())
+    session_ip: Mapped[str] = mapped_column(String(15))
+    session_user_agent: Mapped[str] = mapped_column(String(255))
+    last_activity: Mapped[datetime.datetime] = mapped_column(DateTime())
+
+    def __repr__(self) -> str:
+        return f"UserSession(user_name={self.user_name!r}, session_id={self.session_id!r})"
+    
+    def as_dict(self):
+        return {
+            "user_name" : self.user_name,
+            "session_id" : self.session_id,
+            "session_start" : self.session_start.timestamp() * 1000, # sec to milli sec for JS Usage
+            "session_end" : self.session_end.timestamp() * 1000, # sec to milli sec for JS Usage
+            "session_ip" : self.session_ip,
+            "session_user_agent" : self.session_user_agent,
+        }
