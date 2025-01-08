@@ -1,10 +1,13 @@
+import io
 import os
 import json
 import datetime
+import tempfile
 
 from fastapi import APIRouter, Request, Response, status, Depends
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from starlette.background import BackgroundTasks
 import randomcolor
 
 from modules.output import *
@@ -374,7 +377,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
     }
 
 @projectsRouter.get("/reports/export-report", dependencies=[Depends(cookie)])
-def export_project_report(project:str, report:str, request : Request, response : Response, format:str = "json", user_data: UserData = Depends(verifier)):
+def export_project_report(project:str, report:str, request : Request, response : Response, background_tasks: BackgroundTasks, format:str = "json", user_data: UserData = Depends(verifier)):
     
     format_module : FormattingModule = FormattingModule.get_module(format)
     
@@ -412,47 +415,43 @@ def export_project_report(project:str, report:str, request : Request, response :
         }
     try:
         with open(os.path.join(getProjectReportsPath(project), report_data.report_path)) as fp:
-            report_data = json.load(fp)
-            if format.lower() == "json":
-                response.status_code = status.HTTP_200_OK
-                return JSONResponse(
-                    content=jsonable_encoder(report_data),
-                )
-                # return report_data
-            else:
-                # Output Modules that generate files by themselves
-                report_ts : datetime.datetime = datetime.datetime.fromtimestamp(report_data['timestamp'] / 1000)
-                issue_items = report_data['data']
-                issue_items_cls = [ CheckerOutput(dict_data=item) for item in issue_items ]
-                CheckingModule.set_output(issue_items_cls)
-                now = datetime.datetime.now()
-                directory = f'/tmp/codefree_exports/{now.strftime("%Y%m%d_%H%M%S")}'
-                mkdir_p(directory)
-                base_filename = f'report_{project}_{report}_{report_ts.strftime("%Y%m%d_%H%M%S")}'
-                extension = f".{format.lower()}"
-                filename = f'{directory}/{base_filename}{extension}'
-                class outputArgs():
-                    outputFile = open(filename, 'w+')
-                    calculateStats = True
-                    projectName = project
-                try:
-                    CheckerStats.calculateStats(args=outputArgs())                        
-                    format_module.formatter(outputArgs(), issue_items_cls)
-
-                    return FileResponse(
-                        path=filename,
-                        status_code=status.HTTP_200_OK,
-                        filename=f"{base_filename}{extension}"
-                    )
-
-                    
-                except Exception as e:
-                    logger.error( "Report formatting Failed : " )
-                    logger.error(e)
-                    response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-                    return {
-                        "message" : f"Error Converting report into {format} format"
+            _report_data = json.load(fp)
+            # Output Modules that generate files by themselves
+            report_ts : datetime.datetime = datetime.datetime.fromtimestamp(_report_data['timestamp'] / 1000)
+            issue_items_cls = [ CheckerOutput(dict_data=item) for item in _report_data['data'] ]
+            CheckingModule.set_output(issue_items_cls)
+            base_filename = f'report_{project}_{report}_{report_ts.strftime("%Y%m%d_%H%M%S")}'
+            extension = f".{format_module.extension.lower().removeprefix('.') if format_module.extension is not None else format.lower()}"
+            class outputArgs():
+                outputFile : tempfile._TemporaryFileWrapper
+                calculateStats = True
+                projectName = project
+                commit = _report_data['commit_info'] if 'commit_info' in _report_data else None
+                jsonUsePretty = True
+            try:
+                out_args = outputArgs()
+                out_args.outputFile = tempfile.NamedTemporaryFile(mode='w+t')
+                CheckerStats.calculateStats(args=out_args)                        
+                format_module.formatter(out_args, issue_items_cls)
+                def file_stream():
+                    with open(out_args.outputFile.name, 'rb') as file:
+                        yield from file
+                background_tasks.add_task(out_args.outputFile.close)
+                return StreamingResponse(
+                    content=file_stream(),
+                    status_code=status.HTTP_200_OK,
+                    headers={
+                        'Content-Disposition': f'attachment; filename="{base_filename}{extension}"',
+                        'Content-Type': 'application/octet-stream',
                     }
+                )
+            except Exception as e:
+                logger.error( "Report formatting Failed : " )
+                logger.error(e, type(e))
+                response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+                return {
+                    "message" : f"Error Converting report into {format} format"
+                }
 
     except Exception as e:
         logger.error( "Export Report Failed : " )
