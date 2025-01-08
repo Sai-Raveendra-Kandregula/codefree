@@ -125,6 +125,9 @@ class UserSession(CodeFreeBase):
     def __repr__(self) -> str:
         return f"UserSession(user_name={self.user_name!r}, session_id={self.session_id!r})"
     
+    def session_expired(self) -> bool:
+        return self.session_end < datetime.datetime.now()
+    
     def as_dict(self):
         return {
             "user_name" : self.user_name,

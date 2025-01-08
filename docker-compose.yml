@@ -5,6 +5,7 @@ services:
       dockerfile: ./Docker/server.Dockerfile
     container_name: codefree_server
     volumes:
+      - ./data:/opt/codefree
       - /etc/localtime:/etc/localtime:ro
       # - ./modules/:/codefree/modules/
       # - ./main.py:/codefree/main.py

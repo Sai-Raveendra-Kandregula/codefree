@@ -8,17 +8,19 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
-from modules.server.common import DEFAULT_USER, DEFAULT_USER_EMAIL, DEFAULT_PASS, APP_DATA_PATH, mkdir_p, is_valid_base64_image
-from modules.server.db_definitions.users import User, PendingUser, getPasswordHash, generateSalt, getUserAvatarPath
+from modules.server.common import DEFAULT_USER, DEFAULT_USER_EMAIL, DEFAULT_PASS, is_valid_base64_image
+from modules.server.db_definitions.users import *
 
 from modules.server.database import engine 
-from modules.server.SessionAuthenticator import verifier, cookie, backend
+from modules.server.SessionAuthenticator import auth_required, get_user_session, get_user_data
 from modules.server.definitions import UserLogin, UserData, NewUserData
 
 rand_color = randomcolor.RandomColor()
 
 def generateUserAvatarColor():
     return rand_color.generate(luminosity='dark')[0]
+
+SESSION_EXPIRY = 24 * 3600 # 24 hours
 
 # Testing
 db_session = Session(engine)
@@ -57,7 +59,7 @@ if def_user == 0:
     db_session.commit()
 db_session.close()
 
-def authenticate_user(userdata : UserLogin) -> status:
+def authenticate_user(userdata : UserLogin, request : Request, response : Response) -> status:
     db_session = Session(engine)
 
     user_info_db : User = db_session.query(User).where(User.user_name.is_(userdata.username)).scalar()
@@ -65,54 +67,67 @@ def authenticate_user(userdata : UserLogin) -> status:
         db_session.close()
         return status.HTTP_401_UNAUTHORIZED # Should be 404, but changed to 401 to prevent information leaks
 
+    session_id = request.cookies.get('cf_session_id', None)
+    if session_id is not None:
+        user_session : UserSession = db_session.query(UserSession) \
+                                    .where(UserSession.user_name.is_(userdata.username)) \
+                                    .where(UserSession.session_id.is_(session_id)).first()
+        if user_session is not None and user_session.session_end > datetime.datetime.now(datetime.timezone.utc):
+            db_session.close()
+            return session_id
+        elif user_session is not None:
+            db_session.delete(user_session)
+            db_session.commit()
+
     if getPasswordHash(userdata.password, user_info_db.password_salt) == user_info_db.password_hash:
+        session_id = str(uuid4())
+        now = datetime.datetime.now(datetime.timezone.utc)
+        expiry = now + datetime.timedelta(seconds=SESSION_EXPIRY)
+        db_session.add(UserSession(
+            user_name=user_info_db.user_name,
+            session_id=session_id,
+            session_start=now,
+            session_end=expiry,
+            last_activity=now,
+            session_ip=request.client.host,
+            session_user_agent=request.headers.get('User-Agent', "")
+        ))
+        db_session.commit()
         db_session.close()
-        return status.HTTP_200_OK
+        response.set_cookie(key='cf_session_id', value=session_id, max_age=SESSION_EXPIRY, httponly=True)
+        return session_id
     db_session.close()
-    return status.HTTP_401_UNAUTHORIZED
+    return None
 
 usersRouter = APIRouter()
 
 @usersRouter.post("/user/sign-in")
-async def create_session(userdata : UserLogin, response: Response):
-    auth_output = authenticate_user(userdata=userdata)
-    if auth_output != status.HTTP_200_OK:
-        response.status_code = auth_output
-        return {
-            "message" : str(auth_output)
-        }
+async def create_session(userdata : UserLogin, request : Request, response: Response):
+    session_id = authenticate_user(userdata=userdata, request=request, response=response)
+    if session_id is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {}
     
-    db_session = Session(engine)
-
-    user_info_db : User = db_session.query(User).where(User.user_name.is_(userdata.username)).scalar()
-
-    session = uuid4()
-    sessiondata = UserData.parse_obj(user_info_db.as_dict())
-
-    await backend.create(session, sessiondata)
-    if not userdata.keepSignedIn:
-        cookie.cookie_params.max_age = (24 * 3600) # One day if user does not want to stay signed in
-    else:
-        cookie.cookie_params.max_age = (399 * 24 * 3600) # If user wants to stay signed in, set maximum max-age (400 days)
-    cookie.attach_to_response(response, session)
-
-    db_session.close()
-
     return {
         "message" : f"{userdata.username} signed in successfully!"
     }
 
 @usersRouter.post("/user/sign-out")
-async def del_session(response: Response, session_id: UUID = Depends(cookie)):
-    if (await backend.read(session_id=session_id) is not None):
-        await backend.delete(session_id)
-    cookie.delete_from_response(response)
+async def del_session(response: Response, session: UserSession = Depends(get_user_session)):
+    if session is not None:
+        db_session = Session(engine)
+        db_session.delete(session)
+        db_session.commit()
+        db_session.close()
+        response.delete_cookie(key='cf_session_id')
     return {
         "message" : f"User Signed Out"
     }
 
-@usersRouter.get("/user/validate", dependencies=[Depends(cookie)])
-async def whoami(response : Response, user_data: UserData = Depends(verifier)):
+@usersRouter.get("/user/validate")
+async def whoami(response : Response, 
+                 user_data: UserData = Depends(get_user_data),
+                 required : bool = Depends(auth_required)):
     db_session = Session(engine)
 
     user_info_db : User = db_session.query(User).where(User.user_name.is_(user_data.user_name)).scalar()
@@ -124,8 +139,10 @@ async def whoami(response : Response, user_data: UserData = Depends(verifier)):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {}
 
-@usersRouter.get("/user/userdata/{userid}", dependencies=[Depends(cookie)])
-async def getUserByID(request : Request, response: Response, user_data: UserData = Depends(verifier)):
+@usersRouter.get("/user/userdata/{userid}")
+async def getUserByID(request : Request, response: Response, 
+                      user_data: UserData = Depends(get_user_data), 
+                      required : bool = Depends(auth_required)):
     db_session = Session(engine)
 
     user_info_db : User = db_session.query(User).where(User.user_name.is_(request.path_params.get('userid'))).scalar()
@@ -141,8 +158,12 @@ async def getUserByID(request : Request, response: Response, user_data: UserData
 
     return out
     
-@usersRouter.post("/user/modify", dependencies=[Depends(cookie)])
-async def getUserByID(newData : UserData , request : Request, response: Response, user_data: UserData = Depends(verifier)):
+@usersRouter.post("/user/modify")
+async def getUserByID(newData : UserData , 
+                      request : Request, response: Response, 
+                      user_data: UserData = Depends(get_user_data),
+                      required : bool = Depends(auth_required)
+                      ):
     if(not user_data.is_user_admin and user_data.read_only):
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
@@ -182,8 +203,8 @@ async def getUserByID(newData : UserData , request : Request, response: Response
         db_session.close()
         return newData
 
-@usersRouter.get("/user/all", dependencies=[Depends(cookie)])
-async def all_users(user_data: UserData = Depends(verifier)):
+@usersRouter.get("/user/all")
+async def all_users(user_data: UserData = Depends(get_user_data), required : bool = Depends(auth_required)):
     db_session = Session(engine)
 
     users = db_session.query(User).all()
@@ -192,8 +213,8 @@ async def all_users(user_data: UserData = Depends(verifier)):
 
     return [user.as_dict() for user in users]
 
-@usersRouter.get("/user/all-pending", dependencies=[Depends(cookie)])
-async def all_pending_users(user_data: UserData = Depends(verifier)):
+@usersRouter.get("/user/all-pending")
+async def all_pending_users(user_data: UserData = Depends(get_user_data), required : bool = Depends(auth_required)):
     db_session = Session(engine)
 
     users = db_session.query(PendingUser).all()
@@ -202,8 +223,10 @@ async def all_pending_users(user_data: UserData = Depends(verifier)):
 
     return [user.as_dict() for user in users]
 
-@usersRouter.post("/user/invite", dependencies=[Depends(cookie)])
-async def invite_user(new_user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
+@usersRouter.post("/user/invite")
+async def invite_user(new_user : NewUserData, response: Response, 
+                      user_data: UserData = Depends(get_user_data),
+                      required : bool = Depends(auth_required)):
     if(not user_data.is_user_admin and user_data.read_only):
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
@@ -215,8 +238,10 @@ async def invite_user(new_user : NewUserData, response: Response, user_data: Use
     db_session.close()
     pass
 
-@usersRouter.post("/user/delete", dependencies=[Depends(cookie)])
-async def create_user_acc(user : NewUserData, response: Response, user_data: UserData = Depends(verifier)):
+@usersRouter.post("/user/delete")
+async def create_user_acc(user : NewUserData, response: Response, 
+                          user_data: UserData = Depends(get_user_data),
+                          required : bool = Depends(auth_required)):
 
     if(not user_data.is_user_admin and user_data.read_only):
         response.status_code = status.HTTP_403_FORBIDDEN

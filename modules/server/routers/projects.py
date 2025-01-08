@@ -14,7 +14,7 @@ from modules.checker import *
 from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, CheckerSeverity, ComplianceStandards, CheckingModule
 from modules.cf_output import FormattingModule
 
-from modules.server.SessionAuthenticator import verifier, cookie, backend
+from modules.server.SessionAuthenticator import get_user_data, get_user_session, auth_required
 from modules.server.definitions import UserData, ProjectData, ReportData
 
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, SERVER_URL, mkdir_p
@@ -120,8 +120,10 @@ if result == None:
     db_session.commit()
 db_session.close()
 
-@projectsRouter.post("/projects/create-project", dependencies=[Depends(cookie)])
-def create_project(project : ProjectData, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.post("/projects/create-project")
+def create_project(project : ProjectData, request : Request, response : Response, 
+                   user_data: UserData = Depends(get_user_data),
+                   required : bool = Depends(auth_required)):
     if(not user_data.is_user_admin and user_data.read_only):
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
@@ -150,8 +152,10 @@ def create_project(project : ProjectData, request : Request, response : Response
     response.status_code = status.HTTP_201_CREATED
     return {}
 
-@projectsRouter.get("/projects/all-projects", dependencies=[Depends(cookie)])
-def get_all_projects(request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/projects/all-projects")
+def get_all_projects(request : Request, response : Response, 
+                    user_data: UserData = Depends(get_user_data),
+                    required : bool = Depends(auth_required)):
     db_session = Session(engine)
     projects_all_query_out = db_session.query(Project).all()
     out = []
@@ -170,8 +174,10 @@ def get_all_projects(request : Request, response : Response, user_data: UserData
     db_session.close()
     return out
 
-@projectsRouter.get("/projects/get-project", dependencies=[Depends(cookie)])
-def get_project(slug:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/projects/get-project")
+def get_project(slug:str, request : Request, response : Response, 
+                user_data: UserData = Depends(get_user_data),
+                required : bool = Depends(auth_required)):
     db_session = Session(engine)
     projects_slug_query = db_session.query(Project).where(Project.slug.is_(slug)).scalar()
     out= {}
@@ -182,8 +188,10 @@ def get_project(slug:str, request : Request, response : Response, user_data: Use
     db_session.close()
     return out
 
-@projectsRouter.get("/reports/all-reports", dependencies=[Depends(cookie)])
-def get_project_all_reports(project:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/reports/all-reports")
+def get_project_all_reports(project:str, request : Request, response : Response, 
+                            user_data: UserData = Depends(get_user_data),
+                            required : bool = Depends(auth_required)):
     # assuming project is actually the project slug
     db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
@@ -201,8 +209,10 @@ def get_project_all_reports(project:str, request : Request, response : Response,
     db_session.close()
     return out
 
-@projectsRouter.get("/reports/report-count", dependencies=[Depends(cookie)])
-def get_project_report_count(project:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/reports/report-count")
+def get_project_report_count(project:str, request : Request, response : Response, 
+                            user_data: UserData = Depends(get_user_data),
+                            required : bool = Depends(auth_required)):
     # assuming project is actually the project slug
     db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
@@ -222,8 +232,10 @@ def get_project_report_count(project:str, request : Request, response : Response
     db_session.close()
     return out
 
-@projectsRouter.get("/reports/get-report", dependencies=[Depends(cookie)])
-def get_project_report(project:str, report:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/reports/get-report")
+def get_project_report(project:str, report:str, request : Request, response : Response, 
+                        user_data: UserData = Depends(get_user_data),
+                        required : bool = Depends(auth_required)):
     db_session = Session(engine)
     project_id = db_session.query( func.coalesce(Project.id, -1)).where(Project.slug.is_(project)).scalar()
     if project_id == -1:
@@ -267,8 +279,10 @@ def get_project_report(project:str, report:str, request : Request, response : Re
             "error" : str(e)
         }
 
-@projectsRouter.get("/reports/get-stats", dependencies=[Depends(cookie)])
-def get_report_stats(project:str, report:str, request : Request, response : Response, user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/reports/get-stats")
+def get_report_stats(project:str, report:str, request : Request, response : Response, 
+                    user_data: UserData = Depends(get_user_data),
+                    required : bool = Depends(auth_required)):
     db_session = Session(engine)
     try:
         project_id = db_session.query(Project.id).where(Project.slug.is_(project)).scalar()
@@ -304,8 +318,11 @@ def get_report_stats(project:str, report:str, request : Request, response : Resp
     db_session.close()
     return report_data.as_dict()
 
-@projectsRouter.post("/reports/upload-report", dependencies=[Depends(cookie)])
-def upload_project_report(report : ReportData, request : Request, response : Response, user_data: UserData = Depends(verifier), uploadedVia : str = "CodeFree CLI" ):
+@projectsRouter.post("/reports/upload-report")
+def upload_project_report(report : ReportData, request : Request, response : Response, 
+                          user_data: UserData = Depends(get_user_data),
+                          required : bool = Depends(auth_required), 
+                          uploadedVia : str = "CodeFree CLI" ):
     if(not user_data.is_user_admin and user_data.read_only):
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
@@ -375,8 +392,11 @@ def upload_project_report(report : ReportData, request : Request, response : Res
         "report_url" : f"{SERVER_URL}/projects/{report.project_id}/reports/{report_id}"
     }
 
-@projectsRouter.get("/reports/export-report", dependencies=[Depends(cookie)])
-def export_project_report(project:str, report:str, request : Request, response : Response, background_tasks: BackgroundTasks, format:str = "json", user_data: UserData = Depends(verifier)):
+@projectsRouter.get("/reports/export-report")
+def export_project_report(project:str, report:str, request : Request, response : Response, 
+                          background_tasks: BackgroundTasks, format:str = "json", 
+                          user_data: UserData = Depends(get_user_data),
+                          required : bool = Depends(auth_required)):
     
     format_module : FormattingModule = FormattingModule.get_module(format)
     
@@ -429,7 +449,7 @@ def export_project_report(project:str, report:str, request : Request, response :
                 jsonUsePretty = True
             try:
                 out_args = outputArgs()
-                out_args.outputFile = tempfile.NamedTemporaryFile(mode='w+t')
+                out_args.outputFile = tempfile.NamedTemporaryFile(mode='w+t', suffix=extension)
                 def process_output():
                     CheckerStats.calculateStats(args=out_args)                        
                     format_module.formatter(out_args, issue_items_cls)

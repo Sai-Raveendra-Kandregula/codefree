@@ -1,84 +1,34 @@
-import dotenv
-import os
-import logging
-from enum import Enum
-from pydantic import BaseModel
-from fastapi import HTTPException, status
-from uuid import UUID, uuid4
-
-from fastapi_sessions.backends.implementations import InMemoryBackend
-from fastapi_sessions.session_verifier import SessionVerifier
-from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters
-
+from fastapi import HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from modules.server.definitions import UserData
-
-from modules.server.db_definitions.users import User
+from modules.server.db_definitions.users import User, UserSession
 from modules.server.database import engine
 
-cookie_params = CookieParameters()
-
-# Uses UUID
-cookie = SessionCookie(
-    cookie_name="cf_session_id",
-    identifier="codefree_user_verifier",
-    auto_error=True,
-    secret_key="DONOTUSE",
-    cookie_params=cookie_params,
-)
-backend = InMemoryBackend[UUID, UserData]()
-
-class BasicVerifier(SessionVerifier[UUID, UserData]):
-    def __init__(
-        self,
-        *,
-        identifier: str,
-        auto_error: bool,
-        backend: InMemoryBackend[UUID, UserData],
-        auth_http_exception: HTTPException,
-    ):
-        self._identifier = identifier
-        self._auto_error = auto_error
-        self._backend = backend
-        self._auth_http_exception = auth_http_exception
-
-    @property
-    def identifier(self):
-        return self._identifier
-
-    @property
-    def backend(self):
-        return self._backend
-
-    @property
-    def auto_error(self):
-        return self._auto_error
-
-    @property
-    def auth_http_exception(self):
-        return self._auth_http_exception
-
-    def verify_session(self, model: UserData) -> bool:
-        """If the user and session exists, it is valid"""
-
-        valid = False
-
+def get_user_session(request : Request):
+    session_id = request.cookies.get("cf_session_id")
+    if session_id is not None:
         db_session = Session(engine)
-
-        try:
-            if (db_session.query(User).where(User.user_name.is_(model.user_name)).scalar() is not None):
-                valid = True
-        except:
-            pass
-
+        user_session : UserSession = db_session.query(UserSession).filter(UserSession.session_id == session_id).scalar()
+        if user_session is not None and user_session.session_expired():
+            db_session.delete(user_session)
+            db_session.commit()
+            user_session = None
         db_session.close()
-        return valid
+        return user_session
+    return None
 
+def get_user_data(request : Request):
+    user_session : UserSession = get_user_session(request)
+    if user_session is not None:
+        db_session = Session(engine)
+        user_data : User = db_session.get(User, user_session.user_name)
+        db_session.close()
+        return UserData(**user_data.as_dict())
+    return None
 
-verifier = BasicVerifier(
-    identifier="codefree_user_verifier",
-    auto_error=True,
-    backend=backend,
-    auth_http_exception=HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"),
-)
+def auth_required(request : Request):
+    user_session : UserSession = get_user_session(request)
+    if user_session is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    return True
