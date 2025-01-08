@@ -2,7 +2,7 @@ from __future__ import annotations
 from enum import Enum
 import os
 import subprocess
-from typing import Dict, List, Callable, Any, TypeAlias
+from typing import Dict, List, Callable, Any, TypeAlias, TypedDict
 from argparse import Namespace
 
 import fnmatch
@@ -290,8 +290,13 @@ class CheckerOutput():
 
         return out
 
+class CheckerStatsSummary(TypedDict):
+    File_Name : str
+    Total : int
+
 class CheckerStats():
     __instances : Dict[str, Dict[str, int]] = {}
+    __modules : List[CheckingModule] = []
 
     @classmethod
     def get_instances(cls):
@@ -303,17 +308,25 @@ class CheckerStats():
     
     @classmethod
     def get_stats(cls):
-        out = []
+        out : list[CheckerStatsSummary] = []
 
         instances = cls.get_instances()
 
         count_info : Dict[str, int]
 
         for file_name, count_info in instances.items():
-            stat_obj={}
-            stat_obj["File Name"] = file_name
-            for module_name, count in count_info.items():
-                stat_obj[f"{module_name}"] = count
+            stat_obj : CheckerStatsSummary ={}
+            stat_obj["File_Name"] = file_name
+            for module in cls.__modules:
+                if module.module_type == CheckerTypes.CODE and module.compliance_standard != ComplianceStandards.NONE:
+                    module_name = module.compliance_standard.name
+                else:
+                    module_name = module.module_type.name
+                if module_name not in count_info:
+                    stat_obj[f"{module_name}"] = 0
+                else:
+                    stat_obj[f"{module_name}"] = count_info[module_name]
+            stat_obj["Total"] = sum(count_info.values())
             out.append(stat_obj)
 
         return out
@@ -323,6 +336,8 @@ class CheckerStats():
         file_name = output_item.file_name
 
         module : CheckingModule = output_item._module
+        if module not in cls.__modules:
+            cls.__modules.append(module)
         module_name = module.module_type.name
         if module.module_type == CheckerTypes.CODE and module.compliance_standard != ComplianceStandards.NONE:
             module_name = module.compliance_standard.name
@@ -357,8 +372,9 @@ class CheckerStats():
             print("-"*stats_table_str.index("\n"))
             print(stats_table_str)
             print("-"*stats_table_str.index("\n"))
-            checkers = list(stats[0].keys())[1:]
+            checkers = [ key for key in  stats[0].keys() if key not in ["File_Name", "Total"]]
             sum_series = df[list(stats[0].keys())[1:]].sum()
+            print(f"Total # of Issues : {int(sum_series.loc['Total'])}")
             for checker in checkers:
                 print(f"Total # of Issues in {checker} : {int(sum_series.loc[checker])}")
             print("-"*stats_table_str.index("\n"), end="\n\n")

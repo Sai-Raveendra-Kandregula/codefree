@@ -1,4 +1,5 @@
 import datetime
+from math import ceil
 from modules.cf_checker import *
 from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
 
@@ -10,6 +11,9 @@ def issue_item_str():
     return ""
 
 NEWLINE = '\n'
+
+def filename_to_id(filename: str):
+    return filename.replace('.', '_').replace('/', '_').replace('\\', '_')
 
 def generate_asciidoc(args, output: List[CheckerOutput] = []):
     # timestamp = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
@@ -23,7 +27,7 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
     if args.projectName is not None:
         title += " for " + args.projectName
     
-    report_data += f"= {title}\n:toc:\n\n"
+    report_data += f"= {title}\n\n"
     
     report_data += f"== Analysis Run Information\n\n"
     report_data += f"=== Timestamp\n{datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')}\n\n"
@@ -32,10 +36,18 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
         report_data += f"=== Commit Information\n\n{(' +'+NEWLINE).join([ key + ' : ' + value for key, value in commit_info.items()])}\n\n"
         # report_data += f"=== Commit Information\n\n{json.dumps(commit_info, indent=4)}\n\n"
     
-    report_data += f"== Report\n\n"
-    if len(output) == 0:
-        report_data += "No Issues Found.\n"
-    else:
+    stats = CheckerStats.get_stats()
+    field_count = len(stats[0].keys())
+    report_data += f"== Report Stats\n\n"
+    report_data += f"""[cols="{int(ceil(field_count/2))}, {", 1".join(["" for _ in range(field_count - 1)])}*", options="header"]\n|========================================\n"""
+    report_data += f"""| File Name {" ".join([f"| {key.upper()}" for key in stats[0].keys() if key not in ["File_Name", "Total"]])} | Total\n"""
+    for stat in stats:
+        report_data += f"""| <<{filename_to_id(stat['File_Name'])}>> {" ".join([f"| {value}" for key, value in stat.items() if key not in ["File_Name", "Total"]])} | {stat['Total']}\n"""
+    report_data += """|========================================\n\n"""
+    # report_data += "No Issues Found.\n"
+    
+    if len(output) > 0:
+        report_data += f"== Report\n\n"
         item : CheckerOutput
         
         group_data : dict[str, list[CheckerOutput]] = {}
@@ -46,7 +58,7 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
         
         for file_name in group_data.keys():
             group_data[file_name].sort(key=lambda x: x._module.module_type.value)
-            report_data += f"\n=== {item.file_name}\n"
+            report_data += f"\n=== {item.file_name} [[{filename_to_id(item.file_name)}]]\n"
             item : CheckerOutput
             for item in group_data[file_name]:
                 if item._module.module_type == CheckerTypes.CODE:
