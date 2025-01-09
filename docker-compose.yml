@@ -30,7 +30,7 @@ services:
       dockerfile: ./Docker/proxy.Dockerfile
     container_name: codefree_proxy
     ports:
-      - 8080:8080
+      - ${PORT:-8080}:8080
     depends_on:
       - codefree
       - cf_web
