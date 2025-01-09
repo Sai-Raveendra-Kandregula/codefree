@@ -59,15 +59,6 @@ function SignUp() {
 
   const [searchParams, setSearchParams] = useSearchParams()
 
-  useEffect(() => {
-    if (window.localStorage.getItem("app-theme") == "dark") {
-      document.querySelector(":root").classList.add("dark")
-    }
-    else {
-      document.querySelector(":root").classList.remove("dark")
-    }
-  }, [])
-
   function redirectToTarget() {
     if (searchParams.get('redirect')) {
       window.location.href = searchParams.get('redirect')

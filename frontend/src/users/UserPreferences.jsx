@@ -1,45 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { useRouteData } from '../App'
+import React, { useState, useEffect, useContext, useMemo } from 'react'
+import { useRouteData, CodeFreeContext } from '../App'
 import { toTitleCase } from '../GlobalRoot'
+import useTheme from '../hooks/useTheme'
 
 function UserPreferences() {
     const currentUserData = useRouteData('0-0')['user']
     const userData = useRouteData('0-0')['userInfo']
 
-    const [themePreference, setThemePreference] = useState(window.localStorage.getItem("app-theme") || "system");
-
-
-    const listenThemeChanges = (event) => {
-        setThemePreference("")
-        setThemePreference("system")
-    }
-
-    useEffect(() => {
-        if (themePreference) {
-            window.localStorage.setItem("app-theme", themePreference)
-
-            var out = "light"
-            if (themePreference == "system") {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', listenThemeChanges)
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    out = "dark"
-                }
-            }
-            else {
-                window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', listenThemeChanges)
-                out = (window.localStorage.getItem("app-theme") == "dark") ? "dark" : "light"
-            }
-
-            if (out == "dark") {
-                document.querySelector(":root").classList.add("dark")
-            }
-            else {
-                document.querySelector(":root").classList.remove("dark")
-            }
-
-            window.dispatchEvent(new Event("theme-update"));
-        }
-    }, [themePreference]);
+    const cfContext = useContext(CodeFreeContext)
+    const themeInfo = useMemo(() => cfContext.themeInfo, [cfContext])    
 
     return (
         <div style={{
@@ -66,7 +35,7 @@ function UserPreferences() {
                 gap: '15px'
             }}>
                 {
-                    ["light", "dark", "system"].map((themeVal) => {
+                    themeInfo.themeChoices.map((themeVal) => {
                         return <div key={themeVal} style={{
                             display: 'flex',
                             flexDirection: 'column',
@@ -77,12 +46,12 @@ function UserPreferences() {
                             width: 'auto',
                             maxWidth: '100%'
                         }} onClick={() => {
-                            setThemePreference(themeVal)
+                            themeInfo.setTheme(themeVal)
                         }}>
                             <div className={themeVal == "system" ? (window.matchMedia('(prefers-color-scheme: dark)') ? "dark" : "light") : themeVal} style={{
                                 background: 'var(--background)',
                                 color: 'var(--foreground)',
-                                border: themePreference == themeVal ? `2px solid var(--theme-color)` : `2px solid var(--border-color)`,
+                                border: themeInfo.theme == themeVal ? `2px solid var(--theme-color)` : `2px solid var(--border-color)`,
                                 borderRadius: `calc(var(--border-radius))`,
                                 padding: '1.25rem',
                                 boxShadow: '0px 2px 20px rgba(0, 0, 0, 0.35)',

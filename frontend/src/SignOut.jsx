@@ -34,13 +34,6 @@ function SignOut() {
   }
 
   useEffect(() => {
-    if (window.localStorage.getItem("app-theme") == "dark") {
-      document.querySelector(":root").classList.add("dark")
-    }
-    else {
-      document.querySelector(":root").classList.remove("dark")
-    }
-
     signOutUser();
 
   }, [])

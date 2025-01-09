@@ -4,8 +4,9 @@ import './Dropdown.css';
 import './TabView.css';
 import './Tooltip.css';
 import { Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches, useNavigate } from 'react-router-dom'
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, createContext } from 'react';
 
+import useTheme from './hooks/useTheme';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
 import SignOut from './SignOut';
@@ -19,6 +20,8 @@ import ProjectsCreate, { projectCreateAction } from './projects/ProjectsCreate';
 import CreateReport from './projects/reports/ReportCreate';
 import { signInAction } from './SignIn';
 import SignUp from './SignUp';
+
+export const CodeFreeContext = createContext();
 
 const SignIn = lazy(() => import('./SignIn'));
 const GlobalRoot = lazy(() => import('./GlobalRoot'));
@@ -62,6 +65,9 @@ const SuspenseLayout = () => (
 
 
 function App() {
+
+    const themeInfo = useTheme()    
+
     const RoutesJSX = (
         <Route path={`/`} element={<SuspenseLayout />} errorElement={<NotFound />}>
             <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} shouldRevalidate={() => true}>
@@ -108,10 +114,12 @@ function App() {
         basename: `${SERVER_ROOT_PATH}`
     })
     return (
-        <div className="App">
-            <RouterProvider router={router} />
-            <ToastContainer limit={3} />
-        </div>
+        <CodeFreeContext.Provider value={{ themeInfo: themeInfo }}>
+            <div className="App">
+                <RouterProvider router={router} />
+                <ToastContainer limit={3} />
+            </div>
+        </CodeFreeContext.Provider>
     );
 }
 

@@ -5,7 +5,7 @@ import "@fontsource/inter";
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import { AppContext, AppProvider } from "./NotFoundContext";
+import { AppProvider } from "./NotFoundContext";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

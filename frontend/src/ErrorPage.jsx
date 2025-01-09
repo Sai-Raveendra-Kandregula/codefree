@@ -50,16 +50,6 @@ function ErrorPage({
     navigate(`/sign-in?redirect=${window.location.href}`)
   }
 
-
-  useEffect(() => {
-    if (window.localStorage.getItem("app-theme") == "dark") {
-      document.querySelector(":root").classList.add("dark")
-    }
-    else {
-      document.querySelector(":root").classList.remove("dark")
-    }
-  }, [])
-
   return (
     <div style={{
       width: '100vw',
