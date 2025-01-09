@@ -5,15 +5,18 @@
   --centered-wide-content-width: clamp(75%, 900px, 100%);
   --centered-content-margin: 0 auto;
 
-  --button-height: 32.5px;
-}
-
-:root, .light {
   --header-height: 50px;
   --header-padding: 15px;
   --border-radius: 7.5px;
   --button-border-radius: 5px;
+  --button-height: 32.5px;
+  
+  --overlay-blur: 5px;
+}
+
+.light {
   --background: #eaecf1;
+  --overlay-background: rgba(234, 236, 241, 0.75);
   --foreground: #010101;
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
@@ -29,6 +32,7 @@
 
 :root.dark, .dark {
   --background: rgb(17, 17, 22);
+  --overlay-background: rgba(17, 17, 22, 0.5);
   --foreground: #FEFEFE;
   --border-color: #3939397d;
   --control-border-color: #2e2e2e;

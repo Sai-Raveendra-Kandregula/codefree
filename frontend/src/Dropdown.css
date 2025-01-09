@@ -42,7 +42,8 @@
     padding: 5px;
     border-radius: calc(var(--border-radius));
     border: 1px solid var(--border-color);
-    background: var(--background);
+    background: var(--overlay-background);
+    backdrop-filter: blur(var(--overlay-blur));
   
     top: calc(100% + 0px);
     min-width: 100%;

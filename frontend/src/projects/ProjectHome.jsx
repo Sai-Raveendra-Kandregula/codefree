@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import ActivityRings from "react-activity-rings"
 import Chart from "react-apexcharts";
 
-import { SERVER_BASE_URL, useRouteData } from '../App'
+import { CodeFreeContext, SERVER_BASE_URL, useRouteData } from '../App'
 import LinkButton from '../Components/LinkButton'
-import { vmin } from '../Helpers'
-import { BiArrowFromLeft } from 'react-icons/bi';
 import { GoArrowRight } from 'react-icons/go';
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
 
@@ -18,11 +15,9 @@ function ProjectHome() {
 
   const [reportData, setReportData] = useState(null)
   const [reportsList, setReportsLists] = useState([])
-  const [theme, setTheme] = useState(window.localStorage.getItem('app-theme') || 'light')
-
-  window.addEventListener('theme-update', () => {
-    setTheme((window.localStorage.getItem('app-theme') == "dark") ? "dark" : "light")
-  })
+  const cfAppContext = useContext(CodeFreeContext)
+  const themeInfo = useMemo(() => cfAppContext.themeInfo, [cfAppContext.themeInfo])
+  const theme = useMemo(() => themeInfo.actualTheme, [themeInfo.actualTheme])
 
   const keys_ordered = {
     "style_issues": "Style Issues",
