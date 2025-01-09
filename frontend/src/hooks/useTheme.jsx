@@ -11,7 +11,6 @@ function useTheme() {
     }, [setThemePreference])
 
     useEffect(() => {
-        console.log("Theme Preference:", themePreference)
         if (themePreference) {
             window.localStorage.setItem("app-theme", themePreference)
             
