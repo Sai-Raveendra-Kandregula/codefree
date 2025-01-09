@@ -1,6 +1,7 @@
 from __future__ import annotations
 from enum import Enum
 import os
+from statistics import mean
 import subprocess
 from typing import Dict, List, Callable, Any, TypeAlias, TypedDict
 from argparse import Namespace
@@ -11,6 +12,9 @@ import json
 
 from modules.cf_output import get_progress_printer, get_error_printer
 import pandas as pd
+
+SCORE_NORMALIZATION = 10
+SCORE_PRECISION = 2
 
 class CheckerSeverity(Enum):
     INFO = 0
@@ -292,19 +296,42 @@ class CheckerOutput():
 
 class CheckerStatsSummary(TypedDict):
     File_Name : str
+    Score : float
     Total : int
 
 class CheckerStats():
     __instances : Dict[str, Dict[str, int]] = {}
+    __scores : Dict[str, List[int]] = {}
     __modules : List[CheckingModule] = []
+
+    @staticmethod
+    def get_default_fields():
+        return ["File_Name", "Total", "Score"]
 
     @classmethod
     def get_instances(cls):
         return cls.__instances
     
     @classmethod
+    def get_scores(cls):
+        return cls.__scores
+    
+    @classmethod
+    def get_file_score(cls, file_name : str):
+        scores = cls.get_scores()
+        return round(SCORE_NORMALIZATION - ((mean(scores[file_name]) if file_name in scores else 0) * ( SCORE_NORMALIZATION / CheckerSeverity.CRITICAL.value)), SCORE_PRECISION)
+    
+    @classmethod
+    def get_aggregate_score(cls):
+        return mean([cls.get_file_score(file_name) for file_name in cls.get_instances().keys()])
+    
+    @classmethod
     def reset(cls):
         cls.__instances = {}
+    
+    @staticmethod
+    def get_score_normalization():
+        return SCORE_NORMALIZATION
     
     @classmethod
     def get_stats(cls):
@@ -326,6 +353,7 @@ class CheckerStats():
                     stat_obj[f"{module_name}"] = 0
                 else:
                     stat_obj[f"{module_name}"] = count_info[module_name]
+            stat_obj["Score"] = cls.get_file_score(file_name)
             stat_obj["Total"] = sum(count_info.values())
             out.append(stat_obj)
 
@@ -344,6 +372,13 @@ class CheckerStats():
 
         if file_name not in cls.__instances:
             cls.__instances[file_name] = {}
+        if file_name not in cls.__scores:
+            cls.__scores[file_name] = []
+        
+        if module.module_type == CheckerTypes.CODE:
+            cls.__scores[file_name].append(output_item.error_info.severity.value)
+        elif module.module_type == CheckerTypes.STYLE:
+            cls.__scores[file_name].append(CheckerSeverity.INFO.value if not output_item.style_info.passed else CheckerSeverity.MINOR.value)
         
         if module_name in cls.get_instances()[file_name]:
             cls.__instances[file_name][module_name] += 1
@@ -372,7 +407,7 @@ class CheckerStats():
             print("-"*stats_table_str.index("\n"))
             print(stats_table_str)
             print("-"*stats_table_str.index("\n"))
-            checkers = [ key for key in  stats[0].keys() if key not in ["File_Name", "Total"]]
+            checkers = [ key for key in  stats[0].keys() if key not in CheckerStats.get_default_fields()]
             sum_series = df[list(stats[0].keys())[1:]].sum()
             print(f"Total # of Issues : {int(sum_series.loc['Total'])}")
             for checker in checkers:

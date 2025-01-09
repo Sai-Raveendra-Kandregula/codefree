@@ -45,18 +45,21 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
     report_data += f"=== Timestamp\n{datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')}\n\n"
     
     if commit_info is not None:
-        report_data += f"=== Commit Information\n\n{(' +'+NEWLINE).join([ key + ' : ' + value for key, value in commit_info.items()])}\n\n"
-        # report_data += f"=== Commit Information\n\n{json.dumps(commit_info, indent=4)}\n\n"
-    
+        report_data += f"=== Commit Information\n\n{(' +'+NEWLINE).join([ key + ' : ' + value for key, value in commit_info.items() if len(value.strip()) > 0])}\n\n"
+        
     stats = CheckerStats.get_stats()
+    overall_score = CheckerStats.get_aggregate_score()
+    normal_score = CheckerStats.get_score_normalization()
+    default_fields = CheckerStats.get_default_fields()
     field_count = len(stats[0].keys())
-    report_data += f"== Report Stats\n\n"
+    report_data += f"== Statistics\n\n"
+    report_data += f"*Codefree Code Quality Score* : {round(overall_score, 4)} / {normal_score} (Higher is better)\n\n"
+    report_data += f"=== File Level Stats\n\n"
     report_data += f"""[cols="{int(ceil(field_count/2))}, {", 1".join(["" for _ in range(field_count - 1)])}*", options="header"]\n|========================================\n"""
-    report_data += f"""| File Name {" ".join([f"| {key.upper()}" for key in stats[0].keys() if key not in ["File_Name", "Total"]])} | Total\n"""
+    report_data += f"""| File Name {" ".join([f"| # of {key.upper()} Issues" for key in stats[0].keys() if key not in default_fields])} | Score (out of {normal_score}) | Total # of Issues\n"""
     for stat in stats:
-        report_data += f"""| <<{filename_to_id(stat['File_Name'])}>> {" ".join([f"| {value}" for key, value in stat.items() if key not in ["File_Name", "Total"]])} | {stat['Total']}\n"""
+        report_data += f"""| <<{filename_to_id(stat['File_Name'])}>> {" ".join([f"| {value}" for key, value in stat.items() if key not in default_fields])} | {stat['Score']} | {stat['Total']}\n"""
     report_data += """|========================================\n\n"""
-    # report_data += "No Issues Found.\n"
     
     if len(output) > 0:
         report_data += f"== Report\n\n"
@@ -75,30 +78,33 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
             item : CheckerOutput
             for item in group_data[file_name_id]:
                 if item._module.module_type == CheckerTypes.CODE:
-                    report_data += f"\n==== Code Check\n"
-                    report_data += f"\n===== Description\n{item.error_info.description}\n"
-                    report_data += f"\n===== Module\n{item._module.module_name_friendly}\n"
-                    if item.error_info.symbol:
-                        report_data += f"\n===== Symbol\n{item.error_info.symbol}\n"
-                    report_data += f"\n===== Severity\n[{checker_severity_to_color(item.error_info.severity)}]#{item.error_info.severity.name}#\n"
-                    if item.error_info.suggestion:
-                        report_data += f"\n===== Recommendation\n{item.error_info.suggestion}\n"
+                    report_data += f"\n==== Code Check by {item._module.module_name_friendly}\n"
+                    report_data += f"\n*Severity* : [{checker_severity_to_color(item.error_info.severity)}]#{item.error_info.severity.name}#\n"
+                    desc = item.error_info.description
+                    if item.cwe_info:
+                        desc = re.sub(r"CWE-(\d+)", r" https://cwe.mitre.org/data/definitions/\g<1>.html[CWE-\g<1>] ", desc)
+                    if item.misra_info:
+                        desc = desc + f" (MISRA Rule {item.misra_info.rule_number})"
+                    report_data += f"\n===== Description\n{desc}\n"
                     
                     line_num_prefix = f" {item.error_info.line} | "
                     report_data += f"\n===== Context\n[source]\n----\n{line_num_prefix}{item.error_info.context}\n{' '*(len(line_num_prefix) + item.error_info.column - 1) + '^'}\n----\n"
-                    if item.cwe_info:
-                        report_data += f"\n===== CWE\n{', '.join([str(i) for i in item.cwe_info.cwe_list])}\n"
-                        if item.cwe_info.additional_info:
-                            report_data += f"\n===== References\n{item.cwe_info.additional_info}\n"
+                    
+                    if item.error_info.symbol:
+                        report_data += f"\n*Symbol* : {item.error_info.symbol}\n"
+                    if item.error_info.suggestion:
+                        report_data += f"\n===== Recommendation\n{item.error_info.suggestion}\n"
+                    
+                    # if item.cwe_info:
+                    #     if len(item.cwe_info.cwe_list) > 1:
+                    #         report_data += f"\n===== CWE\n{', '.join([f'https://cwe.mitre.org/data/definitions/{i}.html[CWE-{i}]' for i in item.cwe_info.cwe_list])}\n"
                     if item.misra_info:
-                        report_data += f"\n===== MISRA Rule Number\n{item.misra_info.rule_number}\n"
                         if item.misra_info.additional_info:
                             report_data += f"\n===== References\n{item.misra_info.additional_info}\n"
                     report_data += "\n"
                 elif item._module.module_type == CheckerTypes.STYLE:
-                    report_data += f"\n==== Style Check\n"
-                    report_data += f"\n===== Module\n{item._module.module_name_friendly}\n"
-                    report_data += f"\n===== Style Check Result\n{'[green]#Passed#' if item.style_info.passed else '[red]#Failed#'}\n"
+                    report_data += f"\n==== Style Check by {item._module.module_name_friendly}\n"
+                    report_data += f"\n*Check Result* : {'[green]#Passed#' if item.style_info.passed else '[red]#Failed#'}\n"
                     report_data += "\n"
     return report_data
 
