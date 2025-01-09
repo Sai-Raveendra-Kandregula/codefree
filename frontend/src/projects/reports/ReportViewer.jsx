@@ -4,7 +4,7 @@ import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
 import reportViewerStyles from '../../styles/reportViewer.module.css'
 
-import { IoCloudDownloadOutline, IoInformationCircleOutline } from "react-icons/io5";
+import { IoCloudDownloadOutline, IoInformationCircleOutline, IoTrashBin, IoTrashBinOutline } from "react-icons/io5";
 import { VscJson } from "react-icons/vsc";
 import { TbCsv, TbPdf } from "react-icons/tb";
 import { RiFileExcel2Line } from "react-icons/ri";
@@ -14,6 +14,7 @@ import DropdownButton from '../../Components/Dropdown';
 import LinkButton from '../../Components/LinkButton';
 import ToolTip from '../../Components/ToolTip';
 import { AppContext } from '../../NotFoundContext';
+import { toast } from 'react-toastify';
 
 export async function reportDataLoader({ params }) {
     const resp = await fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${params.projectid}&report=${params.reportid}`)
@@ -351,6 +352,19 @@ function ReportViewer() {
                                     }
                                 }
                             </ToolTip>
+                            <IconButton icon={<IoTrashBinOutline />} title={"Delete Report"} onClick={(e) => {
+                                e.stopPropagation()
+                                if(window.confirm("Confirm Report Deletion?")){
+                                    fetch(`/api/reports/delete-report?report_id=${pathParams.reportid}&project_id=${pathParams.projectid}`).then(resp => {
+                                        if(resp.status == 200){
+                                            navigate('..')
+                                        }
+                                        else{
+                                            toast.error(`Failed to Delete Report (Code:${resp.status})`)
+                                        }
+                                    })
+                                }
+                            }} />
                         </div>
                     </div>
                 </div>

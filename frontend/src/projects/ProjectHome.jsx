@@ -99,6 +99,15 @@ function ProjectHome() {
     })
   }, [reportsList])
 
+  const codeQualitySeries = useMemo(() => {
+    return [{
+      name: "Score",
+      data: reportsList.map((report) => {
+        return report["cf_code_quality_score"]
+      }),
+    }]
+  }, [reportsList])
+
   const timeline = useMemo(() => {
     return reportsList.map((report_data) => {
       const date = new Date(report_data['timestamp'])
@@ -155,9 +164,12 @@ function ProjectHome() {
               width: '100%',
               paddingLeft: '30px'
             }}>
-              <h1>
+              <h2>
+                Code Quality Score : {reportData ? (reportData['cf_code_quality_score'] * 10).toFixed(2) : 0} / 10
+              </h2>
+              <h3>
                 Issues found in {reportData ? reportData['issue_files'] : 0} file{reportData ? (reportData['issue_files'] != 1 ? "s" : "") : "s"}.
-              </h1>
+              </h3>
               <LinkButton
                 to={`/projects/${pathParams.projectid}/reports/last-report`}
                 title={"View the Latest Report"}
@@ -212,11 +224,38 @@ function ProjectHome() {
           </div>
           <div style={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'column',
             gap: '10px'
           }}>
             <div className='appPanel' style={{
-              flex: '1'
+              alignSelf: 'stretch'
+            }}>
+              <h2 style={{
+                marginTop: '0'
+              }}>
+                Progression of Code Quality over Time
+              </h2>
+              <Chart
+                options={{
+                  ...chartOptions,
+                  yaxis: {
+                    ...('yaxis' in chartOptions ? chartOptions['yaxis'] : {}),
+                    labels: {
+                      formatter: function (value) {
+                        return value.toFixed(2);
+                      },
+                    },
+                    min: 0
+                  }
+                }}
+                series={codeQualitySeries}
+                type="line"
+                width="100%"
+                height="400px"
+              />
+            </div>
+            <div className='appPanel' style={{
+              alignSelf: 'stretch'
             }}>
               <h2 style={{
                 marginTop: '0'
@@ -228,8 +267,7 @@ function ProjectHome() {
                 series={issueSeries}
                 type="line"
                 width="100%"
-                height="500px"
-              // height="350px"
+                height="400px"
               />
             </div>
           </div>
