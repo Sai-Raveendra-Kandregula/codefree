@@ -3,10 +3,11 @@ import json
 from typing import List
 from typing import Optional
 from sqlalchemy import String, ForeignKey, DateTime, Text
+import sqlalchemy as sa
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from .common import CodeFreeBase
@@ -27,6 +28,9 @@ class Project(CodeFreeBase):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
+    @staticmethod
+    def get_project_by_slug(session : Session, slug: str):
+        return session.query(Project).filter(Project.slug == slug).first()    
 class Report(CodeFreeBase):
     __tablename__ = "report"
 
@@ -41,6 +45,8 @@ class Report(CodeFreeBase):
     report_src_usr : Mapped[str] = mapped_column(String(30))
 
     # Report Stats
+    cf_code_quality_score : Mapped[float] = mapped_column(sa.Float(6), default=0.0, server_default=sa.text("0.0"), nullable=False)
+    
     style_issues : Mapped[int] = mapped_column()
 
     cwe_issues : Mapped[int] = mapped_column()
@@ -61,6 +67,7 @@ class Report(CodeFreeBase):
             "timestamp": self.timestamp.timestamp() * 1000,
             "report_src" : self.report_src,
             "report_src_usr" : self.report_src_usr,
+            "cf_code_quality_score": self.cf_code_quality_score,
             "style_issues": self.style_issues,
             "cwe_issues": self.cwe_issues,
             "misra_issues": self.misra_issues,

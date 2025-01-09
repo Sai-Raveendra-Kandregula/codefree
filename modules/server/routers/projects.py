@@ -3,9 +3,8 @@ import json
 import datetime
 import tempfile
 
-from fastapi import APIRouter, Request, Response, status, Depends
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi import APIRouter, HTTPException, Request, Response, status, Depends
+from fastapi.responses import StreamingResponse
 from starlette.background import BackgroundTasks
 import randomcolor
 
@@ -29,24 +28,21 @@ rand_color = randomcolor.RandomColor()
 
 projectsRouter = APIRouter()
 
-def getProjectConfiguration(slug : str) -> dict|None:
-    path = os.path.join(APP_DATA_PATH, slug, 'config.json')
-    config = None
-
-    if os.path.exists(path=path):
-        with open(path, "r") as conf_file:
-            config = json.load(conf_file)
-    return config
-
-def setProjectConfiguration(slug : str, config : dict) -> bool:
-    path = os.path.join(APP_DATA_PATH, slug, 'config.json')
-    success = False
-
-    if os.path.exists(path=path):
-        with open(path, "w") as conf_file:
-            json.dump(fp=conf_file, obj=config)
-            success = True
-    return success
+def getProject(request : Request):
+    slug = None
+    if slug in request.path_params:
+        slug = request.path_params['slug']
+    elif 'project_id' in request.query_params:
+        slug = request.query_params['project_id']
+    
+    if slug is not None:
+        db_session = Session(engine)
+        out = Project.get_project_by_slug(db_session, slug)
+        db_session.close()
+        if out is not None:
+            return out
+    
+    raise HTTPException(status_code=404, detail="Project Not Found")
 
 def getReportHash(report : dict):
     import hashlib
@@ -54,8 +50,11 @@ def getReportHash(report : dict):
 
 def getReportStats(report : dict):
     issue_items_cls = [ CheckerOutput(dict_data=item) for item in report['data'] ]
+    CheckingModule.set_output(issue_items_cls)
+    CheckerStats.calculateStats()
     
     files_Set = set()
+    cf_code_quality_score = CheckerStats.get_aggregate_score() / CheckerStats.get_score_normalization()
     style_count = 0
     info_count = 0
     minor_count = 0
@@ -86,6 +85,7 @@ def getReportStats(report : dict):
 
     return {
         'file_count' : len(files_Set),
+        'cf_code_quality_score' : cf_code_quality_score,
         'cwe_count' : cwe_count,
         'misra_count' : misra_count,
         'style_count' : style_count,
@@ -373,6 +373,7 @@ def upload_project_report(report : ReportData, request : Request, response : Res
         report_hash=hash,
         report_src = uploadedVia,
         report_src_usr = user_data.user_name,
+        cf_code_quality_score=stats['cf_code_quality_score'],
         style_issues = stats['style_count'],
         cwe_issues = stats['cwe_count'],
         misra_issues = stats['misra_count'],
@@ -391,6 +392,35 @@ def upload_project_report(report : ReportData, request : Request, response : Res
         "report_id" : report_id,
         "report_url" : f"{SERVER_URL}/projects/{report.project_id}/reports/{report_id}"
     }
+
+@projectsRouter.get("/reports/delete-report")
+def upload_project_report(report_id : int, project_id : str, request : Request, response : Response, 
+                            user_data: UserData = Depends(get_user_data),
+                            project : Project = Depends(getProject),
+                            required : bool = Depends(auth_required)
+                            ):
+    if(not user_data.is_user_admin and user_data.read_only):
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {}
+
+    db_session = Session(engine)
+    
+    logger.info([item.as_dict() for item in db_session.query(Report).all()])
+    
+    report : Report =  db_session.query(Report).where(Report.id.is_(report_id)).where(Report.project_id.is_(project.id)).scalar()
+
+    if report is not None:
+        db_session.delete(report)
+        db_session.commit()
+    else:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        db_session.close()
+        return {
+            "message" : "Report not found"
+        }
+
+    db_session.close()
+    return {}
 
 @projectsRouter.get("/reports/export-report")
 def export_project_report(project:str, report:str, request : Request, response : Response, 

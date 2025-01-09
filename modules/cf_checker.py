@@ -388,9 +388,9 @@ class CheckerStats():
             cls.__instances[file_name][module_name] = 0
 
     @classmethod
-    def calculateStats(cls, args):
+    def calculateStats(cls, args = None):
         output = CheckingModule.get_output()
-        if args.calculateStats:
+        if args is None or args.calculateStats:
             for output_item in output:
                 CheckerStats.count_item(output_item)
     
