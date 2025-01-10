@@ -247,7 +247,8 @@ function GlobalRoot() {
             paddingLeft: '0px',
           }}>
             <IconButton title="CodeFree" icon={<AppLogo style={{
-              fontSize : '1.25rem'
+              fontSize : '1.25rem',
+              filter: 'var(--icon-shadow)'
             }} />} to={'/'} />
           </div>
           <IconButton title="Collapse Nav Pane" icon={<LuPanelLeftClose opacity={0.75} />} onClick={(e) => {

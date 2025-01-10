@@ -16,7 +16,7 @@
   --overlay-blur: 5px;
 }
 
-.light {
+:root, .light {
   --background: #eaecf1;
   --overlay-background: rgba(234, 236, 241, 0.75);
   --foreground: #010101;
@@ -31,6 +31,8 @@
   --control-overlay-bg: rgba(255, 255, 255, 0.25);
   --control-active-overlay-bg: rgba(255, 255, 255, 0.5);
   --link-color: rgb(0, 56, 57);
+  
+  --icon-shadow: drop-shadow(0px 2px 10px #000000C0);
 }
 
 :root.dark, .dark {
@@ -40,7 +42,7 @@
   --border-color: #3939397d;
   --control-border-color: #3b3b3b;
   --nav-panel-background: rgb(22, 22, 30);
-  --theme-color: rgb(0, 101, 103);
+  --theme-color: #6b61ff;
 
   --card-background: rgba(255, 255, 255, 0.075);
   --select-background: rgba(255, 255, 255, 0.1);
@@ -48,7 +50,9 @@
   --control-overlay-bg: rgba(255, 255, 255, 0.05);
   --control-active-overlay-bg: rgba(255, 255, 255, 0.075);
 
-  --link-color: rgb(0, 177, 180);
+  --link-color: var(--theme-color);
+  
+  --icon-shadow: drop-shadow(0px 2px 10px #000000F0);
 }
 
 * {
