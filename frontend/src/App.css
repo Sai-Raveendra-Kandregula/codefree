@@ -5,11 +5,13 @@
   --centered-wide-content-width: clamp(75%, 900px, 100%);
   --centered-content-margin: 0 auto;
 
+  --control-inline-height: 35px;
+
   --header-height: 50px;
   --header-padding: 15px;
   --border-radius: 7.5px;
   --button-border-radius: 5px;
-  --button-height: 32.5px;
+  --button-height: var(--control-inline-height);
   
   --overlay-blur: 5px;
 }
@@ -26,7 +28,8 @@
   --card-background: rgba(255, 255, 255, 0.5);
   --select-background: rgba(255, 255, 255, 0.5);
   --button-overlay: rgba(255, 255, 255, 0.5);
-  --control-overlay-bg: rgba(255, 255, 255, 0.5);
+  --control-overlay-bg: rgba(255, 255, 255, 0.25);
+  --control-active-overlay-bg: rgba(255, 255, 255, 0.5);
   --link-color: rgb(0, 56, 57);
 }
 
@@ -35,21 +38,21 @@
   --overlay-background: rgba(17, 17, 22, 0.5);
   --foreground: #FEFEFE;
   --border-color: #3939397d;
-  --control-border-color: #2e2e2e;
+  --control-border-color: #3b3b3b;
   --nav-panel-background: rgb(22, 22, 30);
   --theme-color: rgb(0, 101, 103);
 
   --card-background: rgba(255, 255, 255, 0.075);
   --select-background: rgba(255, 255, 255, 0.1);
   --button-overlay: rgba(255, 255, 255, 0.075);
-  --control-overlay-bg: rgba(255, 255, 255, 0.075);
+  --control-overlay-bg: rgba(255, 255, 255, 0.05);
+  --control-active-overlay-bg: rgba(255, 255, 255, 0.075);
 
   --link-color: rgb(0, 177, 180);
 }
 
 * {
   color: inherit;
-  font-family: Inter;
 }
 
 a {
@@ -196,7 +199,7 @@ span.letter-avatar{
 
 .sideBarLink {
   box-sizing: border-box;
-  height: 40px;
+  height: var(--control-inline-height);
   padding: 0 15px;
 
   display: flex;
@@ -215,14 +218,13 @@ span.letter-avatar{
   text-overflow: ellipsis;
 }
 
-.sideBarLink.active,
-.sideBarLink:hover {
+.sideBarLink.active{
   border: 1px solid var(--control-border-color);
   background: var(--control-overlay-bg);
 }
 
-.dark .sideBarLink {
-  border: 1px solid transparent;
+.sideBarLink:hover {
+  background: var(--control-active-overlay-bg);
 }
 
 .sideBarLink>svg {
@@ -277,10 +279,10 @@ span.letter-avatar{
 }
 
 .buttonBase > svg{
-  min-width: 1.2em !important;
-  max-width: 1.2em !important;
-  height: 1.2em !important;
-  opacity: 0.75;
+  min-width: 1.2em;
+  max-width: 1.2em;
+  width: 1.2em;
+  height: 1.2em;
 }
 
 .buttonBase:hover{

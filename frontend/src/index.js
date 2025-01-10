@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import "@fontsource/inter";
+// Supports weights 200-900
+import '@fontsource-variable/inter';
+import '@fontsource-variable/inter/wght-italic.css';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

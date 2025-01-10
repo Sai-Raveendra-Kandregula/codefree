@@ -22,6 +22,7 @@ import { reportListLoader } from './projects/reports/Reports';
 import 'react-toastify/dist/ReactToastify.css';
 import { userDataLoader } from './users/UserRoot';
 import UserAvatar from './Components/UserAvatar';
+import { ReactComponent as AppLogo } from './assets/CF_Logo.svg';
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -243,13 +244,13 @@ function GlobalRoot() {
         }}>
           <div style={{
             flex: 1,
-            paddingLeft: '10px',
+            paddingLeft: '0px',
           }}>
-            <Link to='/'>
-              CodeFree
-            </Link>
+            <IconButton title="CodeFree" icon={<AppLogo style={{
+              fontSize : '1.25rem'
+            }} />} to={'/'} />
           </div>
-          <IconButton title="Collapse Nav Pane" icon={<LuPanelLeftClose />} onClick={(e) => {
+          <IconButton title="Collapse Nav Pane" icon={<LuPanelLeftClose opacity={0.75} />} onClick={(e) => {
             setSidebarHidden(true)
           }} />
 
@@ -279,7 +280,7 @@ function GlobalRoot() {
           zIndex: '999',
         }}>
           {
-            sidebarHidden && <IconButton title="Expand Nav Pane" icon={<LuPanelLeftOpen />}
+            sidebarHidden && <IconButton title="Expand Nav Pane" icon={<LuPanelLeftOpen opacity={0.75} />}
               onClick={(e) => {
                 setSidebarHidden(false)
               }} />
