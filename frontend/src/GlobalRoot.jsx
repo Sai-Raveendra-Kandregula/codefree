@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useMemo } from 'react'
 import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
 import useBreadcrumbs from "use-react-router-breadcrumbs";
 
@@ -13,7 +13,7 @@ import { LuUser2, LuUsers2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftO
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
 import SideBarLink from './Components/SideBarLink';
-import { SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from './App';
+import { CodeFreeContext, SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import { AppContext } from './NotFoundContext';
 import { projectInfoLoader } from './projects/ProjectWrapper';
@@ -82,7 +82,7 @@ const Breadcrumbs = () => {
   );
 };
 
-async function getUserName() {
+export async function getUserName() {
   const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
     credentials: "include"
   })
@@ -96,7 +96,6 @@ async function getUserName() {
 
 export async function globalRootLoader({ params }) {
   const out = {}
-  out['user'] = await getUserName()
   if (params.userid) {
     out['userInfo'] = await userDataLoader({ params })
   }
@@ -114,19 +113,22 @@ function GlobalRoot() {
 
   const pathParams = useParams();
 
+  const cfContext = useContext(CodeFreeContext)
   const { lastReport } = useContext(AppContext);
 
   const rootLoaderData = useLoaderData()
+
+  const currentUserData = useMemo(() => cfContext.userInfo, [cfContext.userInfo])
 
   const [sidebarHidden, setSidebarHidden] = useState(false)
 
   function AuthHeader() {
     return <React.Fragment>
       {
-        rootLoaderData['user'] ?
-          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={rootLoaderData['user']} />} showDropdownIcon={false} title={rootLoaderData['user']['user_name']} >
-            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
-            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
+        currentUserData ?
+          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={currentUserData} />} showDropdownIcon={false} title={currentUserData['user_name']} >
+            <SideBarLink to={`/user/${currentUserData['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
+            <SideBarLink to={`/user/${currentUserData['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
             <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<LuLogOut />} />
           </HeaderButton>
           :
@@ -147,28 +149,28 @@ function GlobalRoot() {
         </div>
         {
           <React.Fragment>
-            {/* <SideBarLink to={`/system-preferences`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} /> */}
+            {/* <SideBarLink to={`/system-preferences`} title={currentUserData['display_name']} icon={<LuUser2 />} /> */}
             <SideBarLink to={`/admin-area/users`} title={'Users'} icon={<LuUsers2 />} exact={false} />
           </React.Fragment>
         }
       </React.Fragment>
     }
 
-    if (pathParams.userid && pathParams.userid == rootLoaderData['user']['user_name']) {
+    if (pathParams.userid && pathParams.userid == currentUserData['user_name']) {
       return <React.Fragment>
         <div style={{
           padding: '10px'
         }}>
           <b>
             {
-              (rootLoaderData['user']['display_name'] != null ? rootLoaderData['user']['display_name'] : rootLoaderData['user']['user_name'])
+              (currentUserData['display_name'] != null ? currentUserData['display_name'] : currentUserData['user_name'])
             }
           </b>
         </div>
         {
           <React.Fragment>
-            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/profile`} title={rootLoaderData['user']['display_name']} icon={<LuUser2 />} />
-            <SideBarLink to={`/user/${rootLoaderData['user']['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
+            <SideBarLink to={`/user/${currentUserData['user_name']}/profile`} title={currentUserData['display_name']} icon={<LuUser2 />} />
+            <SideBarLink to={`/user/${currentUserData['user_name']}/preferences`} title={'Preferences'} icon={<LuSettings />} />
           </React.Fragment>
         }
       </React.Fragment>
@@ -222,7 +224,7 @@ function GlobalRoot() {
         <SideBarLink to={'/home'} title={'Home'} icon={<GoHome />} />
         <SideBarLink to={'/projects'} title={'Projects'} exact={false} icon={<GoProject />} />
         {
-          rootLoaderData['user'] && rootLoaderData['user']['is_user_admin'] &&
+          currentUserData && currentUserData['is_user_admin'] &&
           <SideBarLink to={'/admin-area'} title={"Manage CodeFree"} icon={<LuSettings />} />
         }
       </React.Fragment>

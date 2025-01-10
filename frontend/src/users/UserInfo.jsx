@@ -1,5 +1,5 @@
-import React, { } from 'react'
-import { useRouteData } from '../App';
+import React, { useContext, useMemo } from 'react'
+import { useRouteData, CodeFreeContext } from '../App';
 import IconButton from '../Components/IconButton';
 import { LuPencil, LuUsers2 } from 'react-icons/lu';
 import LinkButton from '../Components/LinkButton';
@@ -10,7 +10,8 @@ function UserInfo({
     currentUserInfo = false,
     adminMode=false
 }) {
-    const currentUserData = useRouteData('0-0')['user']
+    const cfContext = useContext(CodeFreeContext)
+    const currentUserData = useMemo(() => cfContext.userInfo, [cfContext])
     const externalUserData = useRouteData('0-0')['userInfo']
     const userData = currentUserInfo ? currentUserData : externalUserData
 

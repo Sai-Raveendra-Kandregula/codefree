@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { useRouteData, CodeFreeContext } from '../App'
 import { toTitleCase } from '../GlobalRoot'
-import useTheme from '../hooks/useTheme'
 
-function UserPreferences() {
-    const currentUserData = useRouteData('0-0')['user']
-    const userData = useRouteData('0-0')['userInfo']
-
+function UserPreferences() {    
     const cfContext = useContext(CodeFreeContext)
+    const currentUserData = useMemo(() => cfContext.userInfo, [cfContext])
     const themeInfo = useMemo(() => cfContext.themeInfo, [cfContext])    
 
     return (

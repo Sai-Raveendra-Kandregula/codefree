@@ -4,9 +4,9 @@ import './Dropdown.css';
 import './TabView.css';
 import './Tooltip.css';
 import { Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches, useNavigate } from 'react-router-dom'
-import { lazy, Suspense, createContext } from 'react';
+import { lazy, Suspense, createContext, useState, useEffect } from 'react';
 
-import useTheme from './hooks/useTheme';
+import useTheme from './hooks/useTheme.tsx';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
 import SignOut from './SignOut';
@@ -20,6 +20,7 @@ import ProjectsCreate, { projectCreateAction } from './projects/ProjectsCreate';
 import CreateReport from './projects/reports/ReportCreate';
 import { signInAction } from './SignIn';
 import SignUp from './SignUp';
+import { currentUserDataLoader } from './users/UserRoot';
 
 export const CodeFreeContext = createContext();
 
@@ -63,11 +64,14 @@ const SuspenseLayout = () => (
     </Suspense>
 );
 
+export async function appRootLoader() {
+    const out = {}
+    out['userInfo'] = await currentUserDataLoader()
+    return out
+}
 
 function App() {
-
-    const themeInfo = useTheme()    
-
+    // Constants
     const RoutesJSX = (
         <Route path={`/`} element={<SuspenseLayout />} errorElement={<NotFound />}>
             <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader} shouldRevalidate={() => true}>
@@ -107,14 +111,31 @@ function App() {
             <Route path={`/sign-out`} element={<SignOut />} />
             <Route path='*' element={<ErrorPage errorNumber={404} />} />
         </Route>)
-
     const routes = createRoutesFromElements(RoutesJSX);
 
     const router = createBrowserRouter(routes, {
         basename: `${SERVER_ROOT_PATH}`
     })
+
+    // Data Hooks
+    const themeInfo = useTheme()
+
+    // States
+    const [rootData, setRootData] = useState({
+        'userInfo': {}
+    })
+
+    // Memos
+
+    // Effect Hooks
+    useEffect(() => {
+        appRootLoader().then((value) => {
+            setRootData(value)
+        })
+    }, [])
+
     return (
-        <CodeFreeContext.Provider value={{ themeInfo: themeInfo }}>
+        <CodeFreeContext.Provider value={{ themeInfo: themeInfo, userInfo: rootData.userInfo }}>
             <div className="App">
                 <RouterProvider router={router} />
                 <ToastContainer limit={3} />

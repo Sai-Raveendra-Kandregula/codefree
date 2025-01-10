@@ -14,10 +14,7 @@ export async function userDataLoader({ params }) {
     }
 }
 
-export async function currentUserDataLoader({ params }) {
-    if (params.userid){
-        return userDataLoader({params})
-    }
+export async function currentUserDataLoader() {
     const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
         credentials: "include"
     })
