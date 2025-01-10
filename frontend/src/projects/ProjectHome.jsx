@@ -42,7 +42,7 @@ function ProjectHome() {
   }
 
   function getAllReports() {
-    fetch(`${SERVER_BASE_URL}/api/reports/all-reports?project=${pathParams.projectid}`).then(
+    fetch(`${SERVER_BASE_URL}/api/project/${pathParams.projectid}/report/-/all`).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()

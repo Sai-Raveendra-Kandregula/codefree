@@ -24,7 +24,7 @@ export const projectCreateAction = async ({ request, params }) => {
   switch (request.method) {
     case "POST": {
       let submitData = Object.fromEntries(formData)
-      const resp = await fetch(`${SERVER_BASE_URL}/api/projects/create-project`, {
+      const resp = await fetch(`${SERVER_BASE_URL}/api/project/-/create`, {
         method: 'post',
         body: JSON.stringify(submitData),
         headers: {

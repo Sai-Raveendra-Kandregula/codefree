@@ -43,6 +43,7 @@ function ErrorPage({
   const navigate = useNavigate()
 
   if(typeof(errorNumber) === typeof(TypeError())){
+    console.error(errorNumber)
     errorNumber = 504
   }
 

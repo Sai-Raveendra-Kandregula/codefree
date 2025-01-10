@@ -12,25 +12,28 @@ from sqlalchemy.sql import func
 
 from .common import CodeFreeBase
 
+
 class Project(CodeFreeBase):
     __tablename__ = "project"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     slug: Mapped[str] = mapped_column(String(30), primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
-    avatar_color : Mapped[str] = mapped_column(String(7))
-    git_remote_url : Mapped[Optional[str]] = mapped_column(String(50))
-    git_remote_commit_url : Mapped[Optional[str]] = mapped_column(String(50))
+    avatar_color: Mapped[str] = mapped_column(String(7))
+    git_remote_url: Mapped[Optional[str]] = mapped_column(String(50))
+    git_remote_commit_url: Mapped[Optional[str]] = mapped_column(String(50))
 
     def __repr__(self) -> str:
         return f"Project(id={self.id!r}, name={self.name!r}, slug={self.slug!r})"
-    
+
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-    
+
     @staticmethod
-    def get_project_by_slug(session : Session, slug: str):
-        return session.query(Project).filter(Project.slug == slug).first()    
+    def get_project_by_slug(session: Session, slug: str):
+        return session.query(Project).filter(Project.slug == slug).first()
+
+
 class Report(CodeFreeBase):
     __tablename__ = "report"
 
@@ -39,34 +42,36 @@ class Report(CodeFreeBase):
     timestamp: Mapped[datetime.datetime] = mapped_column(DateTime())
 
     # Report Path
-    report_path : Mapped[str] = mapped_column(String(200))
-    report_hash : Mapped[str] = mapped_column(String(64))
-    report_src : Mapped[str] = mapped_column(String(30))
-    report_src_usr : Mapped[str] = mapped_column(String(30))
+    report_path: Mapped[str] = mapped_column(String(200))
+    report_hash: Mapped[str] = mapped_column(String(64))
+    report_src: Mapped[str] = mapped_column(String(30))
+    report_src_usr: Mapped[str] = mapped_column(String(30))
 
     # Report Stats
-    cf_code_quality_score : Mapped[float] = mapped_column(sa.Float(6), default=0.0, server_default=sa.text("0.0"), nullable=False)
-    
-    style_issues : Mapped[int] = mapped_column()
+    cf_code_quality_score: Mapped[float] = mapped_column(
+        sa.Float(6), default=0.0, server_default=sa.text("0.0"), nullable=False
+    )
 
-    cwe_issues : Mapped[int] = mapped_column()
-    misra_issues : Mapped[int] = mapped_column()
+    style_issues: Mapped[int] = mapped_column()
 
-    info_issues : Mapped[int] = mapped_column()
-    minor_issues : Mapped[int] = mapped_column()
-    major_issues : Mapped[int] = mapped_column()
-    critical_issues : Mapped[int] = mapped_column()
-    issue_files : Mapped[int] = mapped_column()
+    cwe_issues: Mapped[int] = mapped_column()
+    misra_issues: Mapped[int] = mapped_column()
 
-    commit_info : Mapped[Optional[str]] = mapped_column(String(255)) # stringified JSON
+    info_issues: Mapped[int] = mapped_column()
+    minor_issues: Mapped[int] = mapped_column()
+    major_issues: Mapped[int] = mapped_column()
+    critical_issues: Mapped[int] = mapped_column()
+    issue_files: Mapped[int] = mapped_column()
+
+    commit_info: Mapped[Optional[str]] = mapped_column(String(255))  # stringified JSON
 
     def as_dict(self):
         out = {
             "id": self.id,
             "project_id": self.project_id,
             "timestamp": self.timestamp.timestamp() * 1000,
-            "report_src" : self.report_src,
-            "report_src_usr" : self.report_src_usr,
+            "report_src": self.report_src,
+            "report_src_usr": self.report_src_usr,
             "cf_code_quality_score": self.cf_code_quality_score,
             "style_issues": self.style_issues,
             "cwe_issues": self.cwe_issues,
@@ -79,6 +84,17 @@ class Report(CodeFreeBase):
         }
 
         if self.commit_info is not None:
-            out["commit_info"] = json.loads(self.commit_info),
+            out["commit_info"] = (json.loads(self.commit_info),)
 
         return out
+
+    def get_report_count(session: Session, project_id: int):
+        reports_all_query = session.query(Report).where(
+            Report.project_id.is_(project_id)
+        )
+        reports_all_query_out = reports_all_query.all()
+        count = 0
+        if reports_all_query_out is not None:
+            count = len(reports_all_query_out)
+        session.close()
+        return count

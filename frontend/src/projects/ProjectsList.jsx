@@ -11,7 +11,7 @@ import CFTable from '../Components/CFTable';
 
 
 export async function projectListLoader({ params }) {
-  const resp = await fetch(`${SERVER_BASE_URL}/api/projects/all-projects`)
+  const resp = await fetch(`${SERVER_BASE_URL}/api/project/-/all`)
   if (resp.status == 200) {
     return resp.json()
   }

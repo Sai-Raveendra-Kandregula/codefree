@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import { SERVER_BASE_URL } from '../App'
 
 export async function projectInfoLoader( {params} ) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/projects/get-project?slug=${params.projectid}`)
+    const resp = await fetch(`${SERVER_BASE_URL}/api/project/${params.projectid}`)
     if (resp.status != 200) {
         throw resp.status
     }
