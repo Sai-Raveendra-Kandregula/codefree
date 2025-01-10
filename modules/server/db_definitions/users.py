@@ -4,8 +4,9 @@ import datetime
 import os
 from typing import Optional
 from sqlalchemy import String, DateTime, Boolean
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, Session
 from sqlalchemy.orm import mapped_column
+import randomcolor
 
 from .common import CodeFreeBase
 
@@ -77,7 +78,46 @@ class User(CodeFreeBase):
             out['avatar_data'] = None
 
         return out
-   
+    
+    @staticmethod
+    def generateUserAvatarColor():
+        rand_color = randomcolor.RandomColor()
+        return rand_color.generate(luminosity="dark")[0]
+    
+    @classmethod
+    def create_test_user(cls, 
+                        db_session : Session,
+                        default_user : str,
+                        default_user_email : str,
+                        default_pass : str,
+    ):
+        # Testing
+        def_user = db_session.query(cls).count()
+        if def_user == 0:
+            salt = generateSalt()
+            pwd_hash = getPasswordHash(default_pass, salt)
+            db_session.add(
+                User(
+                    user_name=default_user,
+                    display_name="System Admin",
+                    email=default_user_email,
+                    avatar_color=cls.generateUserAvatarColor(),
+                    is_user_admin=True,
+                    read_only=False,
+                    password_salt=salt,
+                    password_hash=pwd_hash,
+                    created_on=datetime.datetime.now(datetime.timezone.utc),
+                    created_by=default_user,
+                    updated_on=datetime.datetime.now(datetime.timezone.utc),
+                    updated_by=default_user,
+                )
+            )
+            db_session.commit()
+    
+    @classmethod
+    def get_user_by_username(cls, db_session :  Session, username : str):
+        return db_session.query(User).where(User.user_name.is_(username)).scalar()
+
 class PendingUser(CodeFreeBase):
     __tablename__ = "pendinguser"
 
@@ -114,8 +154,8 @@ class PendingUser(CodeFreeBase):
 class UserSession(CodeFreeBase):
     __tablename__ = "usersession"
 
-    user_name: Mapped[str] = mapped_column(String(30), primary_key=True)
-    session_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    session_id: Mapped[str] = mapped_column(String(36), primary_key=True, unique=True)
+    user_name: Mapped[str] = mapped_column(String(30))
     session_start: Mapped[datetime.datetime] = mapped_column(DateTime())
     session_end: Mapped[datetime.datetime] = mapped_column(DateTime())
     session_ip: Mapped[str] = mapped_column(String(15))
@@ -124,6 +164,10 @@ class UserSession(CodeFreeBase):
 
     def __repr__(self) -> str:
         return f"UserSession(user_name={self.user_name!r}, session_id={self.session_id!r})"
+    
+    @classmethod
+    def get_session(cls, db_session : Session, session_id : str):
+        return db_session.query(cls).where(cls.session_id.is_(session_id)).scalar()
     
     def session_expired(self) -> bool:
         return self.session_end < datetime.datetime.now()

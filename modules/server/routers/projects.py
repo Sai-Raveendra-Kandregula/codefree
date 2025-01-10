@@ -50,9 +50,8 @@ def getProject(request: Request):
         slug = request.query_params["project_id"]
 
     if slug is not None:
-        db_session = Session(engine)
+        db_session = get_db_session(request)
         out = Project.get_project_by_slug(db_session, slug)
-        db_session.close()
         if out is not None:
             return out
 
@@ -114,18 +113,15 @@ def getReportStats(report: dict):
         "critical_count": critical_count,
     }
 
-
 def getProjectReportsPath(slug: str):
     path = os.path.join(APP_DATA_PATH, slug, "reports")
     mkdir_p(path)
     return path
 
-
 def saveReportFile(report: dict, destination_file: str):
     dest = open(destination_file, "w")
     json.dump(obj=report, fp=dest)
     dest.close()
-
 
 # Testing
 db_session = Session(engine)
@@ -145,22 +141,20 @@ if result == None:
     db_session.commit()
 db_session.close()
 
-
 @projectsRouter.post("/project/-/create")
 def create_project(
     project: ProjectData,
     request: Request,
     response: Response,
     user_data: UserData = Depends(get_user_data),
+    db_session : Session = Depends(get_db_session)
 ):
     if not user_data.is_user_admin and user_data.read_only:
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
 
-    db_session = Session(engine)
-    existing = db_session.query(Project).where(Project.slug.is_(project.slug)).scalar()
+    existing = Project.get_project_by_slug(db_session, project.slug)
     if existing is not None:
-        db_session.close()
         response.status_code = status.HTTP_409_CONFLICT
         return {}
 
@@ -178,7 +172,6 @@ def create_project(
         )
     )
     db_session.commit()
-    db_session.close()
 
     response.status_code = status.HTTP_201_CREATED
     return {}
@@ -222,11 +215,10 @@ def get_project(
 
 @projectsRouter.get("/project/{slug}/report/-/all")
 def get_project_all_reports(
-    request: Request, response: Response, project: Project = Depends(getProject)
+    request: Request, response: Response, 
+    project: Project = Depends(getProject),
+    db_session : Session = Depends(get_db_session)
 ):
-    # assuming project is actually the project slug
-    db_session = Session(engine)
-
     reports_all_query = db_session.query(Report).where(
         Report.project_id.is_(project.id)
     )
@@ -234,18 +226,16 @@ def get_project_all_reports(
     out = []
     if reports_all_query_out is not None:
         out = [report.as_dict() for report in reports_all_query_out]
-    db_session.close()
     return out
 
 
 @projectsRouter.get("/project/{slug}/report/-/count")
 def get_project_report_count(
-    request: Request, response: Response, project: Project = Depends(getProject)
+    request: Request, response: Response, 
+    project: Project = Depends(getProject),
+    db_session : Session = Depends(get_db_session)
 ):
-    db_session = Session(engine)
-    out = {"count": Report.get_report_count(db_session, project.id)}
-    db_session.close()
-    return out
+    return {"count": Report.get_report_count(db_session, project.id)}
 
 
 @projectsRouter.get("/reports/get-report")
@@ -254,7 +244,7 @@ def get_project_report(
     report: str,
     request: Request,
     response: Response,
-    user_data: UserData = Depends(get_user_data),
+    db_session : Session = Depends(get_db_session)
 ):
     db_session = Session(engine)
     project_id = (
@@ -273,7 +263,6 @@ def get_project_report(
         report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar()
         if report_id == -1:
             response.status_code = status.HTTP_404_NOT_FOUND
-            db_session.close()
             return {"message": "Report not found"}
     else:
         report_id = int(report)
@@ -286,7 +275,6 @@ def get_project_report(
     )
     if report_data == None:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Report not found"}
     try:
         report_data_obj = report_data.as_dict()
@@ -295,11 +283,9 @@ def get_project_report(
         ) as fp:
             response.status_code = status.HTTP_200_OK
             report_data_obj["report"] = json.load(fp)
-            db_session.close()
             return report_data_obj
     except Exception as e:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"error": str(e)}
 
 
@@ -309,16 +295,14 @@ def get_report_stats(
     report: str,
     request: Request,
     response: Response,
-    user_data: UserData = Depends(get_user_data),
+    db_session : Session = Depends(get_db_session)
 ):
-    db_session = Session(engine)
     try:
         project_id = (
             db_session.query(Project.id).where(Project.slug.is_(project)).scalar()
         )
     except NoResultFound:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Project Not Found"}
 
     report_id = report
@@ -328,7 +312,6 @@ def get_report_stats(
             report_id = db_session.query(func.max(Report.id)).scalar()
         except NoResultFound:
             response.status_code = status.HTTP_404_NOT_FOUND
-            db_session.close()
             return {"message": "Report not found"}
     else:
         report_id = int(report)
@@ -341,10 +324,8 @@ def get_report_stats(
     )
     if report_data == None:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Report not found"}
 
-    db_session.close()
     return report_data.as_dict()
 
 
@@ -353,14 +334,14 @@ def upload_project_report(
     report: ReportData,
     request: Request,
     response: Response,
-    user_data: UserData = Depends(get_user_data),
     uploadedVia: str = "CodeFree CLI",
+    user_data: UserData = Depends(get_user_data),
+    db_session : Session = Depends(get_db_session)
 ):
     if not user_data.is_user_admin and user_data.read_only:
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
 
-    db_session = Session(engine)
     project_id = (
         db_session.query(func.coalesce(Project.id, -1))
         .where(Project.slug.is_(report.project_id))
@@ -368,14 +349,12 @@ def upload_project_report(
     )
     if project_id == -1:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Project Not Found"}
 
     report_data = report.report
 
     if (report_data == {}) or ("data" not in report_data):
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
-        db_session.close()
         return {"message": "Invalid Report"}
 
     hash = getReportHash(report_data)
@@ -387,7 +366,6 @@ def upload_project_report(
 
     if report_existing != 0:
         response.status_code = status.HTTP_409_CONFLICT
-        db_session.close()
         return {
             "message": f"Report already exists (Report ID : {report_existing})",
             "report_id": report_existing,
@@ -428,7 +406,6 @@ def upload_project_report(
     )
 
     db_session.commit()
-    db_session.close()
     response.status_code = status.HTTP_201_CREATED
     return {
         "report_id": report_id,
@@ -444,12 +421,11 @@ def upload_project_report(
     response: Response,
     user_data: UserData = Depends(get_user_data),
     project: Project = Depends(getProject),
+    db_session : Session = Depends(get_db_session)
 ):
     if not user_data.is_user_admin and user_data.read_only:
         response.status_code = status.HTTP_403_FORBIDDEN
         return {}
-
-    db_session = Session(engine)
 
     logger.info([item.as_dict() for item in db_session.query(Report).all()])
 
@@ -465,10 +441,8 @@ def upload_project_report(
         db_session.commit()
     else:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Report not found"}
 
-    db_session.close()
     return {}
 
 
@@ -480,7 +454,7 @@ def export_project_report(
     response: Response,
     background_tasks: BackgroundTasks,
     format: str = "json",
-    user_data: UserData = Depends(get_user_data),
+    db_session : Session = Depends(get_db_session)
 ):
 
     format_module: FormattingModule = FormattingModule.get_module(format)
@@ -488,7 +462,6 @@ def export_project_report(
     if format_module is None or format_module.hasNoOutputFile:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return {}
-    db_session = Session(engine)
     project_id = (
         db_session.query(func.coalesce(Project.id, -1))
         .where(Project.slug.is_(project))
@@ -496,7 +469,6 @@ def export_project_report(
     )
     if project_id == -1:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Project Not Found"}
 
     report_id = report
@@ -505,7 +477,6 @@ def export_project_report(
         report_id = db_session.query(func.coalesce(func.max(Report.id), -1)).scalar()
         if report_id == -1:
             response.status_code = status.HTTP_404_NOT_FOUND
-            db_session.close()
             return {"message": "Report not found"}
     else:
         report_id = int(report)
@@ -518,7 +489,6 @@ def export_project_report(
     )
     if report_data == None:
         response.status_code = status.HTTP_404_NOT_FOUND
-        db_session.close()
         return {"message": "Report not found"}
     try:
         with open(

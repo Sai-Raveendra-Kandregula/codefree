@@ -1,20 +1,19 @@
 #! /usr/bin/env python
 
 import dotenv
+
+from modules.server.db_definitions.users import User
 dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 
 import uvicorn
 import logging
-import time
 import os
-from subprocess import Popen, PIPE
-import subprocess
 import uvicorn.logging
 from uvicorn.supervisors import ChangeReload, Multiprocess
 
-from modules.server.common import ROOT_PATH
+from modules.server.common import DEFAULT_USER, DEFAULT_USER_EMAIL, DEFAULT_PASS
 
-from modules.server.database import init_db
+from modules.server.database import init_db, get_engine, Session
 
 PORT=9000
 
@@ -130,4 +129,10 @@ if __name__ == "__main__":
             return server.run()
 
     init_db()
+    User.create_test_user(
+        db_session=Session(get_engine()),
+        default_user=DEFAULT_USER, 
+        default_user_email=DEFAULT_USER_EMAIL, 
+        default_pass=DEFAULT_PASS
+    )
     run_fastapi()
