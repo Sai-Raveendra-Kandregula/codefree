@@ -37,8 +37,8 @@ function CreateReport() {
         return
       }
 
-      fetch(`${SERVER_BASE_URL}/api/reports/upload-report?uploadedVia=CodeFree%20GUI`, {
-        method: 'post',
+      fetch(`${SERVER_BASE_URL}/api/project/${pathParams.projectid}/report/-/upload?uploadedVia=CodeFree%20GUI`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -55,7 +55,7 @@ function CreateReport() {
           toast.error("Invalid Report Data.")
         }
         else if (resp.status == 409) {
-          var error_obj = await resp.json()
+          var error_obj = (await resp.json())['detail']
           toast.error(() => (<span>
             {`Error Uploading Report - Already exists : `}
             <a href={error_obj['report_url']}>Report {error_obj['report_id']}</a>

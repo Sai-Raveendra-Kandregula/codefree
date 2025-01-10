@@ -11,13 +11,12 @@ import { RiFileExcel2Line } from "react-icons/ri";
 import { SiAsciidoctor } from "react-icons/si";
 import { SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
-import LinkButton from '../../Components/LinkButton';
 import ToolTip from '../../Components/ToolTip';
 import { AppContext } from '../../NotFoundContext';
 import { toast } from 'react-toastify';
 
 export async function reportDataLoader({ params }) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/reports/get-report?project=${params.projectid}&report=${params.reportid}`)
+    const resp = await fetch(`${SERVER_BASE_URL}/api/project/${params.projectid}/report/${params.reportid}`)
     if (resp.status == 200) {
         return resp.json()
     }
@@ -47,6 +46,10 @@ function ReportViewer() {
     const projectInfo = useRouteData('0-0')['projectInfo']
     const reportData = useRouteData('0-0')['reportData']
     const [transformedReportData, setTransformedReportData] = useState({})
+
+    const getExportURL = (format) => {
+        return `${SERVER_ROOT_PATH}/api/project/${pathParams.projectid}/report/${pathParams.reportid}/export?format=${format}`
+    }
 
     useEffect(() => {
         searchParams.set("viewType", (viewType || Object.keys(groupingMapping)[0]))
@@ -213,7 +216,7 @@ function ReportViewer() {
                                     ({ open, close, isOpen }) => {
                                         return <React.Fragment>
                                             <a className='sideBarLink' title={"Export as XLSX"}
-                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=xlsx`}
+                                                href={getExportURL("xlsx")}
                                                 download={true}
                                                 onClick={() => {
                                                     close()
@@ -223,7 +226,7 @@ function ReportViewer() {
                                                 Export as XLSX
                                             </a>
                                             <a className='sideBarLink' title={"Export as CSV"}
-                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=csv`}
+                                                href={getExportURL("csv")}
                                                 download={true}
                                                 onClick={() => {
                                                     close()
@@ -233,7 +236,7 @@ function ReportViewer() {
                                                 Export as CSV
                                             </a>
                                             <a className='sideBarLink' title={"Export as PDF"}
-                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=pdf`}
+                                                href={getExportURL("pdf")}
                                                 download={true}
                                                 onClick={() => {
                                                     close()
@@ -243,7 +246,7 @@ function ReportViewer() {
                                                 Export as PDF
                                             </a>
                                             <a className='sideBarLink' title={"Export as Ascii Doc"}
-                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=adoc`}
+                                                href={getExportURL("adoc")}
                                                 download={true}
                                                 onClick={() => {
                                                     close()
@@ -253,7 +256,7 @@ function ReportViewer() {
                                                 Export as Ascii Doc
                                             </a>
                                             <a className='sideBarLink' title={"Export as JSON"}
-                                                href={`${SERVER_ROOT_PATH}/api/reports/export-report?project=${pathParams.projectid}&report=${pathParams.reportid}&format=json`}
+                                                href={getExportURL("json")}
                                                 download={true}
                                                 onClick={() => {
                                                     close()
@@ -355,7 +358,9 @@ function ReportViewer() {
                             <IconButton icon={<IoTrashBinOutline />} title={"Delete Report"} onClick={(e) => {
                                 e.stopPropagation()
                                 if(window.confirm("Confirm Report Deletion?")){
-                                    fetch(`/api/reports/delete-report?report_id=${pathParams.reportid}&project_id=${pathParams.projectid}`).then(resp => {
+                                    fetch(`/api/project/${pathParams.projectid}/report/${pathParams.reportid}`, {
+                                        'method' : 'DELETE'
+                                    }).then(resp => {
                                         if(resp.status == 200){
                                             navigate('..')
                                         }

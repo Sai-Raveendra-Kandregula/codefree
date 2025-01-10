@@ -39,10 +39,11 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
     if args.projectName is not None:
         title += " for " + args.projectName
     
+    ts = datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')
     report_data += f"= {title}\n\n"
     
     report_data += f"== Analysis Run Information\n\n"
-    report_data += f"=== Timestamp\n{datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M:%S %Z')}\n\n"
+    report_data += f"=== Report Timestamp\n{ts}\n\n"
     
     if commit_info is not None:
         report_data += f"=== Commit Information\n\n{(' +'+NEWLINE).join([ key + ' : ' + value for key, value in commit_info.items() if len(value.strip()) > 0])}\n\n"

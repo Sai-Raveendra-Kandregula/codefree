@@ -28,7 +28,7 @@ function ProjectHome() {
   }
 
   function getLatestReportStats() {
-    fetch(`${SERVER_BASE_URL}/api/reports/get-stats?project=${pathParams.projectid}&report=last-report`).then(
+    fetch(`${SERVER_BASE_URL}/api/project/${pathParams.projectid}/report/last-report/stats`).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()

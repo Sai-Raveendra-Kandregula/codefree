@@ -2,6 +2,7 @@
 
 import dotenv
 
+from modules.server.db_definitions.projects import Project
 from modules.server.db_definitions.users import User
 dotenv.load_dotenv(dotenv_path=dotenv.find_dotenv())
 
@@ -129,10 +130,13 @@ if __name__ == "__main__":
             return server.run()
 
     init_db()
+    db_session = Session(get_engine())
     User.create_test_user(
-        db_session=Session(get_engine()),
+        db_session=db_session,
         default_user=DEFAULT_USER, 
         default_user_email=DEFAULT_USER_EMAIL, 
         default_pass=DEFAULT_PASS
     )
+    Project.createTestProject(db_session=db_session)
+    db_session.close()
     run_fastapi()

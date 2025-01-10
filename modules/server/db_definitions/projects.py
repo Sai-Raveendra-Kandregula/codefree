@@ -1,7 +1,9 @@
 import datetime
 import json
+import logging
 from typing import List
 from typing import Optional
+import randomcolor
 from sqlalchemy import String, ForeignKey, DateTime, Text
 import sqlalchemy as sa
 from sqlalchemy.orm import DeclarativeBase
@@ -9,9 +11,11 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+from sqlalchemy.exc import NoResultFound
 
-from .common import CodeFreeBase
+from modules.cf_checker import *
 
+from .common import CodeFreeBase, mkdir_p
 
 class Project(CodeFreeBase):
     __tablename__ = "project"
@@ -32,7 +36,33 @@ class Project(CodeFreeBase):
     @staticmethod
     def get_project_by_slug(session: Session, slug: str):
         return session.query(Project).filter(Project.slug == slug).first()
-
+    
+    @staticmethod
+    def generateAvatarColor():
+        rand_color = randomcolor.RandomColor()
+        return rand_color.generate(luminosity="dark")[0]
+    
+    @staticmethod
+    def createTestProject(db_session : Session):
+        result = db_session.query(Project).where(Project.slug.is_("logger")).scalar()
+        if result == None:
+            project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
+            db_session.add(
+                Project(
+                    id=project_id,
+                    name="Logger",
+                    slug="logger",
+                    avatar_color=Project.generateAvatarColor(),
+                    git_remote_url="https://github.com/Sai-Raveendra-Kandregula/logger",
+                    git_remote_commit_url="https://github.com/Sai-Raveendra-Kandregula/logger/commit",
+                )
+            )
+            db_session.commit()
+    
+    def getReportsPath(self, data_path : str):
+        path = os.path.join(data_path, self.slug, "reports")
+        mkdir_p(path=path)
+        return path
 
 class Report(CodeFreeBase):
     __tablename__ = "report"
@@ -98,3 +128,91 @@ class Report(CodeFreeBase):
             count = len(reports_all_query_out)
         session.close()
         return count
+    
+    def get(session : Session, project_id : int, report_id : str):
+        if report_id.lower() == "last-report":
+            try:
+                report_id : int = session.query(func.max(Report.id)).scalar()
+            except NoResultFound:
+                return None
+        else:
+            report_id = int(report_id)
+
+        report_data: Report = (
+            session.query(Report)
+            .where(Report.project_id.is_(project_id))
+            .where(Report.id.is_(report_id))
+            .scalar()
+        )
+
+        return report_data
+    
+    @staticmethod
+    def getHash(report : dict):
+        import hashlib
+        return hashlib.sha256(json.dumps(report, indent=0).encode("utf-8")).hexdigest()
+    
+    @staticmethod
+    def getReportStats(report: dict):
+        issue_items_cls = [CheckerOutput(dict_data=item) for item in report["data"]]
+        CheckingModule.set_output(issue_items_cls)
+        CheckerStats.calculateStats()
+
+        files_Set = set()
+        cf_code_quality_score = (
+            CheckerStats.get_aggregate_score() / CheckerStats.get_score_normalization()
+        )
+        style_count = 0
+        info_count = 0
+        minor_count = 0
+        major_count = 0
+        critical_count = 0
+
+        cwe_count = 0
+        misra_count = 0
+
+        for item in issue_items_cls:
+            files_Set.add(item.file_name)
+            if item._module.module_type == CheckerTypes.STYLE:
+                style_count += 1
+            elif item._module.module_type == CheckerTypes.CODE:
+                if item._module.compliance_standard == ComplianceStandards.CWE:
+                    cwe_count += 1
+                elif item._module.compliance_standard == ComplianceStandards.MISRA:
+                    misra_count += 1
+
+                if item.error_info.severity == CheckerSeverity.CRITICAL:
+                    critical_count += 1
+                elif item.error_info.severity == CheckerSeverity.MAJOR:
+                    major_count += 1
+                elif item.error_info.severity == CheckerSeverity.MINOR:
+                    minor_count += 1
+                elif item.error_info.severity == CheckerSeverity.INFO:
+                    info_count += 1
+
+        return {
+            "file_count": len(files_Set),
+            "cf_code_quality_score": cf_code_quality_score,
+            "cwe_count": cwe_count,
+            "misra_count": misra_count,
+            "style_count": style_count,
+            "info_count": info_count,
+            "minor_count": minor_count,
+            "major_count": major_count,
+            "critical_count": critical_count,
+        }
+    
+    def getReportPath(self, project : Project, data_path : str):
+        path = os.path.join(project.getReportsPath(data_path=data_path), self.report_path)
+        if os.path.exists(path):
+            return path
+        return None
+    
+    def getReportData(self, session : Session, project : Project, data_path : str):
+        path = self.getReportPath(project=project, data_path=data_path)
+        if path is not None:
+            with open(path, 'r') as fp:
+                return json.load(fp)
+        session.delete(self)
+        session.commit()
+        return None

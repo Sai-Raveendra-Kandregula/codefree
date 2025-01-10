@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from contextvars import ContextVar
 
 from modules.server.cf_gui_backend import serve_codefree_backend
+from modules.server.common import ROOT_PATH_MID_URL
 from modules.server.db_engine import get_engine, Session
 
 app = FastAPI()
@@ -23,7 +24,10 @@ middleware = [
     )
 ]
 
-app = FastAPI(middleware=middleware)
+app = FastAPI(
+    middleware=middleware,
+    root_path=f"{ROOT_PATH_MID_URL}/api"
+)
 
 @app.middleware("http")
 async def add_db_session(request : Request, call_next):
