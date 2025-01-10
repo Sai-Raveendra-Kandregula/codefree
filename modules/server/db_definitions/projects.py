@@ -15,7 +15,6 @@ from sqlalchemy.sql import func
 from sqlalchemy.exc import NoResultFound
 
 from ...checker import *
-from ...cf_output import *
 
 from .common import CodeFreeBase, mkdir_p
 
