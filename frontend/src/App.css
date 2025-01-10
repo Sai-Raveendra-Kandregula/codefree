@@ -11,7 +11,7 @@
   --header-padding: 15px;
   --border-radius: 7.5px;
   --button-border-radius: 5px;
-  --button-height: var(--control-inline-height);
+  --button-height: 32px;
   
   --overlay-blur: 5px;
 }
