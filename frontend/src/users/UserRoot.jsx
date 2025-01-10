@@ -1,9 +1,10 @@
 import React from 'react'
 import { Navigate, Outlet, useParams } from 'react-router-dom'
 import { SERVER_BASE_URL, useRouteData } from '../App'
+import { getAPIURL } from '../hooks/useAPI.tsx'
 
 export async function userDataLoader({ params }) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/user/userdata/${params.userid}`, {
+    const resp = await fetch(getAPIURL(`/user/userdata/${params.userid}`), {
         credentials: "include"
     })
     if (resp.status !== 200) {
@@ -15,7 +16,7 @@ export async function userDataLoader({ params }) {
 }
 
 export async function currentUserDataLoader() {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
+    const resp = await fetch(getAPIURL(`/user/validate`), {
         credentials: "include"
     })
     if (resp.status !== 200) {

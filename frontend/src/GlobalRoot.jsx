@@ -23,6 +23,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { userDataLoader } from './users/UserRoot';
 import UserAvatar from './Components/UserAvatar';
 import { ReactComponent as AppLogo } from './assets/CF_Logo.svg';
+import { getAPIURL } from './hooks/useAPI.tsx';
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -84,7 +85,7 @@ const Breadcrumbs = () => {
 };
 
 export async function getUserName() {
-  const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
+  const resp = await fetch(getAPIURL(`/user/validate`), {
     credentials: "include"
   })
   if (resp.status !== 200) {

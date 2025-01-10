@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { SERVER_BASE_URL } from './App'
+import { getAPIURL } from './hooks/useAPI.tsx'
 
 function SignOut() {
   const navigate = useNavigate()
@@ -17,7 +18,7 @@ function SignOut() {
 
   function signOutUser(){
     setErrorMessage("Signing out...")
-    fetch(`${SERVER_BASE_URL}/api/user/sign-out`, {
+    fetch(getAPIURL(`/user/sign-out`), {
       method: "post",
       credentials: "include",
       mode: 'cors'

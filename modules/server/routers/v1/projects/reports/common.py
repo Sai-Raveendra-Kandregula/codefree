@@ -2,9 +2,9 @@
 from fastapi import HTTPException, Request
 
 from modules.server.common import logger
-from modules.server.database import get_db_session
+from modules.server.database import get_db_session, Session
 from modules.server.db_definitions.projects import Report
-from modules.server.routers.projects.common import getProject
+from ..common import getProject
 
 def getReport(request: Request):
     project = getProject(request)

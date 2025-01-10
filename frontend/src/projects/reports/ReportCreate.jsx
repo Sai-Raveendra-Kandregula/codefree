@@ -10,6 +10,7 @@ import { SERVER_BASE_URL, useRouteData } from '../../App'
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
 import { toast } from 'react-toastify';
+import useAPI from '../../hooks/useAPI.tsx';
 
 function CreateReport() {
   const navigate = useNavigate()
@@ -20,6 +21,8 @@ function CreateReport() {
 
   const [dragOverHasFiles, setDragOverHasFiles] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+
+  const { getAPIURL } = useAPI('v1')
 
   function uploadReport() {
     const report = document.getElementById('upload_report').files[0]
@@ -37,7 +40,7 @@ function CreateReport() {
         return
       }
 
-      fetch(`${SERVER_BASE_URL}/api/project/${pathParams.projectid}/report/-/upload?uploadedVia=CodeFree%20GUI`, {
+      fetch(getAPIURL(`/project/${pathParams.projectid}/report/-/upload?uploadedVia=CodeFree%20GUI`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

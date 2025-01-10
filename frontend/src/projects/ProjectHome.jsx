@@ -6,6 +6,7 @@ import { CodeFreeContext, SERVER_BASE_URL, useRouteData } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { GoArrowRight } from 'react-icons/go';
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
+import { getAPIURL } from '../hooks/useAPI.tsx';
 
 function ProjectHome() {
   const pathParams = useParams()
@@ -28,7 +29,7 @@ function ProjectHome() {
   }
 
   function getLatestReportStats() {
-    fetch(`${SERVER_BASE_URL}/api/project/${pathParams.projectid}/report/last-report/stats`).then(
+    fetch(getAPIURL(`/project/${pathParams.projectid}/report/last-report/stats`)).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()
@@ -42,7 +43,7 @@ function ProjectHome() {
   }
 
   function getAllReports() {
-    fetch(`${SERVER_BASE_URL}/api/project/${pathParams.projectid}/report/-/all`).then(
+    fetch(getAPIURL(`/project/${pathParams.projectid}/report/-/all`)).then(
       (resp) => {
         if (resp.status == 200) {
           return resp.json()

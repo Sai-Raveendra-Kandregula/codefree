@@ -6,13 +6,6 @@ from fastapi import APIRouter, Request, Response, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, JSONResponse
 
-from modules.checker import *
-from modules.output import *
-from modules.cf_checker import CheckerStats, CheckerOutput, CheckerTypes, CheckerSeverity, ComplianceStandards
-from modules import cf_output
-
-from modules.server.definitions import UserData, UserLogin, ProjectData, ReportData
-
 from modules.server.common import logger, DATA_PATH, APP_DATA_PATH, mkdir_p
 
 from sqlalchemy import func

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import { SERVER_BASE_URL } from '../App'
+import { getAPIURL } from '../hooks/useAPI.tsx'
 
 export async function projectInfoLoader( {params} ) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/project/${params.projectid}`)
+    const resp = await fetch(getAPIURL(`/project/${params.projectid}`))
     if (resp.status != 200) {
         throw resp.status
     }

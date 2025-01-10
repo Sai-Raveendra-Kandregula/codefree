@@ -5,8 +5,8 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 from contextvars import ContextVar
 
-from modules.server.cf_gui_backend import serve_codefree_backend
-from modules.server.common import ROOT_PATH_MID_URL
+from modules.server.routers.v1 import v1_router
+from modules.server.common import logger, APP_CONF_FILE, APP_DATA_PATH, APP_NAME, AUTHOR, CONTACT_EMAIL, ROOT_PATH_MID_URL
 from modules.server.db_engine import get_engine, Session
 
 app = FastAPI()
@@ -24,9 +24,14 @@ middleware = [
     )
 ]
 
+logger.info("Base URL : " + (ROOT_PATH_MID_URL if len(ROOT_PATH_MID_URL) > 0 else "/"))
+logger.info("Data Path : " + APP_DATA_PATH)
+logger.info("Config File : " + APP_CONF_FILE)
+
 app = FastAPI(
     middleware=middleware,
-    root_path=f"{ROOT_PATH_MID_URL}/api"
+    root_path=f"{ROOT_PATH_MID_URL}",
+    root_path_in_servers=f"{ROOT_PATH_MID_URL}",
 )
 
 @app.middleware("http")
@@ -39,4 +44,9 @@ async def add_db_session(request : Request, call_next):
     return response
 
 path_to_react_app_build_dir = "./frontend/build"
-app = serve_codefree_backend(app)
+
+@app.get(f"/")
+def codefree_greeting():
+    return { "name" : APP_NAME, "author" : AUTHOR, "contact" : CONTACT_EMAIL }
+    
+app.include_router(v1_router, prefix="/-")

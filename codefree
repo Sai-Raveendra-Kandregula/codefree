@@ -36,6 +36,16 @@ if __name__ == "__main__":
         out_data : list = data['data']
         out_data_cls = [ CheckerOutput(dict_data=item) for item in out_data ]
         CheckingModule.set_output(out_data_cls)
+        
+        format_module : FormattingModule = FormattingModule.get_module(args.formatClass)
+        if(format_module.preCheck is not None):
+            if(isinstance(format_module.preCheck, (types.FunctionType, types.BuiltinFunctionType))):
+                progress_printer("Running Prechecks...")
+                if(not format_module.preCheck(args)):
+                    error_printer("Precheck Failed.")
+                    exit(1)
+                else:
+                    progress_printer("Prechecks successful.")
     else:
         if len(args.includePaths) > 0:
             progress_printer("Include Paths : " + " : ".join(args.includePaths))

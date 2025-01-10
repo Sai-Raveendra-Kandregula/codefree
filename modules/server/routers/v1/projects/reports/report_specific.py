@@ -11,8 +11,8 @@ from modules.server.common import APP_DATA_PATH, logger
 from modules.server.database import get_db_session, Session
 from modules.server.db_definitions.projects import Project, Report
 from modules.server.definitions import UserData
-from modules.server.routers.projects.common import getProject
-from modules.server.routers.projects.reports.common import getReport
+from ..common import getProject
+from .common import getReport
 
 
 reportSpecificRouter = APIRouter(

@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import UserAvatar from '../Components/UserAvatar';
 import { StatusCodes } from 'http-status-codes';
 import { SERVER_BASE_URL, SERVER_ROOT_PATH } from '../App'
+import { getAPIURL } from '../hooks/useAPI.tsx';
 
 
 export const ModifyUserAction = async ({ request, params }) => {
@@ -19,7 +20,7 @@ export const ModifyUserAction = async ({ request, params }) => {
         case "POST": {
             let formData = await request.formData()
             let submitData = Object.fromEntries(formData)
-            const resp = await fetch(`${SERVER_BASE_URL}/api/user/modify`, {
+            const resp = await fetch(getAPIURL(`/user/modify`), {
                 method: 'POST',
                 body: JSON.stringify(submitData),
                 headers: {

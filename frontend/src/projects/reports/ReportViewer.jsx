@@ -14,9 +14,10 @@ import DropdownButton from '../../Components/Dropdown';
 import ToolTip from '../../Components/ToolTip';
 import { AppContext } from '../../NotFoundContext';
 import { toast } from 'react-toastify';
+import { getAPIURL } from '../../hooks/useAPI.tsx';
 
 export async function reportDataLoader({ params }) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/project/${params.projectid}/report/${params.reportid}`)
+    const resp = await fetch(getAPIURL(`/project/${params.projectid}/report/${params.reportid}`))
     if (resp.status == 200) {
         return resp.json()
     }
@@ -48,7 +49,7 @@ function ReportViewer() {
     const [transformedReportData, setTransformedReportData] = useState({})
 
     const getExportURL = (format) => {
-        return `${SERVER_ROOT_PATH}/api/project/${pathParams.projectid}/report/${pathParams.reportid}/export?format=${format}`
+        return getAPIURL(`/project/${pathParams.projectid}/report/${pathParams.reportid}/export?format=${format}`)
     }
 
     useEffect(() => {
@@ -358,7 +359,7 @@ function ReportViewer() {
                             <IconButton icon={<IoTrashBinOutline />} title={"Delete Report"} onClick={(e) => {
                                 e.stopPropagation()
                                 if(window.confirm("Confirm Report Deletion?")){
-                                    fetch(`/api/project/${pathParams.projectid}/report/${pathParams.reportid}`, {
+                                    fetch(getAPIURL(`project/${pathParams.projectid}/report/${pathParams.reportid}`), {
                                         'method' : 'DELETE'
                                     }).then(resp => {
                                         if(resp.status == 200){

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from modules.server.SessionAuthenticator import auth_required
-from modules.server.routers.projects.base import projectsBaseRouter
-from modules.server.routers.projects.project_specific import projectsSpecificRouter
+from .base import projectsBaseRouter
+from .project_specific import projectsSpecificRouter
 
 projectsRouter = APIRouter(
     dependencies=[Depends(auth_required)],

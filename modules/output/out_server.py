@@ -1,6 +1,7 @@
 import datetime
 from modules.cf_checker import CheckerOutput, get_error_printer, get_progress_printer
 from modules.cf_output import FormattingModule, FormatOption, ArgActionOptions
+from modules.server.server import app
 from fastapi import status
 
 from typing import List
@@ -15,9 +16,10 @@ def output_server(args, output: List[CheckerOutput] = []):
     progress_printer = get_progress_printer(args=args)
     error_printer = get_error_printer(args=args)
 
-
     server_url : str = args.serverUrl
     server_url = server_url.removesuffix("/") + "/"
+    
+    upload_report_url = app.url_path_for('upload_project_report', slug=args.cfProject)
 
     commit_info : str = None
     out_obj = {}
@@ -27,8 +29,8 @@ def output_server(args, output: List[CheckerOutput] = []):
         commit_info = json.dumps(args.commit)
     out_obj['data'] = [item.dict() for item in output]
     
-
-    uploadUrl = urllib.parse.urljoin(server_url, f'/api/project/${args.cfProject}/report/upload')
+    # uploadUrl = urllib.parse.urljoin(server_url, f'/api/project/${args.cfProject}/report/upload')
+    uploadUrl = urllib.parse.urljoin(server_url, upload_report_url)
     resp : requests.Response
     
     resp = ServerSession.post(uploadUrl, json={
@@ -65,10 +67,9 @@ def checkRequisites(args):
     server_url : str = args.serverUrl
     server_url = server_url.removesuffix("/") + "/"
 
-    statusUrl = urllib.parse.urljoin(server_url, 'api/greetings')
+    statusUrl = urllib.parse.urljoin(server_url, app.url_path_for('api_ping_check'))
     try:
         resp = requests.get(url=statusUrl)
-        print(statusUrl)
     except:
         error_printer(f"CodeFree Server not reachable at {server_url}")
         return False
@@ -76,7 +77,7 @@ def checkRequisites(args):
         error_printer(f"CodeFree Server not healthy at {server_url} (Code : {resp.status_code})")
         return False
 
-    signInUrl = urllib.parse.urljoin(server_url, 'api/user/sign-in')
+    signInUrl = urllib.parse.urljoin(server_url, app.url_path_for('create_session'))
     resp = ServerSession.post(url=signInUrl, json={
         "username": args.cfUserName,
         "password": args.cfPassword,
@@ -86,7 +87,7 @@ def checkRequisites(args):
         error_printer(f"Authentication failed with CodeFree Server ({args.serverUrl})")
         return False
 
-    getProjectUrl = urllib.parse.urljoin(server_url, f'api/projects/get-project?slug={args.cfProject}')
+    getProjectUrl = urllib.parse.urljoin(server_url, app.url_path_for("get_project", slug=args.cfProject))
     resp = ServerSession.get(url=getProjectUrl)
     if(resp.status_code == status.HTTP_404_NOT_FOUND):
         error_printer(f"Fetching Project Details Failed : Project {args.cfProject} does not exist.")

@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import LinkButton from '../../Components/LinkButton';
-import IconButton from '../../Components/IconButton';
-import PopupModal from '../../Components/Popup'
 
-import { SERVER_BASE_URL, useRouteData } from '../../App'
+import { useRouteData } from '../../App'
 
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
+import { getAPIURL } from '../../hooks/useAPI.tsx';
 
 export async function reportListLoader({ params }) {
-  const resp = await fetch(`${SERVER_BASE_URL}/api/project/${params.projectid}/report/-/all`)
+  const resp = await fetch(getAPIURL(`/project/${params.projectid}/report/-/all`))
   if (resp.status == 200) {
     return resp.json()
   }

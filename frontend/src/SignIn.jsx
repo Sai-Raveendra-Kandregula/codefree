@@ -7,13 +7,14 @@ import { SERVER_BASE_URL, SERVER_ROOT_PATH } from './App'
 import LinkButton from './Components/LinkButton'
 import { ReactComponent as CFLogo } from './assets/CF_Logo.svg'
 import { collapseToast, toast } from 'react-toastify'
+import { getAPIURL } from './hooks/useAPI.tsx';
 
 export const signInAction = async ({ request, params }) => {
   switch (request.method) {
     case "POST": {
       let formData = await request.formData()
       let submitData = Object.fromEntries(formData)
-      const resp = await fetch(`${SERVER_BASE_URL}/api/user/sign-in`, {
+      const resp = await fetch(getAPIURL(`/user/sign-in`), {
         method: "post",
         headers: {
           'Accept': 'application/json',
@@ -71,7 +72,7 @@ function SignIn() {
   }
 
   async function ValidateUser(redirect = true) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/user/validate`, {
+    const resp = await fetch(getAPIURL(`/user/validate`), {
       credentials: "include"
     })
     if (resp.status === 200) {

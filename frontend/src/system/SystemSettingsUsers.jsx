@@ -24,9 +24,10 @@ import UserLink from '../Components/UserLink'
 import CFTable from '../Components/CFTable'
 import PopupModal from '../Components/Popup'
 import SystemSettingsUserCreate from './SystemSettingsUserCreate'
+import { getAPIURL } from '../hooks/useAPI.tsx'
 
 export async function userListLoader({ params }) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/user/all`, {
+    const resp = await fetch(getAPIURL(`/user/all`), {
         credentials: "include"
     })
     if (resp.status != 200) {
@@ -39,7 +40,7 @@ export async function userListLoader({ params }) {
 }
 
 export async function pendingUserListLoader({ params }) {
-    const resp = await fetch(`${SERVER_BASE_URL}/api/user/all-pending`, {
+    const resp = await fetch(getAPIURL(`/user/all-pending`), {
         credentials: "include"
     })
     if (resp.status != 200) {
@@ -118,7 +119,7 @@ function SystemSettingsUsers({
                 <IconButton icon={<LuTrash2 />} title={`Delete ${item['display_name']}`} onClick={(e) => {
                     e.preventDefault();
                     if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
-                        fetch(`${SERVER_BASE_URL}/api/user/delete`, {
+                        fetch(getAPIURL(`/user/delete`), {
                             method: 'post',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -191,43 +192,9 @@ function SystemSettingsUsers({
             }}>
                 <IconButton icon={<LuCheck />} title={`Approve ${item['user_name']}`} onClick={(e) => {
                     e.preventDefault();
-                    // if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
-                    //     fetch(`${SERVER_BASE_URL}/api/user/delete`, {
-                    //         method: 'post',
-                    //         headers: {
-                    //             'Content-Type': 'application/json'
-                    //         },
-                    //         body: JSON.stringify(item)
-                    //     }).then((resp) => {
-                    //         if (resp.status == StatusCodes.OK) {
-                    //             toast.success(`User Deletion Successfully`)
-                    //             revalidator.revalidate()
-                    //         }
-                    //         else {
-                    //             toast.error(`User Deletion Failed : ${resp.statusText}`)
-                    //         }
-                    //     })
-                    // }
                 }} />
                 <IconButton icon={<LuTrash2 />} title={`Deny ${item['user_name']}`} onClick={(e) => {
                     e.preventDefault();
-                    // if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
-                    //     fetch(`${SERVER_BASE_URL}/api/user/delete`, {
-                    //         method: 'post',
-                    //         headers: {
-                    //             'Content-Type': 'application/json'
-                    //         },
-                    //         body: JSON.stringify(item)
-                    //     }).then((resp) => {
-                    //         if (resp.status == StatusCodes.OK) {
-                    //             toast.success(`User Deletion Successfully`)
-                    //             revalidator.revalidate()
-                    //         }
-                    //         else {
-                    //             toast.error(`User Deletion Failed : ${resp.statusText}`)
-                    //         }
-                    //     })
-                    // }
                 }} />
             </div>,
             width: '50px'

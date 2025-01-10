@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import logging
 from typing import List
 from typing import Optional
@@ -13,7 +14,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from sqlalchemy.exc import NoResultFound
 
-from modules.cf_checker import *
+from ...checker import *
+from ...cf_output import *
 
 from .common import CodeFreeBase, mkdir_p
 
@@ -154,6 +156,11 @@ class Report(CodeFreeBase):
     
     @staticmethod
     def getReportStats(report: dict):
+        from ...cf_checker import (
+            CheckerOutput, CheckingModule, 
+            CheckerStats, CheckerTypes, 
+            ComplianceStandards, CheckerSeverity
+        )
         issue_items_cls = [CheckerOutput(dict_data=item) for item in report["data"]]
         CheckingModule.set_output(issue_items_cls)
         CheckerStats.calculateStats()

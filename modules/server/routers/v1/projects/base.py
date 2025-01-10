@@ -3,7 +3,8 @@ from sqlalchemy import func
 
 from modules.server.SessionAuthenticator import auth_required, get_user_data
 from modules.server.database import get_db_session, Session
-from modules.server.db_definitions.projects import Project, Report
+from .common import Project
+from .reports.common import Report
 from modules.server.definitions import ProjectData, UserData
 
 projectsBaseRouter = APIRouter(

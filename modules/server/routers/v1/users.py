@@ -234,7 +234,7 @@ async def invite_user(
 
 
 @usersRouter.post("/user/delete")
-async def create_user_acc(
+async def delete_user_acc(
     user: NewUserData,
     response: Response,
     user_data: UserData = Depends(get_user_data),

@@ -6,10 +6,9 @@ from sqlalchemy import func
 
 from modules.server.SessionAuthenticator import get_user_data
 from modules.server.common import APP_DATA_PATH, SERVER_URL
-from modules.server.database import get_db_session, Session
-from modules.server.db_definitions.projects import Project, Report
 from modules.server.definitions import ReportData, UserData
-from modules.server.routers.projects.common import getProject
+from ..common import getProject, Project
+from .common import Report, get_db_session, Session
 
 
 reportsBaseRouter = APIRouter(

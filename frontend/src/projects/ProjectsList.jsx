@@ -8,10 +8,11 @@ import PopupModal from '../Components/Popup'
 import IconButton from '../Components/IconButton'
 import { toast } from 'react-toastify';
 import CFTable from '../Components/CFTable';
+import { getAPIURL } from '../hooks/useAPI.tsx';
 
 
 export async function projectListLoader({ params }) {
-  const resp = await fetch(`${SERVER_BASE_URL}/api/project/-/all`)
+  const resp = await fetch(getAPIURL(`/project/-/all`))
   if (resp.status == 200) {
     return resp.json()
   }

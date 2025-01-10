@@ -8,6 +8,7 @@ import PopupModal from '../Components/Popup'
 import IconButton from '../Components/IconButton'
 import { toast } from 'react-toastify';
 import { StatusCodes } from 'http-status-codes';
+import { getAPIURL } from '../hooks/useAPI.tsx';
 
 export const projectCreateAction = async ({ request, params }) => {
   let formData = await request.formData()
@@ -24,7 +25,7 @@ export const projectCreateAction = async ({ request, params }) => {
   switch (request.method) {
     case "POST": {
       let submitData = Object.fromEntries(formData)
-      const resp = await fetch(`${SERVER_BASE_URL}/api/project/-/create`, {
+      const resp = await fetch(getAPIURL(`/project/-/create`), {
         method: 'post',
         body: JSON.stringify(submitData),
         headers: {
