@@ -268,9 +268,7 @@ async def create_user_acc(
     db_session : Session = Depends(get_db_session)
 ):
     # Check if users can sign-up
-    user_info_db = (
-        db_session.query(User).where(User.user_name.is_(new_user.user_name)).scalar()
-    )
+    user_info_db = User.get_user_by_username(db_session, new_user.user_name)
     if user_info_db is not None:
         response.status_code = status.HTTP_409_CONFLICT
         return {"message": "User with given Username already exists"}
@@ -285,7 +283,7 @@ async def create_user_acc(
             user_name=new_user.user_name,
             display_name=new_user.display_name,
             email=new_user.email,
-            avatar_color=generateUserAvatarColor(),
+            avatar_color=User.generateUserAvatarColor(),
             is_user_admin=new_user.is_user_admin,
             read_only=new_user.read_only,
             password_salt="",
