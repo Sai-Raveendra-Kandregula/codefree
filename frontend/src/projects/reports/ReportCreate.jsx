@@ -7,7 +7,7 @@ import { useRouteData } from '../../App'
 
 import { MdCheck, MdClose } from 'react-icons/md'
 import { toast } from 'react-toastify';
-import useAPI from '../../hooks/useAPI.tsx';
+import { getAPIURL } from '../../hooks/useAPI.tsx';
 
 function CreateReport() {
   const navigate = useNavigate()
@@ -18,8 +18,6 @@ function CreateReport() {
 
   const [dragOverHasFiles, setDragOverHasFiles] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-
-  const { getAPIURL } = useAPI('v1')
 
   function uploadReport() {
     const report = document.getElementById('upload_report').files[0]
@@ -48,18 +46,24 @@ function CreateReport() {
           const out_obj = await resp.json()
           navigate(`/projects/${pathParams.projectid}/reports/${out_obj['report_id']}`)
         }
-        else if (resp.status === 404) {
+        else {
+          throw resp
+        }
+      }).catch((resp) => {
+        if (resp.status === 404) {
           toast.error("Project Not Found.")
         }
         else if (resp.status === 406) {
           toast.error("Invalid Report Data.")
         }
         else if (resp.status === 409) {
-          var error_obj = (await resp.json())['detail']
-          toast.error(() => (<span>
-            {`Error Uploading Report - Already exists : `}
-            <a href={error_obj['report_url']}>Report {error_obj['report_id']}</a>
-          </span>))
+          resp.json().then((val) => {
+            var error_obj = val['detail']
+            toast.error(() => (<span>
+              {`Error Uploading Report - Already exists : `}
+              <a href={error_obj['report_url']}>Report {error_obj['report_id']}</a>
+            </span>))
+          })
         }
         else {
           toast.error(`Error Uploading Report (Code : ${resp.statusText})`)
@@ -107,45 +111,45 @@ function CreateReport() {
             borderRadius: 'var(--border-radius)',
             border: dragOverHasFiles ? '2px dashed var(--theme-color)' : '2px dashed var(--border-color)'
           }}
-          onDragOver={(e) => {
-            e.preventDefault()
-            if(e.dataTransfer.files.length > 0){
-              setDragOverHasFiles(true)
-            }
-            else{
+            onDragOver={(e) => {
+              e.preventDefault()
+              if (e.dataTransfer.files.length > 0) {
+                setDragOverHasFiles(true)
+              }
+              else {
+                setDragOverHasFiles(false)
+              }
+            }}
+            onDragEnter={(e) => {
+              e.preventDefault()
+              if (e.dataTransfer.files.length > 0) {
+                setDragOverHasFiles(true)
+              }
+              else {
+                setDragOverHasFiles(false)
+              }
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault()
               setDragOverHasFiles(false)
-            }
-          }}
-          onDragEnter={(e) => {
-            e.preventDefault()
-            if(e.dataTransfer.files.length > 0){
-              setDragOverHasFiles(true)
-            }
-            else{
+            }}
+            onDragExit={(e) => {
+              e.preventDefault()
               setDragOverHasFiles(false)
-            }
-          }}
-          onDragLeave={(e)=>{
-            e.preventDefault()
-            setDragOverHasFiles(false)
-          }}
-          onDragExit={(e)=>{
-            e.preventDefault()
-            setDragOverHasFiles(false)
-          }}
-          onDrop={(e) =>{
-            e.preventDefault()
-            document.getElementById('upload_report').files = e.dataTransfer.files
-            setSelectedFile(e.dataTransfer.files.length > 0 ? e.dataTransfer.files[0] : null)
-          }}
+            }}
+            onDrop={(e) => {
+              e.preventDefault()
+              document.getElementById('upload_report').files = e.dataTransfer.files
+              setSelectedFile(e.dataTransfer.files.length > 0 ? e.dataTransfer.files[0] : null)
+            }}
           >
             {
               selectedFile ? <span>
-                {selectedFile.name} ({Math.round(selectedFile.size/1024)} KB)
-              </span>:
-              <span>
-                Click to pick a file, or drag and drop it here.
-              </span>
+                {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+              </span> :
+                <span>
+                  Click to pick a file, or drag and drop it here.
+                </span>
             }
           </label>
           <input
@@ -153,15 +157,15 @@ function CreateReport() {
               display: 'none'
             }}
             onChange={(e) => {
-              if(e.target.files.length > 0){
+              if (e.target.files.length > 0) {
                 setSelectedFile(e.target.files[0])
               }
-              else{
+              else {
                 setSelectedFile(null)
               }
             }}
-          type="file" name="upload_report" id="upload_report" placeholder='Choose Report File' accept='application/json' />
-          
+            type="file" name="upload_report" id="upload_report" placeholder='Choose Report File' accept='application/json' />
+
         </div>
       </div>
       <div style={{
@@ -177,7 +181,7 @@ function CreateReport() {
             fontSize: '1.25rem'
           }} />}
           to={(reportsList.length === 0) ? `/projects/${pathParams.projectid}`
-          : `/projects/${pathParams.projectid}/reports`}
+            : `/projects/${pathParams.projectid}/reports`}
         />
         <button
           className={`themeButton`}

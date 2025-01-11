@@ -6,7 +6,8 @@ import { CodeFreeContext, useRouteData } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { GoArrowRight } from 'react-icons/go';
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
-import { getAPIURL } from '../hooks/useAPI.tsx';
+import { ProjectReportManager } from '../models/Project.tsx';
+import { toast } from 'react-toastify';
 
 function ProjectHome() {
   const pathParams = useParams()
@@ -27,40 +28,27 @@ function ProjectHome() {
     "issue_files": "Files with Issues"
   }), [])
 
+  const reportMan = useMemo(() => {
+    return new ProjectReportManager(pathParams.projectid)
+  }, [pathParams.projectid])
+
   const getLatestReportStats = useCallback(() => {
-    fetch(getAPIURL(`/project/${pathParams.projectid}/report/last-report/stats`)).then(
-      (resp) => {
-        if (resp.status === 200) {
-          return resp.json()
-        }
-        else {
-          return null
-        }
-      }).then((data) => {
+    reportMan.stats("last-report")
+      .then((data) => {
         setReportData(data)
       })
-  }, [pathParams.projectid, setReportData])
+  }, [reportMan, setReportData])
 
   const getAllReports = useCallback(() => {
-    fetch(getAPIURL(`/project/${pathParams.projectid}/report/-/all`)).then(
-      (resp) => {
-        if (resp.status === 200) {
-          return resp.json()
-        }
-        else {
-          return null
-        }
-      }).then((data) => {
-        if (data) {
-          setReportsLists(data)
-        }
-        else {
-          setReportsLists([])
-        }
-      }).catch((reason) => {
-        setReportsLists([])
-      })
-  }, [pathParams.projectid, setReportsLists])
+    reportMan.all().then((data) => {
+      setReportsLists(data)
+    }).catch((resp) => {
+      setReportsLists([])
+      if (resp.status !== 404){
+        toast(`Failed to get Reports List (Code : ${resp.status})`)
+      }
+    })
+  }, [reportMan, setReportsLists])
 
   useEffect(() => {
     getLatestReportStats()

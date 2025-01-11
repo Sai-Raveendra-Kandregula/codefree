@@ -7,16 +7,11 @@ import { useRouteData } from '../../App'
 
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { MdOutlineFileUpload } from 'react-icons/md'
-import { getAPIURL } from '../../hooks/useAPI.tsx';
+import { ProjectReportManager } from '../../models/Project.tsx';
 
 export async function reportListLoader({ params }) {
-  const resp = await fetch(getAPIURL(`/project/${params.projectid}/report/-/all`))
-  if (resp.status === 200) {
-    return resp.json()
-  }
-  else {
-    throw resp
-  }
+  const reportMan = new ProjectReportManager(params.projectid) 
+  return await reportMan.all()
 }
 
 function Reports() {

@@ -15,15 +15,11 @@ import ToolTip from '../../Components/ToolTip';
 import { AppContext } from '../../NotFoundContext';
 import { toast } from 'react-toastify';
 import { getAPIURL } from '../../hooks/useAPI.tsx';
+import { ProjectReportManager } from '../../models/Project.tsx';
 
 export async function reportDataLoader({ params }) {
-    const resp = await fetch(getAPIURL(`/project/${params.projectid}/report/${params.reportid}`))
-    if (resp.status === 200) {
-        return resp.json()
-    }
-    else {
-        throw new Response("", { status: resp.status })
-    }
+    const reportMan = new ProjectReportManager(params.projectid)
+    return await reportMan.get(params.reportid)
 }
 
 function RepoInfo({
@@ -105,7 +101,7 @@ function ReportOptions({
     reportData,
     pathParams
 }) {
-    
+
     const navigate = useNavigate()
 
     const getExportURL = (format) => {
@@ -186,8 +182,10 @@ function ReportOptions({
                             navigate('..')
                         }
                         else {
-                            toast.error(`Failed to Delete Report (Code:${resp.status})`)
+                            throw resp
                         }
+                    }).catch((resp) => {
+                        toast.error(`Failed to Delete Report (Code:${resp.status})`)
                     })
                 }
             }} />

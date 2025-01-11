@@ -4,17 +4,11 @@ import { NameInitialsAvatar } from 'react-name-initials-avatar';
 import LinkButton from '../Components/LinkButton'
 import { MdAdd } from 'react-icons/md'
 import CFTable from '../Components/CFTable';
-import { getAPIURL } from '../hooks/useAPI.tsx';
+import { Project } from '../models/Project.tsx';
 
 
 export async function projectListLoader({ params }) {
-  const resp = await fetch(getAPIURL(`/project/-/all`))
-  if (resp.status === 200) {
-    return resp.json()
-  }
-  else {
-    throw resp
-  }
+  return await Project.all()
 }
 
 function ProjectsList() {

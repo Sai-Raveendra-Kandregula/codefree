@@ -1,15 +1,9 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import { getAPIURL } from '../hooks/useAPI.tsx'
+import { Project } from '../models/Project.tsx'
 
 export async function projectInfoLoader( {params} ) {
-    const resp = await fetch(getAPIURL(`/project/${params.projectid}`))
-    if (resp.status !== 200) {
-        throw resp.status
-    }
-    else {
-        return resp.json()
-    }
+    return await Project.get(params.projectid)
 }
 
 function ProjectWrapper() {

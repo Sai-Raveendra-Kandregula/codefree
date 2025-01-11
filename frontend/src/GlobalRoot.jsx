@@ -77,6 +77,7 @@ function GlobalRoot() {
   const rootLoaderData = useLoaderData()
 
   const projectInfo = useRouteData('project-root')
+  const reportList = useRouteData('report-list')
 
   const currentUserData = useMemo(() => cfContext.userInfo, [cfContext.userInfo])
 
@@ -158,9 +159,9 @@ function GlobalRoot() {
           </b>
         </div>
         {
-          pathParams.reportid ? <React.Fragment>
+          reportList && pathParams.reportid ? <React.Fragment>
             {
-              rootLoaderData['reportList'].map((report) => {
+              reportList.map((report) => {
                 return <SideBarLink key={report['id']} to={`/projects/${pathParams.projectid}/reports/${report['id']}`}
                   className={pathParams.reportid && pathParams.reportid.toLowerCase() === 'last-report' && report['id'] === lastReport && "active"}
                   title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
@@ -171,7 +172,7 @@ function GlobalRoot() {
               <SideBarLink to={`/projects/${pathParams.projectid}`} title={projectInfo && projectInfo['name']}
                 icon={<ProjectIcon />} />
               {
-                rootLoaderData['reportList'] && rootLoaderData['reportList'].length > 0 &&
+                reportList && reportList.length > 0 &&
                 <SideBarLink to={`/projects/${pathParams.projectid}/reports`} exact={false} title={'Reports'} icon={<GoCodeSquare />} />
               }
               <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<LuSettings />} />
