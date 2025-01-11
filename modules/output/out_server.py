@@ -12,7 +12,7 @@ import urllib.parse
 ServerSession : requests.Session = requests.session()
 
 def output_server(args, output: List[CheckerOutput] = []):
-    from modules.server.server import app
+    from modules.server import app
     
     progress_printer = get_progress_printer(args=args)
     error_printer = get_error_printer(args=args)
@@ -51,7 +51,7 @@ def output_server(args, output: List[CheckerOutput] = []):
         error_printer(f"Report Upload Failed. (HTTP Status Code : {resp.status_code})")
 
 def checkRequisites(args):
-    from modules.server.server import app
+    from modules.server import app
     
     error_printer = get_error_printer(args=args)
     if(not getattr(args, "serverUrl", False)):

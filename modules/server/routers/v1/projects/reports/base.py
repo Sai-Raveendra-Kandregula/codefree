@@ -21,7 +21,7 @@ def saveReportFile(report: dict, destination_file: str):
     dest.close()
 
 @reportsBaseRouter.get("/all")
-def get_project_all_reports(
+def report_all(
     request: Request, response: Response, 
     project: Project = Depends(getProject),
     db_session : Session = Depends(get_db_session)
@@ -36,7 +36,7 @@ def get_project_all_reports(
     return out
 
 @reportsBaseRouter.get("/count")
-def get_project_report_count(
+def report_count(
     request: Request, response: Response, 
     project: Project = Depends(getProject),
     db_session : Session = Depends(get_db_session)
@@ -44,7 +44,7 @@ def get_project_report_count(
     return {"count": Report.get_report_count(db_session, project.id)}
 
 @reportsBaseRouter.post("/upload", status_code=status.HTTP_201_CREATED)
-def upload_project_report(
+def report_upload(
     report: ReportData,
     request: Request,
     response: Response,

@@ -21,7 +21,7 @@ reportSpecificRouter = APIRouter(
 )
 
 @reportSpecificRouter.get("/")
-def get_report(
+def report_get(
     project : Project = Depends(getProject), 
     report : Report = Depends(getReport), 
     session : Session = Depends(get_db_session)
@@ -35,7 +35,7 @@ def get_report(
     return report_data_obj
 
 @reportSpecificRouter.delete("/")
-def delete_report(
+def report_delete(
     project : Project = Depends(getProject),
     report : Report = Depends(getReport),
     user_data: UserData = Depends(get_user_data),
@@ -51,11 +51,11 @@ def delete_report(
     return {}
 
 @reportSpecificRouter.get("/stats")
-def get_stats(report : Report = Depends(getReport)):
+def report_stats_get(report : Report = Depends(getReport)):
     return report.as_dict()
 
 @reportSpecificRouter.get("/export")
-def export_project_report(
+def report_export(
     background_tasks: BackgroundTasks,
     format: str = "json",
     project : Project = Depends(getProject),

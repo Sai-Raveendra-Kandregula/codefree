@@ -1,7 +1,6 @@
 import os
 import datetime
-from uuid import UUID, uuid4
-import randomcolor
+from uuid import uuid4
 from fastapi import APIRouter, Request, Response, Depends, status
 
 from sqlalchemy import func
@@ -93,7 +92,7 @@ async def create_session(
 
 
 @usersRouter.post("/user/sign-out")
-async def del_session(
+async def user_signout(
     response: Response, session: UserSession = Depends(get_user_session),
     db_session : Session = Depends(get_db_session)
 ):
@@ -105,7 +104,7 @@ async def del_session(
 
 
 @usersRouter.get("/user/validate")
-async def whoami(
+async def user_validate(
     response: Response,
     user_data: UserData = Depends(get_user_data),
     required: bool = Depends(auth_required),
@@ -123,7 +122,7 @@ async def whoami(
 
 
 @usersRouter.get("/user/userdata/{userid}")
-async def getUserByID(
+async def user_get(
     request: Request,
     response: Response,
     user_data: UserData = Depends(get_user_data),
@@ -147,7 +146,7 @@ async def getUserByID(
 
 
 @usersRouter.post("/user/modify")
-async def getUserByID(
+async def user_modify(
     newData: UserData,
     request: Request,
     response: Response,
@@ -196,7 +195,7 @@ async def getUserByID(
 
 
 @usersRouter.get("/user/all")
-async def all_users(
+async def user_all(
     user_data: UserData = Depends(get_user_data),
     required: bool = Depends(auth_required),
     db_session : Session = Depends(get_db_session)
@@ -206,7 +205,7 @@ async def all_users(
 
 
 @usersRouter.get("/user/all-pending")
-async def all_pending_users(
+async def pending_users_all(
     user_data: UserData = Depends(get_user_data),
     required: bool = Depends(auth_required),
     db_session : Session = Depends(get_db_session)
@@ -217,7 +216,7 @@ async def all_pending_users(
 
 
 @usersRouter.post("/user/invite")
-async def invite_user(
+async def user_invite(
     new_user: NewUserData,
     response: Response,
     user_data: UserData = Depends(get_user_data),
@@ -234,7 +233,7 @@ async def invite_user(
 
 
 @usersRouter.post("/user/delete")
-async def delete_user_acc(
+async def user_delete(
     user: NewUserData,
     response: Response,
     user_data: UserData = Depends(get_user_data),
@@ -263,7 +262,7 @@ async def delete_user_acc(
 
 
 @usersRouter.post("/user/create-account")
-async def create_user_acc(
+async def user_create_anon(
     new_user: NewUserData, response: Response,
     db_session : Session = Depends(get_db_session)
 ):

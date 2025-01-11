@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends
 
 from modules.server.SessionAuthenticator import auth_required
 
@@ -12,8 +12,8 @@ projectsSpecificRouter = APIRouter(
 )
 
 @projectsSpecificRouter.get("/")
-def get_project(
-    request: Request, response: Response, project: Project = Depends(getProject)
+def project_get(
+    project: Project = Depends(getProject)
 ):
     return project.as_dict()
 

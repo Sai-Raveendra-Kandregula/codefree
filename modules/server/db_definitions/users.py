@@ -85,7 +85,7 @@ class User(CodeFreeBase):
         return rand_color.generate(luminosity="dark")[0]
     
     @classmethod
-    def create_test_user(cls, 
+    def create_default_user(cls, 
                         db_session : Session,
                         default_user : str,
                         default_user_email : str,

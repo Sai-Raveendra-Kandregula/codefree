@@ -33,92 +33,12 @@ def check_pid(pid):
         return True
 
 if __name__ == "__main__":    
-    uvicorn_conf = uvicorn.Config(app="modules.server.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
-
+    uvicorn_conf = uvicorn.Config(app="modules.server:app", host="0.0.0.0", port=PORT, reload=dev_env)
     server = uvicorn.Server(config=uvicorn_conf)
-
     logger = logging.getLogger('uvicorn.error')
 
-    django_server_task = None
-
-    # Detect Docker Environment
     logger.info(f"CodeFree v{VERSION}")
-    if docker_env:
-        # If Production Environment
-        # if not dev_env:
-        #     # Build Frontend
-        #     logger.info("Building Web App...")
-        #     process = Popen(['/usr/local/bin/yarn', '--cwd', '/codefree/frontend', 'build'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
-        #     stdout, stderr = process.communicate()
-        #     if(process.returncode == 0):
-        #         logger.info('Web App Built Successfully.')
-        #     else:
-        #         logger.error(f'Web App Build Failed : ${stderr}')
-        #         exit(1)
-
-        #     # Copy /etc/apache2/ports.conf.prod to /etc/apache2/ports.conf and enable frontend static server
-        #     logger.info("Configuring Apache...")
-        #     copy_ports_rc = os.system("cp /etc/apache2/ports.conf.prod /etc/apache2/ports.conf")
-        #     process = Popen(['/bin/bash', '-c', 'a2ensite 001-frontend.conf'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
-        #     process.communicate()
-        #     if (copy_ports_rc == 0 and process.returncode == 0):
-        #         pass
-        #     else:
-        #         logger.error("Error Configuring Apache.")
-        #         exit(1)
-        #     if (os.system("cat /etc/apache2/sites-available/000-default.template.conf | envsubst '$ROOT_PATH $ROOT_PATH_MID_URL' > /etc/apache2/sites-available/000-default.conf") == 0):
-        #         pass
-        #     else:
-        #         logger.error("Error Configuring Apache.")
-        #         exit(1)
-
-        # else:
-        #     logger.info(f"CodeFree v{VERSION} - Development Build")
-
-        #     # Start Frontend Dev Server
-        #     logger.info("Starting Web App Server...")
-            
-        #     process = Popen(['/usr/local/bin/yarn', '--cwd', '/codefree/frontend', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
-            
-        #     # Wait for 2 Seconds for Dev Server to start
-        #     time.sleep(2) 
-
-        #     if(check_pid(process.pid)):
-        #         logger.info('Web App Server now Up.')
-        #     else:
-        #         stdout, stderr = process.communicate()
-        #         logger.error(f'Web App Server startup failed :')
-        #         logger.error(stderr)
-        #         exit(1)
-
-        #     # Copy /etc/apache2/ports.conf.dev to /etc/apache2/ports.conf
-        #     logger.info("Configuring Apache...")
-        #     if (os.system("cp /etc/apache2/ports.conf.dev /etc/apache2/ports.conf") == 0):
-        #         pass
-        #     else:
-        #         logger.error("Error Configuring Apache.")
-        #         exit(1)
-        #     if (os.system("cat /etc/apache2/sites-available/000-default.template.dev.conf | envsubst '$ROOT_PATH $ROOT_PATH_MID_URL' > /etc/apache2/sites-available/000-default.conf") == 0):
-        #         pass
-        #     else:
-        #         logger.error("Error Configuring Apache.")
-        #         exit(1)
-        # if (os.system("a2ensite 000-default.conf &> /dev/null") == 0):
-        #     logger.info("Done.")
-        # else:
-        #     logger.error("Error Configuring Apache.")
-        #     exit(1)
-
-        # Start Apache Proxy
-        # logger.info("Launching Apache Web Server...")
-        # process = Popen(['service', 'apache2', 'start'], stdout=PIPE, stderr=PIPE, encoding='utf-8')
-        # stdout, stderr = process.communicate()
-        # if(process.returncode == 0):
-        #     logger.info('Apache now listening on 0.0.0.0:8080')
-        # else:
-        #     logger.error(f'Apache Launch Failed : ${stderr}')
-        #     exit(1)
-        pass
+    
     def run_fastapi():
         if uvicorn_conf.should_reload:
             sock = uvicorn_conf.bind_socket()
@@ -128,15 +48,15 @@ if __name__ == "__main__":
             Multiprocess(uvicorn_conf, target=server.run, sockets=[sock]).run()
         else:
             return server.run()
-
     init_db()
     db_session = Session(get_engine())
-    User.create_test_user(
+    User.create_default_user(
         db_session=db_session,
         default_user=DEFAULT_USER, 
         default_user_email=DEFAULT_USER_EMAIL, 
         default_pass=DEFAULT_PASS
     )
-    Project.createTestProject(db_session=db_session)
+    if dev_env:
+        Project.createTestProject(db_session=db_session)
     db_session.close()
     run_fastapi()

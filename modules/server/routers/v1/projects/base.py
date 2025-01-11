@@ -13,7 +13,7 @@ projectsBaseRouter = APIRouter(
 )
 
 @projectsBaseRouter.post("/create")
-def create_project(
+def project_create(
     project: ProjectData,
     request: Request,
     response: Response,
@@ -49,7 +49,7 @@ def create_project(
 
 
 @projectsBaseRouter.get("/all")
-def get_all_projects(
+def project_all(
     request: Request,
     response: Response,
     user_data: UserData = Depends(get_user_data),
