@@ -10,11 +10,12 @@ export const AppProvider = (props) => {
 
   const value = useMemo(
     () => ({
-      ...state,
+      notFound : state.notFound,
+      lastReport: state.lastReport,
       setNotFound: (notFound) => setState((state) => ({ ...state, notFound })),
       setLastReport: (lastReport) => setState((state) => ({ ...state, lastReport })),
     }),
-    [state]
+    [state.notFound, state.lastReport]
   );
 
   return <AppContext.Provider value={value} {...props} />;
@@ -27,7 +28,7 @@ export const NotFound = () => {
 
   const route_Error = useRouteError()
 
-  if( (isRouteErrorResponse(route_Error) && route_Error.status == StatusCodes.UNAUTHORIZED) || (route_Error == StatusCodes.UNAUTHORIZED) ){
+  if( (isRouteErrorResponse(route_Error) && route_Error.status === StatusCodes.UNAUTHORIZED) || (route_Error === StatusCodes.UNAUTHORIZED) ){
     navigate(`/sign-in?redirect=${window.location.href}`)
   }
   
@@ -35,7 +36,7 @@ export const NotFound = () => {
       if (!notFound) {
         setNotFound(true);
     }
-  }, [notFound]);
+  }, [notFound, setNotFound]);
 
   return <ErrorPage errorNumber={isRouteErrorResponse(route_Error) ? route_Error.status : (route_Error) ? route_Error : 404 } />;
 };

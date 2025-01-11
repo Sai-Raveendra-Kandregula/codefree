@@ -228,7 +228,7 @@ function ReportViewer() {
     });
 
     const projectInfo = useRouteData('0-0')['projectInfo']
-    const reportData = useRouteData('0-0')['reportData']
+    const reportData = useRouteData('report-data')
     const [transformedReportData, setTransformedReportData] = useState({})
 
     useEffect(() => {

@@ -26,7 +26,7 @@ function HeaderButton({
 
   return (<React.Fragment>
     {
-      type == HEADER_BUTTON_TYPES.LINK &&
+      type === HEADER_BUTTON_TYPES.LINK &&
       <Link
         className={`buttonBase headerButton ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
         to={to}
@@ -43,7 +43,7 @@ function HeaderButton({
       </Link>
     }
     {
-      type == HEADER_BUTTON_TYPES.DROPDOWN &&
+      type === HEADER_BUTTON_TYPES.DROPDOWN &&
       <div
         className={`headerButton buttonBase ${isDropdownOpen && 'open'} ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
         title={title}
@@ -79,8 +79,8 @@ function HeaderButton({
           }
         </div>
         <div ref={dropdownRef} className='headerButtonDropDown' style={{
-          left: anchorDropDown == "left" ? "0" : "unset",
-          right: anchorDropDown == "right" ? "0" : "unset",
+          left: anchorDropDown === "left" ? "0" : "unset",
+          right: anchorDropDown === "right" ? "0" : "unset",
         }}>
           {children}
         </div>

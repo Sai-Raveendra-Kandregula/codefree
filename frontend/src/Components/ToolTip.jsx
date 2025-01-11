@@ -49,8 +49,8 @@ function ToolTip({
                 }
             </div>
             <div ref={popUpRef} className='tooltipPopup' style={{
-                left: anchorDropDown == "left" ? "0" : "unset",
-                right: anchorDropDown == "right" ? "0" : "unset",
+                left: anchorDropDown === "left" ? "0" : "unset",
+                right: anchorDropDown === "right" ? "0" : "unset",
             }}>
                 {popup}
             </div>

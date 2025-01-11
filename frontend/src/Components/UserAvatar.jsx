@@ -11,14 +11,18 @@ function UserAvatar({
         <div style={style}>
             {
                 userData['avatar_data'] ?
-                    <img id='avatar_preview' src={`${userData['avatar_data']}`} style={{
-                        display: 'block',
-                        height: `${size * 1.65}rem`,
-                        width: `${size * 1.65}rem`,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        objectPosition: 'center',
-                    }} />
+                    <img id='avatar_preview' 
+                        src={`${userData['avatar_data']}`} 
+                        alt={`${'display_name' in userData ? userData['display_name'] : userData['user_name']}}`}
+                        style={{
+                            display: 'block',
+                            height: `${size * 1.65}rem`,
+                            width: `${size * 1.65}rem`,
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                        }} 
+                    />
                     :
                     <NameInitialsAvatar
                         name={`${'display_name' in userData ? userData['display_name'] : userData['user_name']}}`}

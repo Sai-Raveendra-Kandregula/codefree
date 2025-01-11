@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 
 import { IoChevronDownOutline } from "react-icons/io5";
 
@@ -73,8 +72,8 @@ function DropdownButton({
         <IoChevronDownOutline />
       </div>
       <div ref={dropdownRef} className='dropdownButtonDropDown' style={{
-        left: anchorDropDown == "left" ? "0" : "unset",
-        right: anchorDropDown == "right" ? "0" : "unset",
+        left: anchorDropDown === "left" ? "0" : "unset",
+        right: anchorDropDown === "right" ? "0" : "unset",
       }}>
         {typeof children === 'function' ? children({ open: openDropdown, close: closeDropdown, isOpen: isDropdownOpen }) : children}
       </div>

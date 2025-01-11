@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams, useSubmit } from 'react-router-dom'
+import React, { useCallback, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams, useSubmit } from 'react-router-dom'
 
 import { StatusCodes } from 'http-status-codes';
 
-import { SERVER_BASE_URL, SERVER_ROOT_PATH } from './App'
+import { SERVER_ROOT_PATH } from './App'
 import LinkButton from './Components/LinkButton'
 import { ReactComponent as CFLogo } from './assets/CF_Logo.svg'
-import { collapseToast, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 import { getAPIURL } from './hooks/useAPI.tsx';
 
-export const signInAction = async ({ request, params }) => {
+export const signInAction = async ({ request }) => {
   switch (request.method) {
     case "POST": {
-      let formData = await request.formData()
-      let submitData = Object.fromEntries(formData)
       const resp = await fetch(getAPIURL(`/user/sign-in`), {
         method: "post",
         headers: {
@@ -28,7 +26,7 @@ export const signInAction = async ({ request, params }) => {
         credentials: "include",
         mode: 'cors'
       })
-      if (resp.status == StatusCodes.OK) {
+      if (resp.status === StatusCodes.OK) {
         const searchParams = new URL(request.url).searchParams
         if (searchParams.get('redirect')) {
           window.location.href = searchParams.get('redirect')
@@ -40,10 +38,10 @@ export const signInAction = async ({ request, params }) => {
       else {
         toast.error('Invalid Username or Password.')
       }
-      if (resp.status == StatusCodes.OK) {
+      if (resp.status === StatusCodes.OK) {
         // toast.success("User updated Successfully.")
       }
-      else if (resp.status == StatusCodes.NOT_FOUND) {
+      else if (resp.status === StatusCodes.NOT_FOUND) {
         toast.error("User not found.")
       }
       return await resp.json()
@@ -58,9 +56,9 @@ function SignIn() {
   const navigate = useNavigate()
   const submit = useSubmit();
 
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams,] = useSearchParams()
 
-  function redirectToTarget() {
+  const redirectToTarget = useCallback(() => {
     if (searchParams.get('redirect')) {
       window.location.href = searchParams.get('redirect')
     }
@@ -69,20 +67,20 @@ function SignIn() {
         replace: true
       })
     }
-  }
+  }, [searchParams, navigate])
 
-  async function ValidateUser(redirect = true) {
+  const ValidateUser = useCallback( async (redirect = true) => {
     const resp = await fetch(getAPIURL(`/user/validate`), {
       credentials: "include"
     })
     if (resp.status === 200) {
       redirectToTarget()
     }
-  }
+  }, [redirectToTarget])
 
   useEffect(() => {
     ValidateUser()
-  }, [])
+  }, [ValidateUser])
 
   return (
     <div style={{

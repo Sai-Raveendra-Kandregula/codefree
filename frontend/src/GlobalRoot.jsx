@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react'
+import React, { useContext, useState, useMemo, useCallback } from 'react'
 import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
 import useBreadcrumbs from "use-react-router-breadcrumbs";
 
@@ -17,7 +17,6 @@ import { CodeFreeContext, SERVER_ROOT_PATH, useRouteData } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import { AppContext } from './NotFoundContext';
 import { projectInfoLoader } from './projects/ProjectWrapper';
-import { reportDataLoader } from './projects/reports/ReportViewer';
 import { reportListLoader } from './projects/reports/Reports';
 import 'react-toastify/dist/ReactToastify.css';
 import { userDataLoader } from './users/UserRoot';
@@ -105,9 +104,6 @@ export async function globalRootLoader({ params }) {
     out['projectInfo'] = await projectInfoLoader({ params })
     out['reportList'] = await reportListLoader({ params })
   }
-  if (params.reportid) {
-    out['reportData'] = await reportDataLoader({ params })
-  }
   return out
 }
 
@@ -124,7 +120,7 @@ function GlobalRoot() {
 
   const [sidebarHidden, setSidebarHidden] = useState(false)
 
-  function AuthHeader() {
+  const AuthHeader = useCallback(() => {
     return <React.Fragment>
       {
         currentUserData ?
@@ -137,7 +133,7 @@ function GlobalRoot() {
           <HeaderButton replace={false} type={HEADER_BUTTON_TYPES.LINK} icon={<BiLogIn />} title={"Sign In"} to={"/sign-in"} />
       }
     </React.Fragment>
-  }
+  }, [currentUserData])
 
   const sideBarItems = () => {
     if((window.location.pathname).startsWith(SERVER_ROOT_PATH + "/admin-area")){
@@ -158,7 +154,7 @@ function GlobalRoot() {
       </React.Fragment>
     }
 
-    if (pathParams.userid && pathParams.userid == currentUserData['user_name']) {
+    if (pathParams.userid && pathParams.userid === currentUserData['user_name']) {
       return <React.Fragment>
         <div style={{
           padding: '10px'
@@ -204,7 +200,7 @@ function GlobalRoot() {
             {
               rootLoaderData['reportList'].map((report) => {
                 return <SideBarLink key={report['id']} to={`/projects/${pathParams.projectid}/reports/${report['id']}`}
-                  className={pathParams.reportid && pathParams.reportid.toLowerCase() === 'last-report' && report['id'] == lastReport && "active"}
+                  className={pathParams.reportid && pathParams.reportid.toLowerCase() === 'last-report' && report['id'] === lastReport && "active"}
                   title={`Report #${report['id']}`} icon={<HiOutlineDocumentReport />} />
               })
             }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { userDataLoader } from '../users/UserRoot'
 import UserAvatar from './UserAvatar'
@@ -23,8 +23,6 @@ function UserInfoHover({
         }} onMouseEnter={(e) => {
             var viewportOffset = containerRef.current.getBoundingClientRect();
             // these are relative to the viewport, i.e. the window
-            var top = viewportOffset.top;
-            var left = viewportOffset.left;
 
             const isLinkInTopHalfOfViewport = viewportOffset.bottom < ((window.innerHeight || document.documentElement.clientHeight) / 2)
 
@@ -41,11 +39,11 @@ function UserInfoHover({
         >
             {
                 showInfo && <div style={{
-                    paddingTop: showInfo == "top" ? '5px' : '0',
-                    paddingBottom: showInfo == "bottom" ? '5px' : '0',
+                    paddingTop: showInfo === "top" ? '5px' : '0',
+                    paddingBottom: showInfo === "bottom" ? '5px' : '0',
                     position: 'absolute',
-                    top: showInfo == "top" ? '100%' : 'auto',
-                    bottom: showInfo == "bottom" ? '100%' : 'auto',
+                    top: showInfo === "top" ? '100%' : 'auto',
+                    bottom: showInfo === "bottom" ? '100%' : 'auto',
                     zIndex: '1500',
                 }}>
                     <div style={{
@@ -101,7 +99,7 @@ function UserLink({
         'user_name' : user_id
     })
 
-    async function getUserData() {
+    const getUserData = useCallback( async () => {
         try {
             const data = await userDataLoader({
                 params: {
@@ -113,16 +111,16 @@ function UserLink({
         catch {
             // setUserData()
         }
-    }
+    }, [user_id, setUserData])
 
     useEffect(() => {
         if (!user_data && user_id && load_user_data) {
             getUserData()
         }
-    }, [user_data, user_id, load_user_data])
+    }, [user_data, user_id, load_user_data, getUserData])
 
 
-    if (user_id == null && user_data == null) {
+    if (user_id === null && user_data === null) {
         return <></>
     }
 

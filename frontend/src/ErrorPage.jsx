@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import DottedLine from './assets/dottedline.png'
 import { IoArrowBack } from 'react-icons/io5'
 import LinkButton from './Components/LinkButton'
 import {
-  ReasonPhrases,
   StatusCodes,
-  getReasonPhrase,
-  getStatusCode,
 } from 'http-status-codes';
 
 const CFAppErrors = {
@@ -47,7 +44,7 @@ function ErrorPage({
     errorNumber = 504
   }
 
-  if (errorNumber == StatusCodes.UNAUTHORIZED) {
+  if (errorNumber === StatusCodes.UNAUTHORIZED) {
     navigate(`/sign-in?redirect=${window.location.href}`)
   }
 

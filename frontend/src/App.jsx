@@ -3,7 +3,7 @@ import './Charts.css';
 import './Dropdown.css';
 import './TabView.css';
 import './Tooltip.css';
-import { Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches, useNavigate } from 'react-router-dom'
+import { Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, Outlet, useMatches } from 'react-router-dom'
 import { lazy, Suspense, createContext, useState, useEffect } from 'react';
 
 import useTheme from './hooks/useTheme.tsx';
@@ -12,7 +12,7 @@ import ErrorPage from './ErrorPage';
 import SignOut from './SignOut';
 import { NotFound } from './NotFoundContext';
 import { globalRootLoader } from './GlobalRoot';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { projectListLoader } from './projects/ProjectsList';
 import { pendingUserListLoader, userListLoader } from './system/SystemSettingsUsers';
 import UserModify, { ModifyUserAction } from './users/UserModify';
@@ -21,6 +21,7 @@ import CreateReport from './projects/reports/ReportCreate';
 import { signInAction } from './SignIn';
 import SignUp from './SignUp';
 import { currentUserDataLoader } from './users/UserRoot';
+import {reportDataLoader} from './projects/reports/ReportViewer.jsx'
 
 export const CodeFreeContext = createContext();
 
@@ -93,7 +94,7 @@ function App() {
                         <Route path={`/projects/:projectid`} element={<ProjectHome />} />
                         <Route path={`/projects/:projectid/reports`} element={<Reports />} />
                         <Route path={`/projects/:projectid/reports/upload`} element={<CreateReport />} />
-                        <Route path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} />
+                        <Route id='report-data' path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} />
                         <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
                     </Route>
                 </Route>
