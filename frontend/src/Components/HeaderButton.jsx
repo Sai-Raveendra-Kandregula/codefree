@@ -28,7 +28,7 @@ function HeaderButton({
     {
       type == HEADER_BUTTON_TYPES.LINK &&
       <Link
-        className={`headerButton ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
+        className={`buttonBase headerButton ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
         to={to}
         title={title}
         replace={false}
@@ -45,7 +45,7 @@ function HeaderButton({
     {
       type == HEADER_BUTTON_TYPES.DROPDOWN &&
       <div
-        className={`headerButton ${isDropdownOpen && 'open'} ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
+        className={`headerButton buttonBase ${isDropdownOpen && 'open'} ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
         title={title}
         {...props}>
         <div className={`headerButtonDropdownSummary`}

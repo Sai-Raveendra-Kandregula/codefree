@@ -1,43 +1,39 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { SERVER_BASE_URL } from './App'
 import { getAPIURL } from './hooks/useAPI.tsx'
 
 function SignOut() {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-
   const [errorMessage, setErrorMessage] = useState("")
 
-  function redirectToSignIn() {
+  const redirectToSignIn = useCallback(() => {
       navigate(`/sign-in`, {
         replace: true
       })
-  }
+  }, [navigate])
 
-  function signOutUser(){
+  const signOutUser = useCallback(() => {
     setErrorMessage("Signing out...")
     fetch(getAPIURL(`/user/sign-out`), {
       method: "post",
       credentials: "include",
       mode: 'cors'
     }).then((resp) => {
-      if (resp.status == 200) {
+      if (resp.status === 200) {
         redirectToSignIn();
       }
       else {
-        if (resp.status == 401) {
+        if (resp.status === 401) {
           setErrorMessage('Error Signing out. Refresh page to try again.')
         }
       }
     })
-  }
+  }, [redirectToSignIn, setErrorMessage])
 
   useEffect(() => {
     signOutUser();
-
-  }, [])
+  }, [signOutUser])
 
   return (
     <div>

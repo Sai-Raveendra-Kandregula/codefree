@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react'
-import { Form, useSubmit, Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Form, useNavigate, useParams } from 'react-router-dom'
 
 import LinkButton from '../../Components/LinkButton';
-import IconButton from '../../Components/IconButton';
-import PopupModal from '../../Components/Popup'
 
-import { SERVER_BASE_URL, useRouteData } from '../../App'
+import { useRouteData } from '../../App'
 
-import { HiOutlineDocumentReport } from "react-icons/hi";
-import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
+import { MdCheck, MdClose } from 'react-icons/md'
 import { toast } from 'react-toastify';
 import useAPI from '../../hooks/useAPI.tsx';
 
 function CreateReport() {
   const navigate = useNavigate()
   const pathParams = useParams()
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const reportsList = useRouteData('0-0')['reportList'];
 
@@ -47,17 +43,17 @@ function CreateReport() {
         },
         body: JSON.stringify(out)
       }).then(async (resp) => {
-        if (resp.status == 201) {
+        if (resp.status === 201) {
           const out_obj = await resp.json()
           navigate(`/projects/${pathParams.projectid}/reports/${out_obj['report_id']}`)
         }
-        else if (resp.status == 404) {
+        else if (resp.status === 404) {
           toast.error("Project Not Found.")
         }
-        else if (resp.status == 406) {
+        else if (resp.status === 406) {
           toast.error("Invalid Report Data.")
         }
-        else if (resp.status == 409) {
+        else if (resp.status === 409) {
           var error_obj = (await resp.json())['detail']
           toast.error(() => (<span>
             {`Error Uploading Report - Already exists : `}
@@ -179,7 +175,7 @@ function CreateReport() {
           icon={<MdClose style={{
             fontSize: '1.25rem'
           }} />}
-          to={(reportsList.length == 0) ? `/projects/${pathParams.projectid}`
+          to={(reportsList.length === 0) ? `/projects/${pathParams.projectid}`
           : `/projects/${pathParams.projectid}/reports`}
         />
         <button

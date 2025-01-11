@@ -21,7 +21,7 @@ function StyleIssueItem({
           borderBottom: '1px solid var(--border-color)',
       }}>
           {
-              groupedBy != "File Name" &&
+              groupedBy !== "File Name" &&
               issue["File Name"] &&
               <React.Fragment>
                   <h4>File : <span style={{
@@ -30,7 +30,7 @@ function StyleIssueItem({
               </React.Fragment>
           }
           {
-                groupedBy != "Module Name" &&
+                groupedBy !== "Module Name" &&
                 issue["Module Name"] &&
                 <h4>
                     Style Checker :&nbsp;
@@ -40,7 +40,7 @@ function StyleIssueItem({
                 </h4>
             }
           {
-            groupedBy != "Check Passed" &&
+            groupedBy !== "Check Passed" &&
               issue["Check Passed"] &&
               <h4>
                   Style Check Result :&nbsp;

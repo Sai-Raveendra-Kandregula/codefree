@@ -1,4 +1,4 @@
-import React, { useCallback, version } from 'react'
+import { useCallback } from 'react'
 import { SERVER_BASE_URL } from '../App';
 
 export type APIVersion = "v1" | "current"

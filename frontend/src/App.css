@@ -23,14 +23,14 @@
   --border-color: #cdcdcd;
   --control-border-color: #cdcdcd;
   --nav-panel-background: #d8dce6;
-  --theme-color: rgb(0, 101, 103);
+  --theme-color: #4e41ff;
 
   --card-background: rgba(255, 255, 255, 0.5);
   --select-background: rgba(255, 255, 255, 0.5);
   --button-overlay: rgba(255, 255, 255, 0.5);
   --control-overlay-bg: rgba(255, 255, 255, 0.25);
   --control-active-overlay-bg: rgba(255, 255, 255, 0.5);
-  --link-color: rgb(0, 56, 57);
+  --link-color: #4e41ff;
   
   --icon-shadow: drop-shadow(0px 2px 10px #000000C0);
 }
@@ -204,7 +204,7 @@ span.letter-avatar{
 .sideBarLink {
   box-sizing: border-box;
   height: var(--control-inline-height);
-  padding: 0 15px;
+  padding: 0 10px;
 
   display: flex;
   flex-direction: row;
@@ -283,10 +283,10 @@ span.letter-avatar{
 }
 
 .buttonBase > svg{
-  min-width: 1.2em;
-  max-width: 1.2em;
-  width: 1.2em;
-  height: 1.2em;
+  min-width: 1em;
+  max-width: 1em;
+  width:     1em;
+  height:    1em;
 }
 
 .buttonBase:hover{
@@ -299,6 +299,8 @@ span.letter-avatar{
 
 .iconButton {
   padding: 0;
+  align-items: center;
+  font-size: 1.1rem;
 }
 
 .headerButton {
@@ -330,11 +332,6 @@ span.letter-avatar{
 .headerButtonDropdownSummary:hover {
   /* background: rgba(125, 125, 125, 0.2); */
   text-decoration: none;
-}
-
-.headerButtonDropdownSummary svg {
-  height: 20px;
-  width: 20px;
 }
 
 .headerButtonDropDown {

@@ -28,11 +28,6 @@
     text-decoration: none;
   }
   
-  .dropdownButtonDropdownSummary svg {
-    height: 20px;
-    width: 20px;
-  }
-  
   .dropdownButtonDropDown {
     z-index: 15;
     position: absolute;

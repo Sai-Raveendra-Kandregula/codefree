@@ -6,12 +6,12 @@ import LinkButton from '../../Components/LinkButton';
 import { useRouteData } from '../../App'
 
 import { HiOutlineDocumentReport } from "react-icons/hi";
-import { MdAdd, MdCheck, MdClose, MdOutlineFileUpload } from 'react-icons/md'
+import { MdOutlineFileUpload } from 'react-icons/md'
 import { getAPIURL } from '../../hooks/useAPI.tsx';
 
 export async function reportListLoader({ params }) {
   const resp = await fetch(getAPIURL(`/project/${params.projectid}/report/-/all`))
-  if (resp.status == 200) {
+  if (resp.status === 200) {
     return resp.json()
   }
   else {
@@ -26,10 +26,10 @@ function Reports() {
   const reportsList = useRouteData('0-0')['reportList'];
 
   useEffect(() => {
-    if (reportsList.length == 0) {
+    if (reportsList.length === 0) {
       navigate(`/projects/${pathParams.projectid}`)
     }
-  }, [])
+  }, [navigate, reportsList, pathParams.projectid])
 
   return (
     <div style={{

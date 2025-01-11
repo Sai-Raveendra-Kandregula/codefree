@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const _display_themes = {
     "light" : {},
@@ -54,12 +54,12 @@ function useTheme() {
             }
             else {
                 window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', listenThemeChanges)
-                out = (window.localStorage.getItem("app-theme") == "dark") ? "dark" : "light"
+                out = (window.localStorage.getItem("app-theme") === "dark") ? "dark" : "light"
             }
 
             setDisplayedTheme(out)
         }
-    }, [themePreference]);
+    }, [themePreference, listenThemeChanges]);
 
     return {
         theme : themePreference,

@@ -1,21 +1,8 @@
 import React, { useState } from 'react'
-import { Link, useLoaderData, useNavigate, useRevalidator, useSearchParams } from 'react-router-dom'
-import { SERVER_BASE_URL } from '../App'
+import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom'
 import LinkButton from '../Components/LinkButton'
-import { IoAddOutline, IoPencil } from 'react-icons/io5'
-import UserAvatar from '../Components/UserAvatar'
+import { IoAddOutline } from 'react-icons/io5'
 
-import {
-    Table,
-    Header,
-    HeaderRow,
-    Body,
-    Row,
-    HeaderCell,
-    Cell,
-} from "@table-library/react-table-library/table";
-import { useTheme } from "@table-library/react-table-library/theme";
-import { CompactTable } from '@table-library/react-table-library/compact';
 import IconButton from '../Components/IconButton'
 import { LuCheck, LuPencil, LuTrash2 } from 'react-icons/lu'
 import { StatusCodes } from 'http-status-codes'
@@ -30,7 +17,7 @@ export async function userListLoader({ params }) {
     const resp = await fetch(getAPIURL(`/user/all`), {
         credentials: "include"
     })
-    if (resp.status != 200) {
+    if (resp.status !== 200) {
         // window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
         throw resp
     }
@@ -43,7 +30,7 @@ export async function pendingUserListLoader({ params }) {
     const resp = await fetch(getAPIURL(`/user/all-pending`), {
         credentials: "include"
     })
-    if (resp.status != 200) {
+    if (resp.status !== 200) {
         // window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
         throw resp
     }
@@ -126,7 +113,7 @@ function SystemSettingsUsers({
                             },
                             body: JSON.stringify(item)
                         }).then((resp) => {
-                            if (resp.status == StatusCodes.OK) {
+                            if (resp.status === StatusCodes.OK) {
                                 toast.success(`User Deletion Successfully`)
                                 revalidator.revalidate()
                             }

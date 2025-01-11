@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate, Outlet, useParams } from 'react-router-dom'
-import { SERVER_BASE_URL, useRouteData } from '../App'
+import { useRouteData } from '../App'
 import { getAPIURL } from '../hooks/useAPI.tsx'
 
 export async function userDataLoader({ params }) {

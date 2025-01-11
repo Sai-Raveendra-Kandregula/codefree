@@ -13,7 +13,7 @@ import { LuUser2, LuUsers2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftO
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
 import SideBarLink from './Components/SideBarLink';
-import { CodeFreeContext, SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from './App';
+import { CodeFreeContext, SERVER_ROOT_PATH, useRouteData } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import { AppContext } from './NotFoundContext';
 import { projectInfoLoader } from './projects/ProjectWrapper';
@@ -128,7 +128,7 @@ function GlobalRoot() {
     return <React.Fragment>
       {
         currentUserData ?
-          <HeaderButton className={`buttonBase`} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={currentUserData} />} showDropdownIcon={false} title={currentUserData['user_name']} >
+          <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={currentUserData} />} showDropdownIcon={false} title={currentUserData['user_name']} >
             <SideBarLink to={`/user/${currentUserData['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
             <SideBarLink to={`/user/${currentUserData['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
             <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<LuLogOut />} />
@@ -248,7 +248,7 @@ function GlobalRoot() {
             paddingLeft: '0px',
           }}>
             <IconButton title="CodeFree" icon={<AppLogo style={{
-              fontSize : '1.25rem',
+              fontSize : '1.5rem',
               filter: 'var(--icon-shadow)'
             }} />} to={'/'} />
           </div>

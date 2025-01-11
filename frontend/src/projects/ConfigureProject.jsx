@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import LinkButton from '../Components/LinkButton'
 import {useRouteData} from '../App'
 import { IoCheckmark } from "react-icons/io5";
@@ -7,7 +7,6 @@ import { VscDiscard } from "react-icons/vsc";
 
 function ConfigureProject() {
     const navigate = useNavigate()
-    const routeParams = useParams()
     const projectData = useRouteData('0-0')['projectInfo']
   return (
     <div style={{

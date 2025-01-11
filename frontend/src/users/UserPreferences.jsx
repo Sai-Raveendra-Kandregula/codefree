@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react'
-import { useRouteData, CodeFreeContext } from '../App'
+import React, { useContext, useMemo } from 'react'
+import { CodeFreeContext } from '../App'
 import { toTitleCase } from '../GlobalRoot'
 
 function UserPreferences() {    
@@ -45,10 +45,10 @@ function UserPreferences() {
                         }} onClick={() => {
                             themeInfo.setTheme(themeVal)
                         }}>
-                            <div className={themeVal == "system" ? (window.matchMedia('(prefers-color-scheme: dark)') ? "dark" : "light") : themeVal} style={{
+                            <div className={themeVal === "system" ? (window.matchMedia('(prefers-color-scheme: dark)') ? "dark" : "light") : themeVal} style={{
                                 background: 'var(--background)',
                                 color: 'var(--foreground)',
-                                border: themeInfo.theme == themeVal ? `2px solid var(--theme-color)` : `2px solid var(--border-color)`,
+                                border: themeInfo.theme === themeVal ? `2px solid var(--theme-color)` : `2px solid var(--border-color)`,
                                 borderRadius: `calc(var(--border-radius))`,
                                 padding: '1.25rem',
                                 boxShadow: '0px 2px 20px rgba(0, 0, 0, 0.35)',

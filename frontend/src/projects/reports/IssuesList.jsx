@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom';
+import React, { useMemo, useState } from 'react'
 import { IoChevronForwardSharp  } from "react-icons/io5";
 
 import issueItemStyles from '../../styles/reportViewer.module.css'
@@ -11,11 +10,9 @@ function IssuesList({
   issuesData = {},
   issueType = ""
 }) {
-
-  const [searchParams, setSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false);
 
-  const ordering = {
+  const ordering = useMemo(() => ({
     "Severity": {
       "Critical": 0,
       "Major": 1,
@@ -26,7 +23,7 @@ function IssuesList({
       "CWE": 0,
       "MISRA": 1
     }
-  }
+  }), [])
 
   const [issueData, sortedIssues] = useMemo(() => {
 
@@ -49,14 +46,14 @@ function IssuesList({
       if (groupBy in ordering) {
         return ordering[groupBy][a] - ordering[groupBy][b]
       }
-      const issueCountA = issueType == 'style' ? issueDataTmp[a].filter((item) => {
-        return item['Check Passed'] != "Passed"
+      const issueCountA = issueType === 'style' ? issueDataTmp[a].filter((item) => {
+        return item['Check Passed'] !== "Passed"
       }).length : issueDataTmp[a].length;
-      const issueCountB = issueType == 'style' ? issueDataTmp[b].filter((item) => {
-        return item['Check Passed'] != "Passed"
+      const issueCountB = issueType === 'style' ? issueDataTmp[b].filter((item) => {
+        return item['Check Passed'] !== "Passed"
       }).length : issueDataTmp[b].length;
 
-      if (issueCountA == issueCountB) {
+      if (issueCountA === issueCountB) {
         return a.localeCompare(b)
       }
 
@@ -66,7 +63,7 @@ function IssuesList({
     setLoading(false)
 
     return [issueDataTmp, sortedObj]
-  }, [groupBy, issueType, issuesData])
+  }, [groupBy, issueType, issuesData, ordering])
 
   return (
     <React.Fragment>
@@ -104,20 +101,21 @@ function IssuesList({
             </summary>
             {
               issueData[groupName].sort((a, b) => {
-                if(groupBy != "Severity"){
+                if(groupBy !== "Severity"){
                     return ordering["Severity"][a["Severity"]] - ordering["Severity"][b["Severity"]]
                 }
-                if(groupBy != "File Name"){
+                if(groupBy !== "File Name"){
                   return a["File Name"].localeCompare(b["File Name"])
                 }
                 return 0
               }).map((issueItem, index) => {
-                if (issueType == "style") {
+                if (issueType === "style") {
                   return <StyleIssueItem key={`${issueType}_${groupBy}_${groupName}_${index}`} issue={issueItem} groupedBy={groupBy} />
                 }
-                if (issueType == "code") {
+                if (issueType === "code") {
                   return <CodeIssueItem key={`${issueType}_${groupBy}_${groupName}_${index}`} issue={issueItem} groupedBy={groupBy} />
                 }
+                return undefined
               })
             }
           </details>

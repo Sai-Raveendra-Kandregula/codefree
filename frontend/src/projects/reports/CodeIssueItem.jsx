@@ -51,7 +51,7 @@ function CodeIssueItem({
             borderBottom: '1px solid var(--border-color)',
         }}>
             {
-                groupedBy != "File Name" &&
+                groupedBy !== "File Name" &&
                 issue["File Name"] &&
                 <React.Fragment>
                     <h4>File : <span style={{
@@ -60,17 +60,17 @@ function CodeIssueItem({
                 </React.Fragment>
             }
             {
-                groupedBy != "Compliance Standard" &&
+                groupedBy !== "Compliance Standard" &&
                 issue["Compliance Standard"] &&
                 <h4>
                     Issue :&nbsp;
                     <span style={{
                         fontWeight: 400
-                    }}>{(issue["Compliance Standard"] == 'NONE' ? "Generic" : issue["Compliance Standard"])} Violation</span>
+                    }}>{(issue["Compliance Standard"] === 'NONE' ? "Generic" : issue["Compliance Standard"])} Violation</span>
                 </h4>
             }
             {
-                groupedBy != "Module Name" &&
+                groupedBy !== "Module Name" &&
                 issue["Module Name"] &&
                 <h4>
                     Reported By :&nbsp;
@@ -80,14 +80,14 @@ function CodeIssueItem({
                 </h4>
             }
             {
-                groupedBy != "Severity" &&
+                groupedBy !== "Severity" &&
                 <h4>
                     Severity :&nbsp;
                     <span className={`${issueItemStyles.severitySpan} ${issueItemStyles[issue["Severity"]]}`}>{issue["Severity"]}</span>
                 </h4>
             }
             {
-                issue["Compliance Standard"] == "CWE" && issue["CWE List"] &&
+                issue["Compliance Standard"] === "CWE" && issue["CWE List"] &&
                 <h4>
                     Violated CWE{issue["CWE List"].toString().includes(",") && "s"} :&nbsp;
                     <span style={{
@@ -96,7 +96,7 @@ function CodeIssueItem({
                 </h4>
             }
             {
-                issue["Compliance Standard"] == "MISRA" && issue["MISRA Rule Number"] &&
+                issue["Compliance Standard"] === "MISRA" && issue["MISRA Rule Number"] &&
                 <h4>
                     Violated MISRA Rule :&nbsp;
                     <span style={{
@@ -157,13 +157,13 @@ function CodeIssueItem({
                         issue["CWE List"].toString().includes(",") ?
                         issue["CWE List"].toString().split(",").map((cwe)=>{
                             const url = `https://cwe.mitre.org/data/definitions/${cwe.trim()}.html`
-                            return <React.Fragment key={cwe}><a target='_blank' href={url}>
+                            return <React.Fragment key={cwe}><a target='_blank' href={url} rel="noreferrer">
                                 {url}
                             </a><br/>
                             </React.Fragment>
                         })
                         :
-                        <a target='_blank' href={issue["Additional Info"]}>
+                        <a target='_blank' href={issue["Additional Info"]} rel="noreferrer">
                             {issue["Additional Info"]}
                         </a>
                     }

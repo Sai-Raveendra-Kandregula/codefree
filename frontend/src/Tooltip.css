@@ -21,11 +21,6 @@
     cursor: pointer;
 }
 
-.tooltipPopupSummary svg {
-    height: 20px;
-    width: 20px;
-}
-
 .tooltipPopup {
     z-index: 15;
     position: absolute;

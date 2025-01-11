@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import React, { useState, useEffect, useMemo, useContext, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 import Chart from "react-apexcharts";
 
-import { CodeFreeContext, SERVER_BASE_URL, useRouteData } from '../App'
+import { CodeFreeContext, useRouteData } from '../App'
 import LinkButton from '../Components/LinkButton'
 import { GoArrowRight } from 'react-icons/go';
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
@@ -10,7 +10,6 @@ import { getAPIURL } from '../hooks/useAPI.tsx';
 
 function ProjectHome() {
   const pathParams = useParams()
-  const navigate = useNavigate();
 
   const projectInfo = useRouteData('0-0')['projectInfo']
 
@@ -20,18 +19,18 @@ function ProjectHome() {
   const themeInfo = useMemo(() => cfAppContext.themeInfo, [cfAppContext.themeInfo])
   const theme = useMemo(() => themeInfo.actualTheme, [themeInfo.actualTheme])
 
-  const keys_ordered = {
+  const keys_ordered = useMemo(() => ({
     "style_issues": "Style Issues",
     "minor_issues": "Minor Code Issues",
     "major_issues": "Major Code Issues",
     "critical_issues": "Critical Code Issues",
     "issue_files": "Files with Issues"
-  }
+  }), [])
 
-  function getLatestReportStats() {
+  const getLatestReportStats = useCallback(() => {
     fetch(getAPIURL(`/project/${pathParams.projectid}/report/last-report/stats`)).then(
       (resp) => {
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           return resp.json()
         }
         else {
@@ -40,12 +39,12 @@ function ProjectHome() {
       }).then((data) => {
         setReportData(data)
       })
-  }
+  }, [pathParams.projectid, setReportData])
 
-  function getAllReports() {
+  const getAllReports = useCallback(() => {
     fetch(getAPIURL(`/project/${pathParams.projectid}/report/-/all`)).then(
       (resp) => {
-        if (resp.status == 200) {
+        if (resp.status === 200) {
           return resp.json()
         }
         else {
@@ -61,28 +60,28 @@ function ProjectHome() {
       }).catch((reason) => {
         setReportsLists([])
       })
-  }
+  }, [pathParams.projectid, setReportsLists])
 
   useEffect(() => {
     getLatestReportStats()
     getAllReports()
-  }, [])
+  }, [getAllReports, getLatestReportStats])
 
   const issueDataDonut = useMemo(() => {
-    if (reportData == null) {
+    if (reportData === null) {
       return {}
     }
 
     var issueDataTmp = {}
 
     Object.keys(keys_ordered).forEach((key) => {
-      if (reportData[key] > 0 && key != "issue_files") {
+      if (reportData[key] > 0 && key !== "issue_files") {
         issueDataTmp[keys_ordered[key]] = reportData[key]
       }
     })
 
     return issueDataTmp
-  }, [reportData]);
+  }, [reportData, keys_ordered]);
 
   const issueSeries = useMemo(() => {
     return Object.keys(keys_ordered).map((key) => {
@@ -93,7 +92,7 @@ function ProjectHome() {
         })
       }
     })
-  }, [reportsList])
+  }, [reportsList, keys_ordered])
 
   const codeQualitySeries = useMemo(() => {
     return [{
@@ -164,7 +163,7 @@ function ProjectHome() {
                 Code Quality Score : {reportData ? (reportData['cf_code_quality_score'] * 10).toFixed(2) : 0} / 10
               </h2>
               <h3>
-                Issues found in {reportData ? reportData['issue_files'] : 0} file{reportData ? (reportData['issue_files'] != 1 ? "s" : "") : "s"}.
+                Issues found in {reportData ? reportData['issue_files'] : 0} file{reportData ? (reportData['issue_files'] !== 1 ? "s" : "") : "s"}.
               </h3>
               <LinkButton
                 to={`/projects/${pathParams.projectid}/reports/last-report`}

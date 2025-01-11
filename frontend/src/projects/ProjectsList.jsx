@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
+import React from 'react'
+import { Link, useLoaderData, useNavigate } from 'react-router-dom'
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
-import { SERVER_BASE_URL } from '../App'
 import LinkButton from '../Components/LinkButton'
-import { MdAdd, MdCheck, MdClose } from 'react-icons/md'
-import PopupModal from '../Components/Popup'
-import IconButton from '../Components/IconButton'
-import { toast } from 'react-toastify';
+import { MdAdd } from 'react-icons/md'
 import CFTable from '../Components/CFTable';
 import { getAPIURL } from '../hooks/useAPI.tsx';
 
 
 export async function projectListLoader({ params }) {
   const resp = await fetch(getAPIURL(`/project/-/all`))
-  if (resp.status == 200) {
+  if (resp.status === 200) {
     return resp.json()
   }
   else {

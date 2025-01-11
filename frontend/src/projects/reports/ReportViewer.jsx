@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useMemo } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import IssuesList from './IssuesList';
 import IconButton from '../../Components/IconButton'
-import reportViewerStyles from '../../styles/reportViewer.module.css'
 
-import { IoCloudDownloadOutline, IoInformationCircleOutline, IoTrashBin, IoTrashBinOutline } from "react-icons/io5";
+import { IoCloudDownloadOutline } from "react-icons/io5";
+import { FaInfoCircle, FaRegTrashAlt } from "react-icons/fa";
 import { VscJson } from "react-icons/vsc";
 import { TbCsv, TbPdf } from "react-icons/tb";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { SiAsciidoctor } from "react-icons/si";
-import { SERVER_BASE_URL, SERVER_ROOT_PATH, useRouteData } from '../../App';
+import { useRouteData } from '../../App';
 import DropdownButton from '../../Components/Dropdown';
 import ToolTip from '../../Components/ToolTip';
 import { AppContext } from '../../NotFoundContext';
@@ -18,7 +18,7 @@ import { getAPIURL } from '../../hooks/useAPI.tsx';
 
 export async function reportDataLoader({ params }) {
     const resp = await fetch(getAPIURL(`/project/${params.projectid}/report/${params.reportid}`))
-    if (resp.status == 200) {
+    if (resp.status === 200) {
         return resp.json()
     }
     else {
@@ -26,10 +26,88 @@ export async function reportDataLoader({ params }) {
     }
 }
 
+function RepoInfo({
+    reportData
+}) {
+    return (reportData && <table style={{
+        width: '100%',
+        whiteSpace: 'nowrap',
+    }}>
+        <tbody>
+            <tr>
+                <td>
+                    Generated On
+                </td>
+                <td>:</td>
+                <td>
+                    {
+                        new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                        })
+                            .replace(/T/, ' ') // Replace 'T' with a space
+                            .replace(/\..+/, '')
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Uploaded On
+                </td>
+                <td>:</td>
+                <td>
+                    {
+                        new Date(reportData['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                        })
+                            .replace(/T/, ' ') // Replace 'T' with a space
+                            .replace(/\..+/, '')
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Uploaded By
+                </td>
+                <td>:</td>
+                <td>
+                    {
+                        reportData['report_src_usr']
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Uploaded Via
+                </td>
+                <td>:</td>
+                <td>
+                    {
+                        reportData['report_src']
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    )
+}
+
 function ReportOptions({
     reportData,
     pathParams
 }) {
+    
+    const navigate = useNavigate()
+
     const getExportURL = (format) => {
         return getAPIURL(`/project/${pathParams.projectid}/report/${pathParams.reportid}/export?format=${format}`)
     }
@@ -40,7 +118,7 @@ function ReportOptions({
             justifyContent: 'flex-start',
             gap: '10px'
         }}>
-            <DropdownButton icon={<IoCloudDownloadOutline />} title={"Download Report"} showOnlyIcon={true}>
+            <DropdownButton icon={<IoCloudDownloadOutline size={"1rem"} />} title={"Download Report"} showOnlyIcon={true}>
                 {
                     ({ open, close, isOpen }) => {
                         return <React.Fragment>
@@ -98,81 +176,25 @@ function ReportOptions({
                     }
                 }
             </DropdownButton>
-            <ToolTip popup={
-                reportData &&
-                <table style={{
-                    width: '100%',
-                    whiteSpace: 'nowrap',
-                }}>
-                    <tbody>
-                        <tr>
-                            <td>
-                                Generated On
-                            </td>
-                            <td>:</td>
-                            <td>
-                                {
-                                    new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
-                                        year: 'numeric',
-                                        month: '2-digit',
-                                        day: '2-digit',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                    })
-                                        .replace(/T/, ' ') // Replace 'T' with a space
-                                        .replace(/\..+/, '')
-                                }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Uploaded On
-                            </td>
-                            <td>:</td>
-                            <td>
-                                {
-                                    new Date(reportData['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
-                                        year: 'numeric',
-                                        month: '2-digit',
-                                        day: '2-digit',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                    })
-                                        .replace(/T/, ' ') // Replace 'T' with a space
-                                        .replace(/\..+/, '')
-                                }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Uploaded By
-                            </td>
-                            <td>:</td>
-                            <td>
-                                {
-                                    reportData['report_src_usr']
-                                }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Uploaded Via
-                            </td>
-                            <td>:</td>
-                            <td>
-                                {
-                                    reportData['report_src']
-                                }
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            }>
+            <IconButton icon={<FaRegTrashAlt />} title={"Delete Report"} onClick={(e) => {
+                e.stopPropagation()
+                if (window.confirm("Confirm Report Deletion?")) {
+                    fetch(getAPIURL(`project/${pathParams.projectid}/report/${pathParams.reportid}`), {
+                        'method': 'DELETE'
+                    }).then(resp => {
+                        if (resp.status === 200) {
+                            navigate('..')
+                        }
+                        else {
+                            toast.error(`Failed to Delete Report (Code:${resp.status})`)
+                        }
+                    })
+                }
+            }} />
+            <ToolTip popup={<RepoInfo reportData={reportData} />}>
                 {
                     ({ open, close, isOpen }) => {
-                        return <IconButton icon={<IoInformationCircleOutline />} title={"Report Info"} onClick={(e) => {
+                        return <IconButton icon={<FaInfoCircle />} title={"Report Info"} onClick={(e) => {
                             e.stopPropagation()
                             if (isOpen) {
                                 close()
@@ -184,37 +206,21 @@ function ReportOptions({
                     }
                 }
             </ToolTip>
-            <IconButton icon={<IoTrashBinOutline />} title={"Delete Report"} onClick={(e) => {
-                e.stopPropagation()
-                if (window.confirm("Confirm Report Deletion?")) {
-                    fetch(getAPIURL(`project/${pathParams.projectid}/report/${pathParams.reportid}`), {
-                        'method': 'DELETE'
-                    }).then(resp => {
-                        if (resp.status == 200) {
-                            navigate('..')
-                        }
-                        else {
-                            toast.error(`Failed to Delete Report (Code:${resp.status})`)
-                        }
-                    })
-                }
-            }} />
         </div>
     )
 }
 
 function ReportViewer() {
-    const navigate = useNavigate()
     const pathParams = useParams()
     const [searchParams, setSearchParams] = useSearchParams()
 
-    const { lastReport, setLastReport } = useContext(AppContext);
+    const { setLastReport } = useContext(AppContext);
 
-    const groupingMapping = {
+    const groupingMapping = useMemo(() => ({
         "code": ["Severity", "Compliance Standard", "File Name", "Module Name"],
         "style": ["Check Passed", "File Name", "Module Name"],
         "revision info": [],
-    }
+    }), [])
 
     const [viewType, setViewType] = useState(searchParams.get("viewType") || Object.keys(groupingMapping)[0])
     const [groupBy, setGroupBy] = useState(() => {
@@ -236,21 +242,21 @@ function ReportViewer() {
             searchParams.delete("groupBy")
             setSearchParams(searchParams)
         }
-    }, [viewType])
+    }, [viewType, groupBy, groupingMapping, searchParams, setSearchParams])
 
     useEffect(() => {
         if (groupingMapping[viewType].length > 0) {
             searchParams.set("groupBy", (groupBy || groupingMapping[viewType][0]))
             setSearchParams(searchParams)
         }
-    }, [viewType, groupBy])
+    }, [viewType, groupBy, groupingMapping, searchParams, setSearchParams])
 
     useEffect(() => {
-        if (reportData == null) {
+        if (reportData === null) {
             return
         }
 
-        if (pathParams.reportid.toLowerCase() == 'last-report') {
+        if (pathParams.reportid.toLowerCase() === 'last-report') {
             setLastReport(reportData["id"])
         }
         else {
@@ -270,7 +276,7 @@ function ReportViewer() {
         setTransformedReportData(tempdata)
 
         const dataKeys = Object.keys(tempdata)
-        if (searchParams.get('viewType') == null) {
+        if (searchParams.get('viewType') === null) {
             if (dataKeys.length > 0) {
                 searchParams.set('viewType', dataKeys[0])
             }
@@ -280,7 +286,7 @@ function ReportViewer() {
             setSearchParams(searchParams)
         }
 
-    }, [reportData])
+    }, [reportData, pathParams.reportid, searchParams, setSearchParams, setLastReport])
 
 
     return (
@@ -339,7 +345,7 @@ function ReportViewer() {
                         borderBottom: '1px solid var(--border-color)',
                     }}>
                         <div className={`viewTypeCarousel`} style={{
-                            boxSizing:'border-box',
+                            boxSizing: 'border-box',
                             border: 'none',
                             alignSelf: 'stretch',
                             minHeight: 'var(--control-inline-height)',
@@ -348,12 +354,12 @@ function ReportViewer() {
                         }}>
                             {
                                 Object.keys(groupingMapping).map((val) => {
-                                    if (val == "revision info" && (!reportData || !reportData['commit_info'])) {
-                                        return
+                                    if (val === "revision info" && (!reportData || !reportData['commit_info'])) {
+                                        return undefined
                                     }
                                     return <Link
                                         key={val}
-                                        className={`viewTypeButton ${viewType == val ? "selected" : ""}`}
+                                        className={`viewTypeButton ${viewType === val ? "selected" : ""}`}
                                         onClick={(e) => {
                                             e.preventDefault()
                                             setViewType(val)
@@ -438,6 +444,7 @@ function ReportViewer() {
                                                                 <td>
                                                                     {commit_obj['subject']} (<a
                                                                         target='_blank'
+                                                                        rel='noreferrer'
                                                                         href={
                                                                             projectInfo['git_remote_commit_url'] ?
                                                                                 projectInfo['git_remote_commit_url'].replace(/\/+$/, '') + "/" + commit_obj['hash']

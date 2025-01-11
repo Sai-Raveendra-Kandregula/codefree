@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Form, Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Form, useNavigate } from 'react-router-dom'
 import { useRouteData } from '../App';
-import IconButton from '../Components/IconButton';
 import { IoCheckmark, IoCamera } from 'react-icons/io5';
-import { LuPencil } from 'react-icons/lu';
-import { TbQuestionMark } from "react-icons/tb";
 import { VscDiscard } from 'react-icons/vsc';
-import ToolTip from '../Components/ToolTip';
-import LinkButton from '../Components/LinkButton';
 import { toast } from 'react-toastify';
 import UserAvatar from '../Components/UserAvatar';
 import { StatusCodes } from 'http-status-codes';
-import { SERVER_BASE_URL, SERVER_ROOT_PATH } from '../App'
+import { SERVER_ROOT_PATH } from '../App'
 import { getAPIURL } from '../hooks/useAPI.tsx';
 
 
@@ -28,13 +23,13 @@ export const ModifyUserAction = async ({ request, params }) => {
                 },
                 credentials: 'include'
             })
-            if (resp.status == StatusCodes.OK) {
+            if (resp.status === StatusCodes.OK) {
                 toast.success("User updated Successfully.")
                 setTimeout(() => {
                     window.location.href = `${SERVER_ROOT_PATH}/user/${params.userid}`
                 }, 1000)
             }
-            else if (resp.status == StatusCodes.NOT_FOUND) {
+            else if (resp.status === StatusCodes.NOT_FOUND) {
                 toast.error("User not found.")
             }
             return await resp.json()
@@ -46,7 +41,6 @@ export const ModifyUserAction = async ({ request, params }) => {
 }
 
 function UserModify() {
-    const pathParams = useParams();
     const currentUserData = useRouteData('0-0')['user']
     const userData = useRouteData('0-0')['userInfo']
 
@@ -55,11 +49,11 @@ function UserModify() {
     const [avatarPreview, setAvatarPreview] = useState(userData['avatar_data'] ? userData['avatar_data'] : "")
 
     useEffect(() => {
-        if ((currentUserData['is_user_admin'] == false) && (userData['user_name'] !== currentUserData['user_name'])) {
+        if ((currentUserData['is_user_admin'] === false) && (userData['user_name'] !== currentUserData['user_name'])) {
             navigate(`/user/${userData['user_name']}`)
         }
         
-    }, [userData, currentUserData])
+    }, [userData, currentUserData, navigate])
 
     const convertBase64 = (file) => {
         return new Promise((resolve, reject) => {
@@ -108,14 +102,13 @@ function UserModify() {
                     flex: '1',
                     margin: '0',
                 }}>
-                    {`Edit \"${userData['user_name']}\" user`}
+                    {`Edit "${userData['user_name']}" user`}
                 </h2>
             </div>
             <Form method='POST'
                 action={`/user/${userData['user_name']}/edit`}
                 style={{
                     width: '100%',
-                    height: '100%',
                     height: 'max-content',
                 }}>
                 <table style={{

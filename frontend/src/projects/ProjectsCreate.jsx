@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { Form, Link, useLoaderData, useNavigate, useSearchParams, useSubmit } from 'react-router-dom'
-import { NameInitialsAvatar } from 'react-name-initials-avatar';
-import { SERVER_BASE_URL, SERVER_ROOT_PATH } from '../App'
+import React, { useState } from 'react'
+import { Form } from 'react-router-dom'
+import { SERVER_ROOT_PATH } from '../App'
 import LinkButton from '../Components/LinkButton'
-import { MdAdd, MdCheck, MdClose } from 'react-icons/md'
-import PopupModal from '../Components/Popup'
-import IconButton from '../Components/IconButton'
+import { MdCheck, MdClose } from 'react-icons/md'
 import { toast } from 'react-toastify';
 import { StatusCodes } from 'http-status-codes';
 import { getAPIURL } from '../hooks/useAPI.tsx';
@@ -33,11 +30,11 @@ export const projectCreateAction = async ({ request, params }) => {
         },
         credentials: 'include'
       })
-      if (resp.status == StatusCodes.CREATED) {
+      if (resp.status === StatusCodes.CREATED) {
         toast.success(`Project creation successful.`)
         window.location.href = `${SERVER_ROOT_PATH}/projects/${submitData['slug']}`
       }
-      else if (resp.status == StatusCodes.CONFLICT) {
+      else if (resp.status === StatusCodes.CONFLICT) {
         toast.error(`Error Creating Project : Project Already Exists`)
       }
       else {
@@ -52,9 +49,6 @@ export const projectCreateAction = async ({ request, params }) => {
 }
 
 function ProjectsCreate() {
-  const navigate = useNavigate();
-  const submit = useSubmit();
-
   const [remoteRepoConfig, setRemoteRepoConfig] = useState(false)
 
   const remote_repo_mappings = {
@@ -119,7 +113,7 @@ function ProjectsCreate() {
             justifyContent: 'center',
             gap: '5px'
           }}>
-            <span>{window.location.protocol}//{window.location.host}/projects/</span>
+            <span>{window.location.protocol}{"//"}{window.location.host}/projects/</span>
             <input tabIndex={2} type="text" name="slug" id="project_slug" />
           </div>
 
