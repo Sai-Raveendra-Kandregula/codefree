@@ -23,7 +23,8 @@ function Reports() {
   const navigate = useNavigate()
   const pathParams = useParams()
 
-  const reportsList = useRouteData('0-0')['reportList'];
+  // const reportsList = useRouteData('0-0')['reportList'];
+  const reportsList = useRouteData('report-list');
 
   useEffect(() => {
     if (reportsList.length === 0) {

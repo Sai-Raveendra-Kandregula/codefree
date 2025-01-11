@@ -7,7 +7,7 @@ import { VscDiscard } from "react-icons/vsc";
 
 function ConfigureProject() {
     const navigate = useNavigate()
-    const projectData = useRouteData('0-0')['projectInfo']
+    const projectData = useRouteData('project-root')
   return (
     <div style={{
       padding: '20px',

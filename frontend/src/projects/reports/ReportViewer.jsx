@@ -227,7 +227,7 @@ function ReportViewer() {
         return searchParams.get("groupBy") || (groupingMapping[viewType].length > 0 ? groupingMapping[viewType][0] : "")
     });
 
-    const projectInfo = useRouteData('0-0')['projectInfo']
+    const projectInfo = useRouteData('project-root')
     const reportData = useRouteData('report-data')
     const [transformedReportData, setTransformedReportData] = useState({})
 

@@ -11,7 +11,7 @@ import { getAPIURL } from '../hooks/useAPI.tsx';
 function ProjectHome() {
   const pathParams = useParams()
 
-  const projectInfo = useRouteData('0-0')['projectInfo']
+  const projectInfo = useRouteData('project-root')
 
   const [reportData, setReportData] = useState(null)
   const [reportsList, setReportsLists] = useState([])

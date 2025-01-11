@@ -1,6 +1,5 @@
 import React, { useContext, useState, useMemo, useCallback } from 'react'
-import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
-import useBreadcrumbs from "use-react-router-breadcrumbs";
+import { Outlet, useLoaderData, useNavigation, useParams } from 'react-router-dom'
 
 import { GoHome, GoProject, GoCodeSquare } from "react-icons/go";
 import { HiOutlineDocumentReport } from "react-icons/hi";
@@ -13,16 +12,17 @@ import { LuUser2, LuUsers2, LuLogOut, LuSettings, LuPanelLeftClose, LuPanelLeftO
 import GlobalRootStyles from './styles/globalroot.module.css'
 import IconButton from './Components/IconButton'
 import SideBarLink from './Components/SideBarLink';
-import { CodeFreeContext, SERVER_ROOT_PATH, useRouteData } from './App';
+import { CodeFreeContext, SERVER_ROOT_PATH } from './App';
 import HeaderButton, { HEADER_BUTTON_TYPES } from './Components/HeaderButton';
 import { AppContext } from './NotFoundContext';
-import { projectInfoLoader } from './projects/ProjectWrapper';
-import { reportListLoader } from './projects/reports/Reports';
 import 'react-toastify/dist/ReactToastify.css';
 import { userDataLoader } from './users/UserRoot';
 import UserAvatar from './Components/UserAvatar';
 import { ReactComponent as AppLogo } from './assets/CF_Logo.svg';
 import { getAPIURL } from './hooks/useAPI.tsx';
+import { Breadcrumbs } from './BreadCrumbs.tsx'
+import { LoadingOverlay } from './Loading.jsx';
+import { useRouteData } from './hooks/useRouteData.tsx'
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -45,44 +45,6 @@ export function toTitleCase(str) {
   );
 }
 
-const Breadcrumbs = () => {
-
-  const userData = useRouteData('0-0')['userInfo']
-  const projectInfo = useRouteData('0-0')['projectInfo']
-
-  const routes = [
-    { path: "/user/:userid", breadcrumb: userData && userData['display_name'] },
-    { path: "/admin-area", breadcrumb: "Admin Area" },
-    { path: "/admin-area/users/create-user", breadcrumb: "Create User" },
-    { path: "/admin-area/users/:userid", breadcrumb: userData && userData['display_name'] },
-    { path: "/projects/:projectid", breadcrumb: projectInfo && projectInfo['name'] },
-  ]
-
-  const breadcrumbs = useBreadcrumbs(routes);
-  return (
-    <React.Fragment>
-      {breadcrumbs.map(({ breadcrumb, key }, ind) => {
-        const crumb = <Link key={key} className={`${GlobalRootStyles.breadCrumbLink}`} to={key}>{breadcrumb.props.children}</Link>
-        if (ind === 0) {
-          return null
-        }
-        if (ind === 1) {
-          return crumb
-        }
-        else {
-          return <React.Fragment key={key}>
-            {/* <RxSlash /> */}
-            <span>
-              {"/"}
-            </span>
-            {crumb}
-          </React.Fragment>
-        }
-      })}
-    </React.Fragment>
-  );
-};
-
 export async function getUserName() {
   const resp = await fetch(getAPIURL(`/user/validate`), {
     credentials: "include"
@@ -100,21 +62,21 @@ export async function globalRootLoader({ params }) {
   if (params.userid) {
     out['userInfo'] = await userDataLoader({ params })
   }
-  if (params.projectid) {
-    out['projectInfo'] = await projectInfoLoader({ params })
-    out['reportList'] = await reportListLoader({ params })
-  }
   return out
 }
 
 function GlobalRoot() {
 
   const pathParams = useParams();
+  const navigation = useNavigation();
+  const isNavigating = Boolean(navigation.location);
 
   const cfContext = useContext(CodeFreeContext)
   const { lastReport } = useContext(AppContext);
 
   const rootLoaderData = useLoaderData()
+
+  const projectInfo = useRouteData('project-root')
 
   const currentUserData = useMemo(() => cfContext.userInfo, [cfContext.userInfo])
 
@@ -136,13 +98,13 @@ function GlobalRoot() {
   }, [currentUserData])
 
   const sideBarItems = () => {
-    if((window.location.pathname).startsWith(SERVER_ROOT_PATH + "/admin-area")){
+    if ((window.location.pathname).startsWith(SERVER_ROOT_PATH + "/admin-area")) {
       return <React.Fragment>
         <div style={{
           padding: '10px'
         }}>
           <b>
-              Admin Area
+            Admin Area
           </b>
         </div>
         {
@@ -175,13 +137,13 @@ function GlobalRoot() {
 
     }
 
-    if (pathParams.projectid) {
+    if (projectInfo) {
       var ProjectIcon = GoProject
-      if (rootLoaderData['projectInfo'] && isAlphabet(rootLoaderData['projectInfo']['name'][0].toLowerCase())) {
-        ProjectIcon = TbIcons[`TbSquareLetter${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
+      if (isAlphabet(projectInfo['name'][0].toLowerCase())) {
+        ProjectIcon = TbIcons[`TbSquareLetter${projectInfo['name'][0].toUpperCase()}`]
       }
-      else if (rootLoaderData['projectInfo'] && isNumeric(rootLoaderData['projectInfo']['name'][0])) {
-        ProjectIcon = TbIcons[`TbSquareNumber${rootLoaderData['projectInfo']['name'][0].toUpperCase()}`]
+      else if (isNumeric(projectInfo['name'][0])) {
+        ProjectIcon = TbIcons[`TbSquareNumber${projectInfo['name'][0].toUpperCase()}`]
       }
 
       return <React.Fragment>
@@ -190,8 +152,8 @@ function GlobalRoot() {
         }}>
           <b>
             {
-              pathParams.reportid ? `${rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']} - Reports`
-                : (rootLoaderData['projectInfo'] && "Project")
+              pathParams.reportid ? `${projectInfo && projectInfo['name']} - Reports`
+                : (projectInfo && "Project")
             }
           </b>
         </div>
@@ -206,12 +168,12 @@ function GlobalRoot() {
             }
           </React.Fragment>
             : <React.Fragment>
-              <SideBarLink to={`/projects/${pathParams.projectid}`} title={rootLoaderData['projectInfo'] && rootLoaderData['projectInfo']['name']}
+              <SideBarLink to={`/projects/${pathParams.projectid}`} title={projectInfo && projectInfo['name']}
                 icon={<ProjectIcon />} />
-                {
-                  rootLoaderData['reportList'] && rootLoaderData['reportList'].length > 0 &&
-                  <SideBarLink to={`/projects/${pathParams.projectid}/reports`} exact={false} title={'Reports'} icon={<GoCodeSquare />} />
-                }
+              {
+                rootLoaderData['reportList'] && rootLoaderData['reportList'].length > 0 &&
+                <SideBarLink to={`/projects/${pathParams.projectid}/reports`} exact={false} title={'Reports'} icon={<GoCodeSquare />} />
+              }
               <SideBarLink to={`/projects/${pathParams.projectid}/configure`} title={'Settings'} icon={<LuSettings />} />
             </React.Fragment>
         }
@@ -244,7 +206,7 @@ function GlobalRoot() {
             paddingLeft: '0px',
           }}>
             <IconButton title="CodeFree" icon={<AppLogo style={{
-              fontSize : '1.5rem',
+              fontSize: '1.5rem',
               filter: 'var(--icon-shadow)'
             }} />} to={'/'} />
           </div>
@@ -289,8 +251,10 @@ function GlobalRoot() {
           minHeight: 'calc(100vh - var(--header-height) )',
           height: 'calc(100vh - var(--header-height) )',
           width: '100%',
-          overflowX: 'auto'
+          overflowX: 'auto',
+          position: 'relative'
         }}>
+          {isNavigating && <LoadingOverlay />}
           <Outlet />
         </div>
       </div>
