@@ -1,20 +1,22 @@
 
 .viewTypeCarousel{
-    box-sizing: content-box;
+    box-sizing: border-box;
     display: flex;
     /* height: 35px; */
-    min-height: var(--button-height);
+    min-height: var(--control-inline-height);
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     border-bottom: 1px solid var(--border-color);
+
+    flex-wrap: wrap;
 }
 
 .viewTypeButton{
     position: relative;
     box-sizing: border-box;
+    min-height: var(--control-inline-height);
     height: 100%;
-    min-height: 100%;
     min-width: 90px;
     max-width: 150px;
     overflow: hidden;
@@ -27,6 +29,7 @@
     text-transform:capitalize;
     font-weight: 500;
     cursor: pointer;
+    align-self: stretch;
     display: flex;
     align-items: center;
     justify-content: center;

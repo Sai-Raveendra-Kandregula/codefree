@@ -6,6 +6,7 @@ from fastapi.responses import StreamingResponse
 
 from modules.cf_checker import *
 from modules.cf_output import *
+from modules.checker import *
 from modules.output import *
 from modules.server.SessionAuthenticator import get_user_data
 from modules.server.common import APP_DATA_PATH, logger

@@ -105,7 +105,7 @@ def generate_asciidoc(args, output: List[CheckerOutput] = []):
                     report_data += "\n"
                 elif item._module.module_type == CheckerTypes.STYLE:
                     report_data += f"\n==== Style Check by {item._module.module_name_friendly}\n"
-                    report_data += f"\n*Check Result* : {'[green]#Passed#' if item.style_info.passed else '[red]#Failed#'}\n"
+                    report_data += f"\n*Check Result* : {'[green]#PASSED#' if item.style_info.passed else '[red]#FAILED#'}\n"
                     report_data += "\n"
     return report_data
 

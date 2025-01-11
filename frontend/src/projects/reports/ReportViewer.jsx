@@ -26,6 +26,183 @@ export async function reportDataLoader({ params }) {
     }
 }
 
+function ReportOptions({
+    reportData,
+    pathParams
+}) {
+    const getExportURL = (format) => {
+        return getAPIURL(`/project/${pathParams.projectid}/report/${pathParams.reportid}/export?format=${format}`)
+    }
+    return (
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '10px'
+        }}>
+            <DropdownButton icon={<IoCloudDownloadOutline />} title={"Download Report"} showOnlyIcon={true}>
+                {
+                    ({ open, close, isOpen }) => {
+                        return <React.Fragment>
+                            <a className='sideBarLink' title={"Export as XLSX"}
+                                href={getExportURL("xlsx")}
+                                download={true}
+                                onClick={() => {
+                                    close()
+                                }}
+                            >
+                                <RiFileExcel2Line />
+                                Export as XLSX
+                            </a>
+                            <a className='sideBarLink' title={"Export as CSV"}
+                                href={getExportURL("csv")}
+                                download={true}
+                                onClick={() => {
+                                    close()
+                                }}
+                            >
+                                <TbCsv />
+                                Export as CSV
+                            </a>
+                            <a className='sideBarLink' title={"Export as PDF"}
+                                href={getExportURL("pdf")}
+                                download={true}
+                                onClick={() => {
+                                    close()
+                                }}
+                            >
+                                <TbPdf />
+                                Export as PDF
+                            </a>
+                            <a className='sideBarLink' title={"Export as Ascii Doc"}
+                                href={getExportURL("adoc")}
+                                download={true}
+                                onClick={() => {
+                                    close()
+                                }}
+                            >
+                                <SiAsciidoctor />
+                                Export as Ascii Doc
+                            </a>
+                            <a className='sideBarLink' title={"Export as JSON"}
+                                href={getExportURL("json")}
+                                download={true}
+                                onClick={() => {
+                                    close()
+                                }}
+                            >
+                                <VscJson />
+                                Export as JSON
+                            </a>
+                        </React.Fragment>
+                    }
+                }
+            </DropdownButton>
+            <ToolTip popup={
+                reportData &&
+                <table style={{
+                    width: '100%',
+                    whiteSpace: 'nowrap',
+                }}>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Generated On
+                            </td>
+                            <td>:</td>
+                            <td>
+                                {
+                                    new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                    })
+                                        .replace(/T/, ' ') // Replace 'T' with a space
+                                        .replace(/\..+/, '')
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Uploaded On
+                            </td>
+                            <td>:</td>
+                            <td>
+                                {
+                                    new Date(reportData['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit',
+                                    })
+                                        .replace(/T/, ' ') // Replace 'T' with a space
+                                        .replace(/\..+/, '')
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Uploaded By
+                            </td>
+                            <td>:</td>
+                            <td>
+                                {
+                                    reportData['report_src_usr']
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Uploaded Via
+                            </td>
+                            <td>:</td>
+                            <td>
+                                {
+                                    reportData['report_src']
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            }>
+                {
+                    ({ open, close, isOpen }) => {
+                        return <IconButton icon={<IoInformationCircleOutline />} title={"Report Info"} onClick={(e) => {
+                            e.stopPropagation()
+                            if (isOpen) {
+                                close()
+                            }
+                            else {
+                                open()
+                            }
+                        }} />
+                    }
+                }
+            </ToolTip>
+            <IconButton icon={<IoTrashBinOutline />} title={"Delete Report"} onClick={(e) => {
+                e.stopPropagation()
+                if (window.confirm("Confirm Report Deletion?")) {
+                    fetch(getAPIURL(`project/${pathParams.projectid}/report/${pathParams.reportid}`), {
+                        'method': 'DELETE'
+                    }).then(resp => {
+                        if (resp.status == 200) {
+                            navigate('..')
+                        }
+                        else {
+                            toast.error(`Failed to Delete Report (Code:${resp.status})`)
+                        }
+                    })
+                }
+            }} />
+        </div>
+    )
+}
+
 function ReportViewer() {
     const navigate = useNavigate()
     const pathParams = useParams()
@@ -47,10 +224,6 @@ function ReportViewer() {
     const projectInfo = useRouteData('0-0')['projectInfo']
     const reportData = useRouteData('0-0')['reportData']
     const [transformedReportData, setTransformedReportData] = useState({})
-
-    const getExportURL = (format) => {
-        return getAPIURL(`/project/${pathParams.projectid}/report/${pathParams.reportid}/export?format=${format}`)
-    }
 
     useEffect(() => {
         searchParams.set("viewType", (viewType || Object.keys(groupingMapping)[0]))
@@ -135,29 +308,43 @@ function ReportViewer() {
                     background: 'var(--background)',
                     zIndex: '999',
                 }}>
-                    <h2 style={{
-                        boxSizing: 'border-box',
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        alignSelf: 'stretch',
                         width: 'var(--centered-wide-content-width)',
-                        margin: 0,
                         padding: '20px 20px 10px 20px',
+                        boxSizing: 'border-box',
                     }}>
-                        Report #{reportData && reportData['id']}
-                    </h2>
+                        <h2 style={{
+                            boxSizing: 'border-box',
+                            margin: 0,
+                        }}>
+                            Report #{reportData && reportData['id']}
+                        </h2>
+                        <ReportOptions
+                            reportData={reportData}
+                            pathParams={pathParams}
+                        />
+                    </div>
                     <div style={{
                         boxSizing: 'border-box',
                         width: 'var(--centered-wide-content-width)',
-                        padding: '0 20px',
+                        padding: '0px 20px',
                         display: 'flex',
                         flexDirection: 'row',
-                        alignItems: 'center',
+                        alignItems: 'stretch',
                         gap: '20px',
                         borderBottom: '1px solid var(--border-color)',
                     }}>
                         <div className={`viewTypeCarousel`} style={{
+                            boxSizing:'border-box',
                             border: 'none',
                             alignSelf: 'stretch',
-                            minHeight: '100%',
-                            flex: 1
+                            minHeight: 'var(--control-inline-height)',
+                            height: '100%',
+                            flex: 1,
                         }}>
                             {
                                 Object.keys(groupingMapping).map((val) => {
@@ -181,6 +368,7 @@ function ReportViewer() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '10px',
+                            padding: '5px 0'
                         }}>
                             {
                                 (viewType in groupingMapping) &&
@@ -205,172 +393,6 @@ function ReportViewer() {
                                     </select>
                                 </React.Fragment>
                             }
-                        </div>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-start',
-                            gap: '10px'
-                        }}>
-                            <DropdownButton icon={<IoCloudDownloadOutline />} title={"Download Report"} showOnlyIcon={true}>
-                                {
-                                    ({ open, close, isOpen }) => {
-                                        return <React.Fragment>
-                                            <a className='sideBarLink' title={"Export as XLSX"}
-                                                href={getExportURL("xlsx")}
-                                                download={true}
-                                                onClick={() => {
-                                                    close()
-                                                }}
-                                            >
-                                                <RiFileExcel2Line />
-                                                Export as XLSX
-                                            </a>
-                                            <a className='sideBarLink' title={"Export as CSV"}
-                                                href={getExportURL("csv")}
-                                                download={true}
-                                                onClick={() => {
-                                                    close()
-                                                }}
-                                            >
-                                                <TbCsv />
-                                                Export as CSV
-                                            </a>
-                                            <a className='sideBarLink' title={"Export as PDF"}
-                                                href={getExportURL("pdf")}
-                                                download={true}
-                                                onClick={() => {
-                                                    close()
-                                                }}
-                                            >
-                                                <TbPdf />
-                                                Export as PDF
-                                            </a>
-                                            <a className='sideBarLink' title={"Export as Ascii Doc"}
-                                                href={getExportURL("adoc")}
-                                                download={true}
-                                                onClick={() => {
-                                                    close()
-                                                }}
-                                            >
-                                                <SiAsciidoctor />
-                                                Export as Ascii Doc
-                                            </a>
-                                            <a className='sideBarLink' title={"Export as JSON"}
-                                                href={getExportURL("json")}
-                                                download={true}
-                                                onClick={() => {
-                                                    close()
-                                                }}
-                                            >
-                                                <VscJson />
-                                                Export as JSON
-                                            </a>
-                                        </React.Fragment>
-                                    }
-                                }
-                            </DropdownButton>
-                            <ToolTip popup={
-                                reportData &&
-                                <table style={{
-                                    width: '100%',
-                                    whiteSpace: 'nowrap',
-                                }}>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                Generated On
-                                            </td>
-                                            <td>:</td>
-                                            <td>
-                                                {
-                                                    new Date(reportData['report']['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
-                                                        year: 'numeric',
-                                                        month: '2-digit',
-                                                        day: '2-digit',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                        second: '2-digit',
-                                                    })
-                                                        .replace(/T/, ' ') // Replace 'T' with a space
-                                                        .replace(/\..+/, '')
-                                                }
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Uploaded On
-                                            </td>
-                                            <td>:</td>
-                                            <td>
-                                                {
-                                                    new Date(reportData['timestamp']).toLocaleString(navigator.languages.slice(-1)[0], {
-                                                        year: 'numeric',
-                                                        month: '2-digit',
-                                                        day: '2-digit',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                        second: '2-digit',
-                                                    })
-                                                        .replace(/T/, ' ') // Replace 'T' with a space
-                                                        .replace(/\..+/, '')
-                                                }
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Uploaded By
-                                            </td>
-                                            <td>:</td>
-                                            <td>
-                                                {
-                                                    reportData['report_src_usr']
-                                                }
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                Uploaded Via
-                                            </td>
-                                            <td>:</td>
-                                            <td>
-                                                {
-                                                    reportData['report_src']
-                                                }
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            }>
-                                {
-                                    ({ open, close, isOpen }) => {
-                                        return <IconButton icon={<IoInformationCircleOutline />} title={"Report Info"} onClick={(e) => {
-                                            e.stopPropagation()
-                                            if (isOpen) {
-                                                close()
-                                            }
-                                            else {
-                                                open()
-                                            }
-                                        }} />
-                                    }
-                                }
-                            </ToolTip>
-                            <IconButton icon={<IoTrashBinOutline />} title={"Delete Report"} onClick={(e) => {
-                                e.stopPropagation()
-                                if(window.confirm("Confirm Report Deletion?")){
-                                    fetch(getAPIURL(`project/${pathParams.projectid}/report/${pathParams.reportid}`), {
-                                        'method' : 'DELETE'
-                                    }).then(resp => {
-                                        if(resp.status == 200){
-                                            navigate('..')
-                                        }
-                                        else{
-                                            toast.error(`Failed to Delete Report (Code:${resp.status})`)
-                                        }
-                                    })
-                                }
-                            }} />
                         </div>
                     </div>
                 </div>
