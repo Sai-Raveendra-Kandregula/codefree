@@ -3,22 +3,15 @@ import datetime
 from uuid import uuid4
 from fastapi import APIRouter, Request, Response, Depends, status
 
-from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import NoResultFound
 
-from modules.server.common import (
-    is_valid_base64_image,
-)
 from modules.server.db_definitions.users import *
 
 from modules.server.database import get_db_session
-from modules.server.SessionAuthenticator import (
-    auth_required,
-    get_user_session,
-    get_user_data,
-)
-from modules.server.definitions import UserLogin, UserData, NewUserData
+from modules.server.definitions import UserLogin, NewUserData
+
+from .base import userBaseRouter
+from .user_specific import userSpecificRouter
 
 SESSION_EXPIRY = 24 * 3600  # 24 hours
 
@@ -75,194 +68,13 @@ def authenticate_user(
     return None
 
 
-usersRouter = APIRouter()
-
-@usersRouter.post("/user/sign-in")
-async def create_session(
-    userdata: UserLogin, request: Request, response: Response,
-):
-    session_id = authenticate_user(
-        userdata=userdata, request=request, response=response
-    )
-    if session_id is None:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {}
-
-    return {"message": f"{userdata.username} signed in successfully!"}
+usersRouter = APIRouter(
+    prefix="/user"
+)
 
 
-@usersRouter.post("/user/sign-out")
-async def user_signout(
-    response: Response, session: UserSession = Depends(get_user_session),
-    db_session : Session = Depends(get_db_session)
-):
-    if session is not None:
-        db_session.delete(session)
-        db_session.commit()
-        response.delete_cookie(key="cf_session_id")
-    return {"message": f"User Signed Out"}
-
-
-@usersRouter.get("/user/validate")
-async def user_validate(
-    response: Response,
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-    user_info_db: User = (
-        db_session.query(User).where(User.user_name.is_(user_data.user_name)).scalar()
-    )
-
-    if user_info_db is not None:
-        return user_info_db.as_dict()
-    else:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return {}
-
-
-@usersRouter.get("/user/userdata/{userid}")
-async def user_get(
-    request: Request,
-    response: Response,
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-    user_info_db: User = (
-        db_session.query(User)
-        .where(User.user_name.is_(request.path_params.get("userid")))
-        .scalar()
-    )
-
-    out = {}
-
-    if user_info_db is not None:
-        out = user_info_db.as_dict()
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-
-    return out
-
-
-@usersRouter.post("/user/modify")
-async def user_modify(
-    newData: UserData,
-    request: Request,
-    response: Response,
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-    if not user_data.is_user_admin and user_data.read_only:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {}
-
-    user_info_db: User = (
-        db_session.query(User).where(User.user_name.is_(newData.user_name)).scalar()
-    )
-
-    if user_info_db is not None:
-        if user_info_db.user_name == user_data.user_name or user_data.is_user_admin:
-            user_info_db.display_name = newData.display_name
-            user_info_db.email = newData.email
-            user_info_db.updated_by = user_data.user_name
-            user_info_db.updated_on = datetime.datetime.now(datetime.timezone.utc)
-            if newData.avatar_data is not None:
-                try:
-                    base64_portion = newData.avatar_data.split(
-                        "base64,",
-                    )[1]
-                    is_valid_base64_image(base64_portion)
-                    with open(
-                        getUserAvatarPath(user_name=user_info_db.user_name), "w"
-                    ) as avatar_file:
-                        avatar_file.write(newData.avatar_data)
-                    db_session.commit()
-                    if db_session.is_modified(user_info_db):
-                        response.status_code = status.HTTP_304_NOT_MODIFIED
-                except Exception as e:
-                    response.status_code = status.HTTP_400_BAD_REQUEST
-                    return newData
-            out = user_info_db.as_dict()
-            return out
-        else:
-            response.status_code = status.HTTP_403_FORBIDDEN
-            return newData
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return newData
-
-
-@usersRouter.get("/user/all")
-async def user_all(
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-    users = db_session.query(User).all()
-    return [user.as_dict() for user in users]
-
-
-@usersRouter.get("/user/all-pending")
-async def pending_users_all(
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-    users = db_session.query(PendingUser).all()
-
-    return [user.as_dict() for user in users]
-
-
-@usersRouter.post("/user/invite")
-async def user_invite(
-    new_user: NewUserData,
-    response: Response,
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-    if not user_data.is_user_admin and user_data.read_only:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {}
-
-    # Check if user_data has permission to invite users
-
-    pass
-
-
-@usersRouter.post("/user/delete")
-async def user_delete(
-    user: NewUserData,
-    response: Response,
-    user_data: UserData = Depends(get_user_data),
-    required: bool = Depends(auth_required),
-    db_session : Session = Depends(get_db_session)
-):
-
-    if not user_data.is_user_admin and user_data.read_only:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {}
-
-    # Check if cuurent user can delete this user
-    if (user.user_name == user_data.user_name) or (not user_data.is_user_admin):
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return user
-
-    user_db = db_session.query(User).where(User.user_name.is_(user.user_name)).scalar()
-
-    if user_db is None:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return user
-
-    db_session.delete(user_db)
-    db_session.commit()
-    return user
-
-
-@usersRouter.post("/user/create-account")
-async def user_create_anon(
+@usersRouter.post("/sign-up")
+async def user_signup(
     new_user: NewUserData, response: Response,
     db_session : Session = Depends(get_db_session)
 ):
@@ -294,3 +106,19 @@ async def user_create_anon(
     )
     db_session.commit()
     return {}
+
+@usersRouter.post("/sign-in")
+async def create_session(
+    userdata: UserLogin, request: Request, response: Response,
+):
+    session_id = authenticate_user(
+        userdata=userdata, request=request, response=response
+    )
+    if session_id is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {}
+
+    return {"message": f"{userdata.username} signed in successfully!"}
+
+usersRouter.include_router(userBaseRouter)
+usersRouter.include_router(userSpecificRouter)

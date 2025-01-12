@@ -23,6 +23,7 @@ import { getAPIURL } from './hooks/useAPI.tsx';
 import { Breadcrumbs } from './BreadCrumbs.tsx'
 import { LoadingOverlay } from './Loading.jsx';
 import { useRouteData } from './hooks/useRouteData.tsx'
+import { User } from './models/User.tsx';
 
 function isAlphanumeric(str) {
   return /^[a-z0-9]+$/i.test(str)
@@ -46,14 +47,10 @@ export function toTitleCase(str) {
 }
 
 export async function getUserName() {
-  const resp = await fetch(getAPIURL(`/user/validate`), {
-    credentials: "include"
-  })
-  if (resp.status !== 200) {
+  try {
+    return await User.getCurrentUser()
+  } catch (resp) {
     window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
-  }
-  else {
-    return resp.json()
   }
 }
 

@@ -2,3 +2,4 @@
 docker-compose.dev.yml
 data
 **/.env
+.vscode

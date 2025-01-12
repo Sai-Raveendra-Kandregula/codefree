@@ -1,32 +1,21 @@
 import React, { useCallback, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams, useSubmit } from 'react-router-dom'
 
-import { StatusCodes } from 'http-status-codes';
-
 import { SERVER_ROOT_PATH } from './App'
 import LinkButton from './Components/LinkButton'
 import { ReactComponent as CFLogo } from './assets/CF_Logo.svg'
 import { toast } from 'react-toastify'
-import { getAPIURL } from './hooks/useAPI.tsx';
+import { User } from './models/User.tsx';
 
 export const signInAction = async ({ request }) => {
   switch (request.method) {
     case "POST": {
-      const resp = await fetch(getAPIURL(`/user/sign-in`), {
-        method: "post",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          'username': document.getElementById('username').value,
-          'password': document.getElementById('password').value,
-          'keepSignedIn': document.getElementById('keepSignedIn').checked
-        }),
-        credentials: "include",
-        mode: 'cors'
-      })
-      if (resp.status === StatusCodes.OK) {
+      try {
+        const data = await User.SignInUser(
+          document.getElementById('username').value,
+          document.getElementById('password').value,
+          document.getElementById('keepSignedIn').checked
+        )
         const searchParams = new URL(request.url).searchParams
         if (searchParams.get('redirect')) {
           window.location.href = searchParams.get('redirect')
@@ -34,17 +23,11 @@ export const signInAction = async ({ request }) => {
         else {
           window.location.href = SERVER_ROOT_PATH + `/home`
         }
-      }
-      else {
+        return data
+      } catch (resp) {
         toast.error('Invalid Username or Password.')
+        return null
       }
-      if (resp.status === StatusCodes.OK) {
-        // toast.success("User updated Successfully.")
-      }
-      else if (resp.status === StatusCodes.NOT_FOUND) {
-        toast.error("User not found.")
-      }
-      return await resp.json()
     }
     default: {
       throw new Response("", { status: 405 });
@@ -69,12 +52,12 @@ function SignIn() {
     }
   }, [searchParams, navigate])
 
-  const ValidateUser = useCallback( async (redirect = true) => {
-    const resp = await fetch(getAPIURL(`/user/validate`), {
-      credentials: "include"
-    })
-    if (resp.status === 200) {
+  const ValidateUser = useCallback(async (redirect = true) => {
+    try {
+      await User.getCurrentUser()
       redirectToTarget()
+    } catch (resp) {
+
     }
   }, [redirectToTarget])
 

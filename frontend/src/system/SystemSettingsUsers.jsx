@@ -5,38 +5,19 @@ import { IoAddOutline } from 'react-icons/io5'
 
 import IconButton from '../Components/IconButton'
 import { LuCheck, LuPencil, LuTrash2 } from 'react-icons/lu'
-import { StatusCodes } from 'http-status-codes'
 import { toast } from 'react-toastify'
 import UserLink from '../Components/UserLink'
 import CFTable from '../Components/CFTable'
 import PopupModal from '../Components/Popup'
 import SystemSettingsUserCreate from './SystemSettingsUserCreate'
-import { getAPIURL } from '../hooks/useAPI.tsx'
+import { User } from '../models/User.tsx'
 
 export async function userListLoader({ params }) {
-    const resp = await fetch(getAPIURL(`/user/all`), {
-        credentials: "include"
-    })
-    if (resp.status !== 200) {
-        // window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
-        throw resp
-    }
-    else {
-        return resp.json()
-    }
+    return await User.all()
 }
 
 export async function pendingUserListLoader({ params }) {
-    const resp = await fetch(getAPIURL(`/user/all-pending`), {
-        credentials: "include"
-    })
-    if (resp.status !== 200) {
-        // window.location.href = `${SERVER_ROOT_PATH}/sign-in?redirect=${window.location.href}`
-        throw resp
-    }
-    else {
-        return resp.json()
-    }
+    return await User.allPending()
 }
 
 function SystemSettingsUsers({
@@ -106,20 +87,11 @@ function SystemSettingsUsers({
                 <IconButton icon={<LuTrash2 />} title={`Delete ${item['display_name']}`} onClick={(e) => {
                     e.preventDefault();
                     if (window.confirm(`Do you want to delete : "${item["display_name"]}" (${item["user_name"]}) ?`)) {
-                        fetch(getAPIURL(`/user/delete`), {
-                            method: 'post',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(item)
-                        }).then((resp) => {
-                            if (resp.status === StatusCodes.OK) {
-                                toast.success(`User Deletion Successfully`)
-                                revalidator.revalidate()
-                            }
-                            else {
-                                toast.error(`User Deletion Failed : ${resp.statusText}`)
-                            }
+                        User.deleteUser(item["user_name"]).then((out) => {
+                            toast.success(`User Deletion Successfully`)
+                            revalidator.revalidate()
+                        }).catch((resp) => {
+                            toast.error(`User Deletion Failed (Code:${resp.status})`)
                         })
                     }
                 }} />

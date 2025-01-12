@@ -8,6 +8,7 @@ import UserAvatar from '../Components/UserAvatar';
 import { StatusCodes } from 'http-status-codes';
 import { SERVER_ROOT_PATH } from '../App'
 import { getAPIURL } from '../hooks/useAPI.tsx';
+import { User } from '../models/User.tsx';
 
 
 export const ModifyUserAction = async ({ request, params }) => {
@@ -15,24 +16,18 @@ export const ModifyUserAction = async ({ request, params }) => {
         case "POST": {
             let formData = await request.formData()
             let submitData = Object.fromEntries(formData)
-            const resp = await fetch(getAPIURL(`/user/modify`), {
-                method: 'POST',
-                body: JSON.stringify(submitData),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-            if (resp.status === StatusCodes.OK) {
+
+            try {
+                const data = await User.updateUser(params.userid, submitData)
                 toast.success("User updated Successfully.")
                 setTimeout(() => {
                     window.location.href = `${SERVER_ROOT_PATH}/user/${params.userid}`
                 }, 1000)
+                return data
+            } catch (resp) {
+                toast.error(`User update failed (Code:${resp.status})`)
+                return await resp.json()
             }
-            else if (resp.status === StatusCodes.NOT_FOUND) {
-                toast.error("User not found.")
-            }
-            return await resp.json()
         }
         default: {
             throw new Response("", { status: 405 });
@@ -53,7 +48,7 @@ function UserModify() {
         if ((currentUserData['is_user_admin'] === false) && (userData['user_name'] !== currentUserData['user_name'])) {
             navigate(`/user/${userData['user_name']}`)
         }
-        
+
     }, [userData, currentUserData, navigate])
 
     const convertBase64 = (file) => {

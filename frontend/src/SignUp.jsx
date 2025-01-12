@@ -8,6 +8,7 @@ import LinkButton from './Components/LinkButton'
 import { ReactComponent as CFLogo } from './assets/CF_Logo.svg'
 import { toast } from 'react-toastify'
 import { getAPIURL } from './hooks/useAPI.tsx';
+import { User } from './models/User.tsx';
 
 export const signUpAction = async ({ request }) => {
   switch (request.method) {
@@ -70,11 +71,11 @@ function SignUp() {
   }, [searchParams, navigate])
 
   const ValidateUser = useCallback(async (redirect = true) => {
-    const resp = await fetch(getAPIURL(`/user/validate`), {
-      credentials: "include"
-    })
-    if (resp.status === 200) {
+    try {
+      await User.getCurrentUser()
       redirectToTarget()
+    } catch (resp) {
+      
     }
   }, [redirectToTarget])
 
