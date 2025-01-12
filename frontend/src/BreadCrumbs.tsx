@@ -7,7 +7,7 @@ import GlobalRootStyles from './styles/globalroot.module.css'
 
 export const Breadcrumbs = () => {
 
-    const userData = useRouteData('0-0')['userInfo']
+    const userData = useRouteData('user-info')
     const projectInfo = useRouteData('project-root')
 
     const routes = [

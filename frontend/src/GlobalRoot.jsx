@@ -1,5 +1,5 @@
 import React, { useContext, useState, useMemo, useCallback } from 'react'
-import { Outlet, useLoaderData, useNavigation, useParams } from 'react-router-dom'
+import { Outlet, useNavigation, useParams } from 'react-router-dom'
 
 import { GoHome, GoProject, GoCodeSquare } from "react-icons/go";
 import { HiOutlineDocumentReport } from "react-icons/hi";
@@ -73,8 +73,6 @@ function GlobalRoot() {
 
   const cfContext = useContext(CodeFreeContext)
   const { lastReport } = useContext(AppContext);
-
-  const rootLoaderData = useLoaderData()
 
   const projectInfo = useRouteData('project-root')
   const reportList = useRouteData('report-list')

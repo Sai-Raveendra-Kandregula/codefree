@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useContext, useMemo } from 'react'
 import { Navigate, Outlet, useParams } from 'react-router-dom'
-import { useRouteData } from '../App'
+import { CodeFreeContext } from '../App'
 import { getAPIURL } from '../hooks/useAPI.tsx'
 
 export async function userDataLoader({ params }) {
@@ -30,7 +30,8 @@ export async function currentUserDataLoader() {
 function UserRoot() {
     const pathParams = useParams()
 
-    const userData = useRouteData('0-0')['user']
+    const cfContext = useContext(CodeFreeContext)
+    const userData = useMemo(() => cfContext.userInfo, [cfContext])
 
     if(pathParams.userid == null){
         return <Navigate to={`/user/${userData['user_name']}`} />

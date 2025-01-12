@@ -12,7 +12,7 @@ function UserInfo({
 }) {
     const cfContext = useContext(CodeFreeContext)
     const currentUserData = useMemo(() => cfContext.userInfo, [cfContext])
-    const externalUserData = useRouteData('0-0')['userInfo']
+    const externalUserData = useRouteData('user-info')
     const userData = currentUserInfo ? currentUserData : externalUserData
 
     return (

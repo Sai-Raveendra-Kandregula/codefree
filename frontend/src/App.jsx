@@ -21,9 +21,10 @@ import CreateReport from './projects/reports/ReportCreate';
 import { signInAction } from './SignIn';
 import SignUp from './SignUp';
 import { currentUserDataLoader } from './users/UserRoot';
-import { reportDataLoader } from './projects/reports/ReportViewer.jsx'
+import { userDataLoader } from './users/UserRoot';
 import { projectInfoLoader } from './projects/ProjectWrapper.jsx'
 import { reportListLoader } from './projects/reports/Reports';
+import { reportDataLoader } from './projects/reports/ReportViewer.jsx'
 import './Animations.tsx'
 
 export const CodeFreeContext = createContext();
@@ -78,12 +79,13 @@ function App() {
     // Constants
     const RoutesJSX = (
         <Route path={`/`} element={<SuspenseLayout />} errorElement={<NotFound />}>
-            <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader}>
+            {/* <Route path={`/`} element={<GlobalRoot />} loader={globalRootLoader}> */}
+            <Route path={`/`} element={<GlobalRoot />} >
                 <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
                 <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
                 <Route path={`/user`} element={<UserRoot />}>
                     <Route path={`/user/profile`} element={<UserInfo currentUserInfo={true} />} />
-                    <Route path={`/user/:userid`} element={<Outlet />} >
+                    <Route path={`/user/:userid`} element={<Outlet />} id='user-info' loader={userDataLoader} >
                         <Route path={`/user/:userid`} element={<Navigate to={'profile'} relative={true} />} />
                         <Route path={`/user/:userid/profile`} element={<UserInfo />} />
                         <Route path={`/user/:userid/edit`} element={<UserModify />} action={ModifyUserAction} />
@@ -91,16 +93,16 @@ function App() {
                     </Route>
                 </Route>
                 <Route path={`/projects`} element={<ProjectsRoot />} >
-                    <Route path={`/projects`} element={<ProjectsList />} loader={projectListLoader} />
+                    <Route id='project-list' path={`/projects`} element={<ProjectsList />} loader={projectListLoader} />
                     <Route path={`/projects/create`} element={<ProjectsCreate />} action={projectCreateAction} />
                     <Route id='project-root' path={`/projects/:projectid`} element={<ProjectWrapper />} loader={projectInfoLoader} >
                         <Route path={`/projects/:projectid`} element={<ProjectHome />} />
+                        <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
                         <Route id='report-list' path={`/projects/:projectid/reports`} element={<Outlet />} loader={reportListLoader}>
                             <Route path={`/projects/:projectid/reports`} element={<Reports />} />
                             <Route path={`/projects/:projectid/reports/upload`} element={<CreateReport />} />
+                            <Route id='report-data' path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} />
                         </Route>
-                        <Route id='report-data' path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} />
-                        <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
                     </Route>
                 </Route>
                 <Route path='/admin-area' element={<SystemSettingsRoot />} >

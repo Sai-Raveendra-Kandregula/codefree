@@ -13,7 +13,6 @@ function CreateReport() {
   const navigate = useNavigate()
   const pathParams = useParams()
 
-  // const reportsList = useRouteData('0-0')['reportList'];
   const reportsList = useRouteData('report-list');
 
   const [dragOverHasFiles, setDragOverHasFiles] = useState(false);

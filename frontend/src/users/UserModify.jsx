@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo, useContext } from 'react'
 import { Form, useNavigate } from 'react-router-dom'
-import { useRouteData } from '../App';
+import { useRouteData, CodeFreeContext } from '../App';
 import { IoCheckmark, IoCamera } from 'react-icons/io5';
 import { VscDiscard } from 'react-icons/vsc';
 import { toast } from 'react-toastify';
@@ -41,8 +41,9 @@ export const ModifyUserAction = async ({ request, params }) => {
 }
 
 function UserModify() {
-    const currentUserData = useRouteData('0-0')['user']
-    const userData = useRouteData('0-0')['userInfo']
+    const cfContext = useContext(CodeFreeContext)
+    const currentUserData = useMemo(() => cfContext.userInfo, [cfContext])
+    const userData = useRouteData('user-info')
 
     const navigate = useNavigate();
 
