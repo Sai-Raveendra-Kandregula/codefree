@@ -8,6 +8,8 @@ export type ProjectRestObject = {
     avatar_color : string
     git_remote_url ?: string
     git_remote_commit_url ?: string
+
+    "last-report" ?: Report
 }
 
 export class ProjectReportManager {
@@ -38,6 +40,7 @@ export class Project {
     git_remote_commit_url ?: string
 
     reports : ProjectReportManager
+    "last-report" ?: Report
 
     constructor(obj : ProjectRestObject) {
         this.id = obj.id
@@ -48,6 +51,7 @@ export class Project {
         this.git_remote_commit_url = obj.git_remote_commit_url
 
         this.reports = new ProjectReportManager(this.slug)
+        this['last-report'] = obj['last-report']
     }
 
     static async all() {

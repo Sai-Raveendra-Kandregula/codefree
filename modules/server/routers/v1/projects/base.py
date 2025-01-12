@@ -64,8 +64,7 @@ def project_all(
             report : Report = Report.get(db_session, project.id, "last-report")
             if report is not None:
                 stats = report.as_dict()
-                stats["report_id"] = stats.pop("id")
-                project_out.update(stats)
+                project_out['last-report'] = stats
             out.append(project_out)
     return out
 

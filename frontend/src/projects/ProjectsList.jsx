@@ -5,6 +5,7 @@ import LinkButton from '../Components/LinkButton'
 import { MdAdd } from 'react-icons/md'
 import CFTable from '../Components/CFTable';
 import { Project } from '../models/Project.tsx';
+import { useRouteData } from '../hooks/useRouteData.tsx';
 
 
 export async function projectListLoader({ params }) {
@@ -13,7 +14,7 @@ export async function projectListLoader({ params }) {
 
 function ProjectsList() {
   const navigate = useNavigate();
-  const projectsList = useLoaderData()
+  const projectsList = useRouteData('project-list')
 
 
   const theme = {
@@ -62,7 +63,7 @@ function ProjectsList() {
             gap: '10px',
           }}>
             {
-              (item['report_id']) ?
+              ('last-report' in item) ?
                 <span style={{
                   borderRadius: '10px', 
                   color: 'white', 
@@ -78,10 +79,10 @@ function ProjectsList() {
                   justifyContent: 'center'
                 }} title='Issues'>
                   {
-                    item['style_issues']
-                    + item['critical_issues']
-                    + item['major_issues']
-                    + item['minor_issues']
+                    item['last-report']['style_issues']
+                    + item['last-report']['critical_issues']
+                    + item['last-report']['major_issues']
+                    + item['last-report']['minor_issues']
                   }
                 </span>
                 :
