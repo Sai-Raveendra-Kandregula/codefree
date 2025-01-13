@@ -46,5 +46,3 @@ async def add_db_session(request : Request, call_next):
     return response
 
 app.mount("/v1", v1_router, name="API v1")
-
-app.mount("/current", v1_router, name="Current API")

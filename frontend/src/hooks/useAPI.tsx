@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import { SERVER_BASE_URL } from '../App';
 
-export type APIVersion = "v1" | "current"
+export type APIVersion = "v1"
 
-export const Default_API_Version : APIVersion = 'current' 
+export const Default_API_Version : APIVersion = 'v1' 
 
 function removePrefix(str : string, prefix : string) {
     if (str.startsWith(prefix)) {
