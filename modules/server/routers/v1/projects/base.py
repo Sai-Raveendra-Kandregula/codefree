@@ -50,9 +50,6 @@ def project_create(
 
 @projectsBaseRouter.get("/all")
 def project_all(
-    request: Request,
-    response: Response,
-    user_data: UserData = Depends(get_user_data),
     db_session : Session = Depends(get_db_session)
 ):
     projects_all_query_out = db_session.query(Project).all()

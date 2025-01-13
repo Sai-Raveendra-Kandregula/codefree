@@ -34,23 +34,25 @@ class Project(CodeFreeBase):
 
     @staticmethod
     def get(session: Session, id: int):
-        project : Project = session.query(Project).where(Project.id.is_(id)).scalar()
+        project: Project = session.query(Project).where(Project.id.is_(id)).scalar()
         return project
-    
+
     @staticmethod
     def get_project_by_slug(session: Session, slug: str):
         return session.query(Project).filter(Project.slug == slug).first()
-    
+
     @staticmethod
     def generateAvatarColor():
         rand_color = randomcolor.RandomColor()
         return rand_color.generate(luminosity="dark")[0]
-    
+
     @staticmethod
-    def createTestProject(db_session : Session):
+    def createTestProject(db_session: Session):
         result = db_session.query(Project).where(Project.slug.is_("logger")).scalar()
         if result == None:
-            project_id = db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
+            project_id = (
+                db_session.query(func.coalesce(func.max(Project.id), 0)).scalar() + 1
+            )
             db_session.add(
                 Project(
                     id=project_id,
@@ -62,11 +64,12 @@ class Project(CodeFreeBase):
                 )
             )
             db_session.commit()
-    
-    def getReportsPath(self, data_path : str):
+
+    def getReportsPath(self, data_path: str):
         path = os.path.join(data_path, self.slug, "reports")
         mkdir_p(path=path)
         return path
+
 
 class Report(CodeFreeBase):
     __tablename__ = "report"
@@ -132,37 +135,52 @@ class Report(CodeFreeBase):
             count = len(reports_all_query_out)
         session.close()
         return count
-    
-    def get(session : Session, project_id : int, report_id : str):
+
+    def get(session: Session, project_id: int, report_id: str):
+        # logger = logging.getLogger("uvicorn.db")
+        report_data = None
         if report_id.lower() == "last-report":
             try:
-                report_id : int = session.query(func.max(Report.id)).scalar()
+                max_id : int = (
+                    session.query(func.max(Report.id))
+                    .where(Report.project_id.is_(project_id))
+                    .scalar()
+                )
+                report_data: Report = (
+                    session.query(Report)
+                    .where(Report.id.is_(max_id))
+                    .where(Report.project_id.is_(project_id))
+                    .scalar()
+                )
             except NoResultFound:
                 return None
         else:
-            report_id = int(report_id)
-
-        report_data: Report = (
-            session.query(Report)
-            .where(Report.project_id.is_(project_id))
-            .where(Report.id.is_(report_id))
-            .scalar()
-        )
+            report_data: Report = (
+                session.query(Report)
+                .where(Report.project_id.is_(project_id))
+                .where(Report.id.is_(int(report_id)))
+                .scalar()
+            )
 
         return report_data
-    
+
     @staticmethod
-    def getHash(report : dict):
+    def getHash(report: dict):
         import hashlib
+
         return hashlib.sha256(json.dumps(report, indent=0).encode("utf-8")).hexdigest()
-    
+
     @staticmethod
     def getReportStats(report: dict):
         from ...cf_checker import (
-            CheckerOutput, CheckingModule, 
-            CheckerStats, CheckerTypes, 
-            ComplianceStandards, CheckerSeverity
+            CheckerOutput,
+            CheckingModule,
+            CheckerStats,
+            CheckerTypes,
+            ComplianceStandards,
+            CheckerSeverity,
         )
+
         issue_items_cls = [CheckerOutput(dict_data=item) for item in report["data"]]
         CheckingModule.set_output(issue_items_cls)
         CheckerStats.calculateStats()
@@ -210,17 +228,19 @@ class Report(CodeFreeBase):
             "major_count": major_count,
             "critical_count": critical_count,
         }
-    
-    def getReportPath(self, project : Project, data_path : str):
-        path = os.path.join(project.getReportsPath(data_path=data_path), self.report_path)
+
+    def getReportPath(self, project: Project, data_path: str):
+        path = os.path.join(
+            project.getReportsPath(data_path=data_path), self.report_path
+        )
         if os.path.exists(path):
             return path
         return None
-    
-    def getReportData(self, session : Session, project : Project, data_path : str):
+
+    def getReportData(self, session: Session, project: Project, data_path: str):
         path = self.getReportPath(project=project, data_path=data_path)
         if path is not None:
-            with open(path, 'r') as fp:
+            with open(path, "r") as fp:
                 return json.load(fp)
         session.delete(self)
         session.commit()
