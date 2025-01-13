@@ -74,7 +74,7 @@ export async function appRootLoader() {
     out['userInfo'] = null
     try {
         out['userInfo'] = await currentUserDataLoader()
-    } catch (error) {
+    } catch (resp) {
 
     }
     return out
@@ -92,50 +92,47 @@ function App() {
     // Memos
     const RoutesJSX = useMemo(() => (
         <Route path={`/`} element={<SuspenseLayout />} errorElement={<NotFound />}>
-            {
-                rootData.userInfo &&
-                <Route path={`/`} element={<GlobalRoot />} >
-                    <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
-                    <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
-                    <Route path={`/user`} element={<UserRoot />}>
-                        <Route path={`/user/profile`} element={<UserInfo currentUserInfo={true} />} />
-                        <Route path={`/user/:userid`} element={<Outlet />} id='user-info' loader={userDataLoader} >
-                            <Route path={`/user/:userid`} element={<Navigate to={'profile'} relative={true} />} />
-                            <Route path={`/user/:userid/profile`} element={<UserInfo />} />
-                            <Route path={`/user/:userid/edit`} element={<UserModify />} action={ModifyUserAction} />
-                            <Route path={`/user/:userid/preferences`} element={<UserPreferences />} />
-                        </Route>
-                    </Route>
-                    <Route path={`/projects`} element={<ProjectsRoot />} >
-                        <Route id='project-list' path={`/projects`} element={<ProjectsList />} loader={projectListLoader} />
-                        <Route path={`/projects/create`} element={<ProjectsCreate />} action={projectCreateAction} />
-                        <Route id='project-root' path={`/projects/:projectid`} element={<ProjectWrapper />} loader={projectInfoLoader} >
-                            <Route path={`/projects/:projectid`} element={<ProjectHome />} />
-                            <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
-                            <Route id='report-list' path={`/projects/:projectid/reports`} element={<Outlet />} loader={reportListLoader}>
-                                <Route path={`/projects/:projectid/reports`} element={<Reports />} />
-                                <Route path={`/projects/:projectid/reports/upload`} element={<CreateReport />} />
-                                <Route id='report-data' path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} />
-                            </Route>
-                        </Route>
-                    </Route>
-                    <Route path='/admin-area' element={<SystemSettingsRoot />} >
-                        <Route path='/admin-area' element={<Navigate to={`/admin-area/users`} />} />
-                        <Route path='/admin-area/users' element={<Navigate to={'/admin-area/users/all'} />} />
-                        <Route path='/admin-area/users/all' element={<SystemSettingsUsers />} loader={userListLoader} />
-                        <Route path='/admin-area/users/pending' element={<SystemSettingsUsers pendingUsers={true} />} loader={pendingUserListLoader} />
-                        {/* <Route path='/admin-area/users/create-user' element={<SystemSettingsUserCreate />} /> */}
-                        <Route id='user-info-admin' path='/admin-area/users/:userid' element={<UserInfo adminMode={true} />} loader={userDataLoader} />
+            <Route path={`/`} element={<GlobalRoot />} >
+                <Route path={`/`} element={<Navigate to={'/projects'} replace={false} />} />
+                <Route path={`/home`} element={<Navigate to={'/projects'} replace={false} />} />
+                <Route path={`/user`} element={<UserRoot />}>
+                    <Route path={`/user/profile`} element={<UserInfo currentUserInfo={true} />} />
+                    <Route path={`/user/:userid`} element={<Outlet />} id='user-info' loader={userDataLoader} >
+                        <Route path={`/user/:userid`} element={<Navigate to={'profile'} relative={true} />} />
+                        <Route path={`/user/:userid/profile`} element={<UserInfo />} />
+                        <Route path={`/user/:userid/edit`} element={<UserModify />} action={ModifyUserAction} />
+                        <Route path={`/user/:userid/preferences`} element={<UserPreferences />} />
                     </Route>
                 </Route>
-            }
+                <Route path={`/projects`} element={<ProjectsRoot />} >
+                    <Route id='project-list' path={`/projects`} element={<ProjectsList />} loader={projectListLoader} />
+                    <Route path={`/projects/create`} element={<ProjectsCreate />} action={projectCreateAction} />
+                    <Route id='project-root' path={`/projects/:projectid`} element={<ProjectWrapper />} loader={projectInfoLoader} >
+                        <Route path={`/projects/:projectid`} element={<ProjectHome />} />
+                        <Route path={`/projects/:projectid/configure`} element={<ConfigureProject />} />
+                        <Route id='report-list' path={`/projects/:projectid/reports`} element={<Outlet />} loader={reportListLoader}>
+                            <Route path={`/projects/:projectid/reports`} element={<Reports />} />
+                            <Route path={`/projects/:projectid/reports/upload`} element={<CreateReport />} />
+                            <Route id='report-data' path={`/projects/:projectid/reports/:reportid`} element={<ReportViewer />} loader={reportDataLoader} />
+                        </Route>
+                    </Route>
+                </Route>
+                <Route path='/admin-area' element={<SystemSettingsRoot />} >
+                    <Route path='/admin-area' element={<Navigate to={`/admin-area/users`} />} />
+                    <Route path='/admin-area/users' element={<Navigate to={'/admin-area/users/all'} />} />
+                    <Route path='/admin-area/users/all' element={<SystemSettingsUsers />} loader={userListLoader} />
+                    <Route path='/admin-area/users/pending' element={<SystemSettingsUsers pendingUsers={true} />} loader={pendingUserListLoader} />
+                    {/* <Route path='/admin-area/users/create-user' element={<SystemSettingsUserCreate />} /> */}
+                    <Route id='user-info-admin' path='/admin-area/users/:userid' element={<UserInfo adminMode={true} />} loader={userDataLoader} />
+                </Route>
+            </Route>
             <Route path={`/sign-in`} element={<SignIn />} action={signInAction} />
             <Route path={`/sign-up`} element={<SignUp />} />
             <Route path={`/sign-out`} element={<SignOut />} />
             <Route path='*' element={<ErrorPage errorNumber={404} />} />
         </Route>
     ), [rootData.userInfo])
-    
+
     const routes = createRoutesFromElements(RoutesJSX);
 
     const router = createBrowserRouter(routes, {

@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import DottedLine from './assets/dottedline.png'
 import { IoArrowBack } from 'react-icons/io5'
-import LinkButton from './Components/LinkButton'
+import LinkButton from './Components/LinkButton.tsx'
 import {
   StatusCodes,
 } from 'http-status-codes';

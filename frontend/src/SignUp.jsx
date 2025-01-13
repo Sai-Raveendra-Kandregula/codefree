@@ -4,11 +4,12 @@ import { Link, useNavigate, useSearchParams, useSubmit } from 'react-router-dom'
 import { StatusCodes } from 'http-status-codes';
 
 import { SERVER_ROOT_PATH } from './App'
-import LinkButton from './Components/LinkButton'
+import LinkButton from './Components/LinkButton.tsx'
 import { ReactComponent as CFLogo } from './assets/CF_Logo.svg'
 import { toast } from 'react-toastify'
 import { getAPIURL } from './hooks/useAPI.tsx';
 import { User } from './models/User.tsx';
+import CFPage from './Components/Page/CFPage.tsx';
 
 export const signUpAction = async ({ request }) => {
   switch (request.method) {
@@ -57,7 +58,7 @@ function SignUp() {
   const navigate = useNavigate()
   const submit = useSubmit();
 
-  const [searchParams, ] = useSearchParams()
+  const [searchParams,] = useSearchParams()
 
   const redirectToTarget = useCallback(() => {
     if (searchParams.get('redirect')) {
@@ -75,7 +76,7 @@ function SignUp() {
       await User.getCurrentUser()
       redirectToTarget()
     } catch (resp) {
-      
+
     }
   }, [redirectToTarget])
 
@@ -84,82 +85,88 @@ function SignUp() {
   }, [ValidateUser])
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      maxHeight: '100%',
-    }}>
+    <CFPage
+      title='Sign Up'
+      showTitleOnPage={false}
+      centered={false}
+    >
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '20px',
-        padding: '25px',
-        width: 'min(450px, 100%)',
+        height: '100%',
+        maxHeight: '100%',
       }}>
-        <h3 style={{
+        <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '25px'
+          gap: '20px',
+          padding: '25px',
+          width: 'min(450px, 100%)',
         }}>
-          <CFLogo style={{
-            color: 'currentcolor',
-            width: '150px',
-            height: 'auto'
-          }} />
-          Register to CodeFree
-        </h3>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          gap: '10px',
-        }}>
-          <input id='username' type="text" placeholder='Username' />
-          <input id='password' type="password" placeholder='Password' />
-        </div>
-        <div style={{
-          display: 'flex',
-          width: '100%',
-          gap: '10px',
-          justifyContent: 'flex-end'
-        }}>
-          <LinkButton
-            to={"/sign-up"}
-            className={'themeButton'}
-            style={{
-              flex: 0.25
-            }}
-            onClick={(e) => {
-              e.preventDefault()
+          <h3 style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '25px'
+          }}>
+            <CFLogo style={{
+              color: 'currentcolor',
+              width: '150px',
+              height: 'auto'
+            }} />
+            Register to CodeFree
+          </h3>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: '10px',
+          }}>
+            <input id='username' type="text" placeholder='Username' />
+            <input id='password' type="password" placeholder='Password' />
+          </div>
+          <div style={{
+            display: 'flex',
+            width: '100%',
+            gap: '10px',
+            justifyContent: 'flex-end'
+          }}>
+            <LinkButton
+              to={"/sign-up"}
+              className={'themeButton'}
+              style={{
+                flex: 0.25
+              }}
+              onClick={(e) => {
+                e.preventDefault()
 
-              const formdata = new FormData()
-              formdata.append('username', document.getElementById('username').value)
-              formdata.append('password', document.getElementById('password').value)
-              formdata.append('keepSignedIn', document.getElementById('keepSignedIn').checked)
+                const formdata = new FormData()
+                formdata.append('username', document.getElementById('username').value)
+                formdata.append('password', document.getElementById('password').value)
+                formdata.append('keepSignedIn', document.getElementById('keepSignedIn').checked)
 
-              submit(formdata, { 'method': 'POST' })
-            }} title={"Sign Up"} />
-        </div>
-        <div style={{
-          display: 'flex',
-          width: '100%',
-          gap: '5px',
-          justifyContent: 'flex-end'
-        }}>
-          Already registered?
-          <Link
-            to={"/sign-in"}
-            title={"Sign In"} >Sign in instead.</Link>
+                submit(formdata, { 'method': 'POST' })
+              }} title={"Sign Up"} />
+          </div>
+          <div style={{
+            display: 'flex',
+            width: '100%',
+            gap: '5px',
+            justifyContent: 'flex-end'
+          }}>
+            Already registered?
+            <Link
+              to={"/sign-in"}
+              title={"Sign In"} >Sign in instead.</Link>
+          </div>
         </div>
       </div>
-    </div>
+    </CFPage>
   )
 }
 

@@ -1,5 +1,14 @@
-import React from 'react'
+import React, { CSSProperties, PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
+
+export type LinkButtonProps = PropsWithChildren<{
+  className ?: string
+  to : string
+  icon : React.ReactNode
+  title : string
+  content ?: React.ReactNode,
+  style ?: CSSProperties
+}>
 
 function LinkButton({
   children,
@@ -7,9 +16,9 @@ function LinkButton({
   to,
   icon,
   title,
-  content = null,
+  content,
   ...props
-}) {
+} : LinkButtonProps) {
   return (<React.Fragment>
     <Link 
       className={`linkButton${className ? " " + className : ""}`} 

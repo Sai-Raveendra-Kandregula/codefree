@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react'
 import { useRouteData, CodeFreeContext } from '../App';
 import IconButton from '../Components/IconButton';
 import { LuPencil, LuUsers2 } from 'react-icons/lu';
-import LinkButton from '../Components/LinkButton';
+import LinkButton from '../Components/LinkButton.tsx';
 import UserAvatar from '../Components/UserAvatar';
 import UserLink from '../Components/UserLink';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom'
-import LinkButton from '../Components/LinkButton'
+import LinkButton from '../Components/LinkButton.tsx'
 import { IoAddOutline } from 'react-icons/io5'
 
 import IconButton from '../Components/IconButton'

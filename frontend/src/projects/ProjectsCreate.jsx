@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { Form } from 'react-router-dom'
 import { SERVER_ROOT_PATH } from '../App'
-import LinkButton from '../Components/LinkButton'
+import LinkButton from '../Components/LinkButton.tsx'
 import { MdCheck, MdClose } from 'react-icons/md'
 import { toast } from 'react-toastify';
 import { StatusCodes } from 'http-status-codes';
 import { getAPIURL } from '../hooks/useAPI.tsx';
+import CFPage from '../Components/Page/CFPage.tsx'
 
 export const projectCreateAction = async ({ request, params }) => {
   let formData = await request.formData()
@@ -55,178 +56,173 @@ function ProjectsCreate() {
     "gitlab": {
       "commit_suffix": "/-/commit/"
     },
-    "github" : {
+    "github": {
       "commit_suffix": "/commit/"
     }
   }
 
   return (
-    <Form style={{
-      height: '100%',
-      padding: '30px',
-      width: 'var(--centered-content-width)',
-      margin: 'var(--centered-content-margin)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px'
-    }} method='post' action='/projects/create'>
-      <h2 style={{
+    <CFPage title='Create New Project'>
+      <Form style={{
+        height: '100%',
+        width: '100%',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        margin: '0',
-      }}>
-        Create a New Project
-      </h2>
-      <div>
+        flexDirection: 'column',
+        gap: '15px',
+        maxHeight: '100%',
+        overflowY: 'auto',
+      }} method='post' action='/projects/create'>
+        <div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            gap: '10px',
+          }}>
+            <h3>
+              Project Settings
+            </h3>
+            <label htmlFor="project_name" style={{
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }}>
+              Project Name :
+            </label>
+            <input tabIndex={1} type="text" name="name" id="project_name"
+              onChange={(e) => {
+                const slug_element = document.getElementById('project_slug')
+
+                slug_element.value = e.target.value.trim().replaceAll(" ", "-").toLowerCase()
+              }} />
+            <label htmlFor="project_slug" style={{
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }}>
+              Project Slug (You cannot change this later) :
+            </label>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '5px'
+            }}>
+              <span>{window.location.protocol}{"//"}{window.location.host}/projects/</span>
+              <input tabIndex={2} type="text" name="slug" id="project_slug" />
+            </div>
+
+            <hr />
+
+            <h3 style={{
+              margin: 0
+            }}>
+              Remote Git Repository Settings
+            </h3>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              gap: '5px'
+            }}>
+              <input tabIndex={2} type="checkbox" id="project_has_remote" onChange={(e) => {
+                setRemoteRepoConfig(e.target.checked)
+              }} />
+              <label htmlFor="project_has_remote" style={{
+                fontSize: '0.9rem',
+                fontWeight: '400'
+              }}>
+                Link to Remote Repository
+              </label>
+            </div>
+
+            {
+              remoteRepoConfig && <React.Fragment>
+
+                <label htmlFor="remote_type" style={{
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
+                }}>
+                  Remote Repository Type :
+                </label>
+                <select name="" id="remote_type">
+                  <option value="gitlab">Gitlab</option>
+                  <option value="github">Github</option>
+                </select>
+
+                <label htmlFor="git_remote_url" style={{
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
+                }}>
+                  Project Remote Repository URL :
+                </label>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px'
+                }}>
+                  <input tabIndex={2} type="text" name="git_remote_url" id="git_remote_url"
+
+                    onChange={(e) => {
+                      const remote_type = document.getElementById('remote_type').value
+                      const commit_url_elem = document.getElementById('git_remote_commit_url')
+                      try {
+                        const baseURL = e.target.value.replace(/\/+$/, '')
+                        commit_url_elem.value = baseURL + remote_repo_mappings[remote_type].commit_suffix
+                      } catch (error) {
+
+                      }
+                    }} />
+                </div>
+
+                <label htmlFor="git_remote_commit_url" style={{
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
+                }}>
+                  Project Remote Repository Commit URL :
+                </label>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px'
+                }}>
+                  <input tabIndex={2} type="text" readOnly name="git_remote_commit_url" id="git_remote_commit_url" />
+                </div>
+              </React.Fragment>
+            }
+          </div>
+        </div>
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          justifyContent: 'center',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
           gap: '10px',
         }}>
-          <h3>
-            Project Settings
-          </h3>
-          <label htmlFor="project_name" style={{
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}>
-            Project Name :
-          </label>
-          <input tabIndex={1} type="text" name="name" id="project_name"
-            onChange={(e) => {
-              const slug_element = document.getElementById('project_slug')
-
-              slug_element.value = e.target.value.trim().replaceAll(" ", "-").toLowerCase()
+          <LinkButton
+            tabIndex={4}
+            title="Cancel"
+            icon={<MdClose style={{
+              fontSize: '1.25rem'
+            }} />}
+            to={`/projects`}
+          />
+          <button
+            className={`themeButton`}
+            tabIndex={3}
+            title="Create Project"
+            type="submit"
+          >
+            <MdCheck style={{
+              fontSize: '1.25rem'
             }} />
-          <label htmlFor="project_slug" style={{
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}>
-            Project Slug (You cannot change this later) :
-          </label>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '5px'
-          }}>
-            <span>{window.location.protocol}{"//"}{window.location.host}/projects/</span>
-            <input tabIndex={2} type="text" name="slug" id="project_slug" />
-          </div>
-
-          <hr />
-
-          <h3 style={{
-            margin: 0
-          }}>
-            Remote Git Repository Settings
-          </h3>
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            gap: '5px'
-          }}>
-            <input tabIndex={2} type="checkbox" id="project_has_remote" onChange={(e) => {
-              setRemoteRepoConfig(e.target.checked)
-            }} />
-            <label htmlFor="project_has_remote" style={{
-              fontSize: '0.9rem',
-              fontWeight: '400'
-            }}>
-              Link to Remote Repository
-            </label>
-          </div>
-
-          {
-            remoteRepoConfig && <React.Fragment>
-
-              <label htmlFor="remote_type" style={{
-                fontSize: '0.9rem',
-                fontWeight: '600'
-              }}>
-                Remote Repository Type :
-              </label>
-              <select name="" id="remote_type">
-                <option value="gitlab">Gitlab</option>
-                <option value="github">Github</option>
-              </select>
-
-              <label htmlFor="git_remote_url" style={{
-                fontSize: '0.9rem',
-                fontWeight: '600'
-              }}>
-                Project Remote Repository URL :
-              </label>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '5px'
-              }}>
-                <input tabIndex={2} type="text" name="git_remote_url" id="git_remote_url"
-
-                  onChange={(e) => {
-                    const remote_type = document.getElementById('remote_type').value
-                    const commit_url_elem = document.getElementById('git_remote_commit_url')
-                    try {
-                      const baseURL = e.target.value.replace(/\/+$/, '')
-                      commit_url_elem.value = baseURL + remote_repo_mappings[remote_type].commit_suffix
-                    } catch (error) {
-
-                    }
-                  }} />
-              </div>
-
-              <label htmlFor="git_remote_commit_url" style={{
-                fontSize: '0.9rem',
-                fontWeight: '600'
-              }}>
-                Project Remote Repository Commit URL :
-              </label>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '5px'
-              }}>
-                <input tabIndex={2} type="text" readOnly name="git_remote_commit_url" id="git_remote_commit_url" />
-              </div>
-            </React.Fragment>
-          }
+            Create Project
+          </button>
         </div>
-      </div>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: '10px',
-      }}>
-        <LinkButton
-          tabIndex={4}
-          title="Cancel"
-          icon={<MdClose style={{
-            fontSize: '1.25rem'
-          }} />}
-          to={`/projects`}
-        />
-        <button
-          className={`themeButton`}
-          tabIndex={3}
-          title="Create Project"
-          type="submit"
-        >
-          <MdCheck style={{
-            fontSize: '1.25rem'
-          }} />
-          Create Project
-        </button>
-      </div>
-    </Form>
+      </Form>
+
+    </CFPage>
   )
 }
 

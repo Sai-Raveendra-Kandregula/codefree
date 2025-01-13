@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Form, useNavigate, useParams } from 'react-router-dom'
 
-import LinkButton from '../../Components/LinkButton';
+import LinkButton from '../../Components/LinkButton.tsx';
 
 import { useRouteData } from '../../App'
 
 import { MdCheck, MdClose } from 'react-icons/md'
 import { toast } from 'react-toastify';
 import { getAPIURL } from '../../hooks/useAPI.tsx';
+import CFPage from '../../Components/Page/CFPage.tsx';
 
 function CreateReport() {
   const navigate = useNavigate()
@@ -74,131 +75,124 @@ function CreateReport() {
   }
 
   return (
-    <Form style={{
-      height: '100%',
-      padding: '30px',
-      width: 'var(--centered-content-width)',
-      margin: 'var(--centered-content-margin)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px'
-    }} method='post' action='/projects/create'>
-      <h2 style={{
+    <CFPage
+      title='Upload a New Report'>
+      <Form style={{
+        height: '100%',
+        width: '100%',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        margin: '0',
-      }}>
-        Upload a New Report
-      </h2>
-      <div>
+        flexDirection: 'column',
+        gap: '15px'
+      }} method='post' action='/projects/create'>
+        <div>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            gap: '10px',
+          }}>
+            <h3>
+              Choose Report File
+            </h3>
+            <label htmlFor="upload_report" style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '30px',
+              borderRadius: 'var(--border-radius)',
+              border: dragOverHasFiles ? '2px dashed var(--theme-color)' : '2px dashed var(--border-color)'
+            }}
+              onDragOver={(e) => {
+                e.preventDefault()
+                if (e.dataTransfer.files.length > 0) {
+                  setDragOverHasFiles(true)
+                }
+                else {
+                  setDragOverHasFiles(false)
+                }
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault()
+                if (e.dataTransfer.files.length > 0) {
+                  setDragOverHasFiles(true)
+                }
+                else {
+                  setDragOverHasFiles(false)
+                }
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault()
+                setDragOverHasFiles(false)
+              }}
+              onDragExit={(e) => {
+                e.preventDefault()
+                setDragOverHasFiles(false)
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                document.getElementById('upload_report').files = e.dataTransfer.files
+                setSelectedFile(e.dataTransfer.files.length > 0 ? e.dataTransfer.files[0] : null)
+              }}
+            >
+              {
+                selectedFile ? <span>
+                  {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+                </span> :
+                  <span>
+                    Click to pick a file, or drag and drop it here.
+                  </span>
+              }
+            </label>
+            <input
+              style={{
+                display: 'none'
+              }}
+              onChange={(e) => {
+                if (e.target.files.length > 0) {
+                  setSelectedFile(e.target.files[0])
+                }
+                else {
+                  setSelectedFile(null)
+                }
+              }}
+              type="file" name="upload_report" id="upload_report" placeholder='Choose Report File' accept='application/json' />
+
+          </div>
+        </div>
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          justifyContent: 'center',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
           gap: '10px',
         }}>
-          <h3>
-            Choose Report File
-          </h3>
-          <label htmlFor="upload_report" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '30px',
-            borderRadius: 'var(--border-radius)',
-            border: dragOverHasFiles ? '2px dashed var(--theme-color)' : '2px dashed var(--border-color)'
-          }}
-            onDragOver={(e) => {
+          <LinkButton
+            tabIndex={4}
+            title="Cancel"
+            icon={<MdClose style={{
+              fontSize: '1.25rem'
+            }} />}
+            to={(reportsList.length === 0) ? `/projects/${pathParams.projectid}`
+              : `/projects/${pathParams.projectid}/reports`}
+          />
+          <button
+            className={`themeButton`}
+            tabIndex={3}
+            title="Upload Report"
+            type="submit"
+            onClick={(e) => {
               e.preventDefault()
-              if (e.dataTransfer.files.length > 0) {
-                setDragOverHasFiles(true)
-              }
-              else {
-                setDragOverHasFiles(false)
-              }
-            }}
-            onDragEnter={(e) => {
-              e.preventDefault()
-              if (e.dataTransfer.files.length > 0) {
-                setDragOverHasFiles(true)
-              }
-              else {
-                setDragOverHasFiles(false)
-              }
-            }}
-            onDragLeave={(e) => {
-              e.preventDefault()
-              setDragOverHasFiles(false)
-            }}
-            onDragExit={(e) => {
-              e.preventDefault()
-              setDragOverHasFiles(false)
-            }}
-            onDrop={(e) => {
-              e.preventDefault()
-              document.getElementById('upload_report').files = e.dataTransfer.files
-              setSelectedFile(e.dataTransfer.files.length > 0 ? e.dataTransfer.files[0] : null)
+              uploadReport()
             }}
           >
-            {
-              selectedFile ? <span>
-                {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
-              </span> :
-                <span>
-                  Click to pick a file, or drag and drop it here.
-                </span>
-            }
-          </label>
-          <input
-            style={{
-              display: 'none'
-            }}
-            onChange={(e) => {
-              if (e.target.files.length > 0) {
-                setSelectedFile(e.target.files[0])
-              }
-              else {
-                setSelectedFile(null)
-              }
-            }}
-            type="file" name="upload_report" id="upload_report" placeholder='Choose Report File' accept='application/json' />
-
+            <MdCheck style={{
+              fontSize: '1.25rem'
+            }} />
+            Upload Report
+          </button>
         </div>
-      </div>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: '10px',
-      }}>
-        <LinkButton
-          tabIndex={4}
-          title="Cancel"
-          icon={<MdClose style={{
-            fontSize: '1.25rem'
-          }} />}
-          to={(reportsList.length === 0) ? `/projects/${pathParams.projectid}`
-            : `/projects/${pathParams.projectid}/reports`}
-        />
-        <button
-          className={`themeButton`}
-          tabIndex={3}
-          title="Upload Report"
-          type="submit"
-          onClick={(e) => {
-            e.preventDefault()
-            uploadReport()
-          }}
-        >
-          <MdCheck style={{
-            fontSize: '1.25rem'
-          }} />
-          Upload Report
-        </button>
-      </div>
-    </Form>
+      </Form>
+    </CFPage>
   )
 }
 

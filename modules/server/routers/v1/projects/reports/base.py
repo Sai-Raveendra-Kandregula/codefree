@@ -62,17 +62,19 @@ def report_upload(
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid Report")
 
     hash = Report.getHash(report_data)
-    report_existing = (
-        db_session.query(func.coalesce(func.max(Report.id), 0))
+    old_report : Report = (
+        db_session.query(Report)
+        .where(Report.project_id.is_(report.project_id))
         .where(Report.report_hash.is_(hash))
         .scalar()
     )
+    
 
-    if report_existing != 0:
+    if old_report is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={
-            "message": f"Report already exists (Report ID : {report_existing})",
-            "report_id": report_existing,
-            "report_url": f"{SERVER_URL}/projects/{report.project_id}/reports/{report_existing}",
+            "message": f"Report already exists (Report ID : {old_report.id})",
+            "report_id": old_report.id,
+            "report_url": f"{SERVER_URL}/projects/{Project.get(old_report.project_id).slug}/reports/{old_report.id}",
         })
 
     relative_path = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"

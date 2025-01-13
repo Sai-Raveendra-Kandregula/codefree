@@ -16,6 +16,7 @@ import { AppContext } from '../../NotFoundContext';
 import { toast } from 'react-toastify';
 import { getAPIURL } from '../../hooks/useAPI.tsx';
 import { ProjectReportManager } from '../../models/Project.tsx';
+import CFPage from '../../Components/Page/CFPage.tsx';
 
 export async function reportDataLoader({ params }) {
     const reportMan = new ProjectReportManager(params.projectid)
@@ -286,12 +287,11 @@ function ReportViewer() {
 
     }, [reportData, pathParams.reportid, searchParams, setSearchParams, setLastReport])
 
-
     return (
-        <div style={{
-            overflowY: 'auto',
-            width: '100%'
-        }}>
+        <CFPage
+            title={`Report #${reportData && reportData['id']}`}
+            pageToolBar={<ReportOptions reportData={reportData} pathParams={pathParams} />}
+        >
             <div style={{
                 width: '100%',
                 display: 'flex',
@@ -313,29 +313,9 @@ function ReportViewer() {
                     zIndex: '999',
                 }}>
                     <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        alignSelf: 'stretch',
-                        width: 'var(--centered-wide-content-width)',
-                        padding: '20px 20px 10px 20px',
                         boxSizing: 'border-box',
-                    }}>
-                        <h2 style={{
-                            boxSizing: 'border-box',
-                            margin: 0,
-                        }}>
-                            Report #{reportData && reportData['id']}
-                        </h2>
-                        <ReportOptions
-                            reportData={reportData}
-                            pathParams={pathParams}
-                        />
-                    </div>
-                    <div style={{
-                        boxSizing: 'border-box',
-                        width: 'var(--centered-wide-content-width)',
-                        padding: '0px 20px',
+                        width: '100%',
+                        padding: '0px',
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'stretch',
@@ -406,8 +386,7 @@ function ReportViewer() {
                             display: 'flex',
                             flexDirection: 'column',
                             height: '100%',
-                            width: 'var(--centered-wide-content-width)',
-                            margin: 'var(--centered-content-margin)',
+                            width: '100%',
                             // maxHeight: '100%',
                             overflow: 'auto'
                         }}>
@@ -505,7 +484,7 @@ function ReportViewer() {
                 }
 
             </div>
-        </div>
+        </CFPage>
     )
 }
 

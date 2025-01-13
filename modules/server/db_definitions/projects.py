@@ -2,7 +2,7 @@ import datetime
 import json
 import os
 import logging
-from typing import List
+from typing import List, Self
 from typing import Optional
 import randomcolor
 from sqlalchemy import String, ForeignKey, DateTime, Text
@@ -32,6 +32,11 @@ class Project(CodeFreeBase):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+    @staticmethod
+    def get(session: Session, id: int):
+        project : Project = session.query(Project).where(Project.id.is_(id)).scalar()
+        return project
+    
     @staticmethod
     def get_project_by_slug(session: Session, slug: str):
         return session.query(Project).filter(Project.slug == slug).first()

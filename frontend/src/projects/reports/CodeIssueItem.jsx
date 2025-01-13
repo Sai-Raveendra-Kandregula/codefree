@@ -6,43 +6,6 @@ function CodeIssueItem({
     issue = {},
     groupedBy = "",
 }) {
-
-    /* 
-    CWE : {
-                "Module Type": "code",
-                "File Name": "src/peermon/chm_peer_state_actions.c",
-                "Module Name": "FlawFinder",
-                "Compliance Standard": "CWE",
-                "Severity": "Minor",
-                "Line": 45,
-                "Column": 59,
-                "Context": "alarm->alarmcode = CHM_MALLOC(sizeof(char) * (strlen(alarm_code_value) + 1));",
-                "Description": "Does not handle strings that are not \\0-terminated; if given one it may perform an over-read (it could cause a crash if unprotected) (CWE-126).",
-                "Symbol": "strlen",
-                "Type": "buffer",
-                "Suggestion": "",
-                "Primary CWE": 126,
-                "CWE List": "126",
-                "Additional Info": "https://cwe.mitre.org/data/definitions/126.html"
-            }
-    MISRA : {
-                "Module Type": "code",
-                "File Name": "src/peermon/chm_peermon.c",
-                "Module Name": "CPPCheck",
-                "Compliance Standard": "MISRA",
-                "Severity": "Minor",
-                "Line": 69,
-                "Column": 5,
-                "Context": "int chm_create_listener_socket(chm_global_ctx* global_ctx) {",
-                "Description": "Functions and objects should not be defined with external linkage if they are referenced in only one translation unit",
-                "Symbol": "chm_create_listener_socket",
-                "Type": "MISRA Violation",
-                "Suggestion": null,
-                "MISRA Rule Number": "8.7",
-                "Additional Info": null
-            }
-    */
-
     return (
         <div style={{
             boxSizing: 'border-box',

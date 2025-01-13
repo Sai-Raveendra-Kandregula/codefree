@@ -1,11 +1,12 @@
 import React from 'react'
 import { Link, useLoaderData, useNavigate } from 'react-router-dom'
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
-import LinkButton from '../Components/LinkButton'
+import LinkButton from '../Components/LinkButton.tsx'
 import { MdAdd } from 'react-icons/md'
 import CFTable from '../Components/CFTable';
 import { Project } from '../models/Project.tsx';
 import { useRouteData } from '../hooks/useRouteData.tsx';
+import CFPage from '../Components/Page/CFPage.tsx';
 
 
 export async function projectListLoader({ params }) {
@@ -63,12 +64,12 @@ function ProjectsList() {
             gap: '10px',
           }}>
             {
-              ('last-report' in item) ?
+              ('last-report' in item && item['last-report'] !== undefined) ?
                 <span style={{
-                  borderRadius: '10px', 
-                  color: 'white', 
+                  borderRadius: '10px',
+                  color: 'white',
                   backgroundColor: 'var(--theme-color)',
-                  boxSizing: 'border-box', 
+                  boxSizing: 'border-box',
                   height: '24px',
                   lineHeight: '24px',
                   padding: '5px 10px',
@@ -79,7 +80,7 @@ function ProjectsList() {
                   justifyContent: 'center'
                 }} title='Issues'>
                   {
-                    item['last-report']['style_issues']
+                    (item['last-report']['style_issues'])
                     + item['last-report']['critical_issues']
                     + item['last-report']['major_issues']
                     + item['last-report']['minor_issues']
@@ -102,47 +103,32 @@ function ProjectsList() {
   }
 
   return (
-    <div style={{
-      boxSizing: 'border-box',
-      height: '100%',
-      padding: '30px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-      justifyContent: 'flex-start'
-    }}>
-      <h2 style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '0',
-      }}>
-        <span>
-          Projects List
-        </span>
-        {
-          projectsList.length &&
-          <LinkButton
-            className={'themeButton'}
-            title={"Create"}
-            icon={<MdAdd style={{
-              fontSize: '1.1rem'
-            }} />}
-            to={`/projects/create`}
-            style={{
-              fontSize: '0.9rem'
-            }}
-            replace={false}
-          />
-        }
-      </h2>
+    <CFPage title='Projects List'
+      pageToolBar={
+        <React.Fragment>
+          {
+            projectsList.length &&
+            <LinkButton
+              className={'themeButton'}
+              title={"Create"}
+              icon={<MdAdd style={{
+                fontSize: '1.1rem'
+              }} />}
+              to={`/projects/create`}
+              style={{
+                fontSize: '0.9rem'
+              }}
+              replace={false}
+            />
+          }
+        </React.Fragment>
+      }>
       <div style={{
-        padding: '10px 0 0 0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
         boxSizing: 'border-box',
-        flex: '1',
+        height: '100%',
         overflowY: 'auto',
         gap: '5px'
       }}>
@@ -161,7 +147,7 @@ function ProjectsList() {
             </span>
         }
       </div>
-    </div>
+    </CFPage>
   )
 }
 

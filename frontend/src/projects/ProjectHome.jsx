@@ -3,11 +3,32 @@ import { useParams } from 'react-router-dom'
 import Chart from "react-apexcharts";
 
 import { CodeFreeContext, useRouteData } from '../App'
-import LinkButton from '../Components/LinkButton'
+import LinkButton from '../Components/LinkButton.tsx'
 import { GoArrowRight } from 'react-icons/go';
 import { NameInitialsAvatar } from 'react-name-initials-avatar';
 import { ProjectReportManager } from '../models/Project.tsx';
 import { toast } from 'react-toastify';
+import CFPage from '../Components/Page/CFPage.tsx';
+
+export function NoReportsFound() {
+  const pathParams = useParams()
+
+  return (
+    <div className="appPanel" style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      marginTop: '15px'
+    }}>
+      <p>
+        There are no reports found for this project. Run a CodeFree test <b>from the CLI</b>,<br />or
+      </p>
+      <LinkButton className={'themeButton'} to={`/projects/${pathParams.projectid}/reports/upload`} title={'Upload a Report'} />
+    </div>
+  )
+}
 
 function ProjectHome() {
   const pathParams = useParams()
@@ -36,6 +57,10 @@ function ProjectHome() {
     reportMan.stats("last-report")
       .then((data) => {
         setReportData(data)
+      }).catch((resp) => {
+        if (resp.status !== 404){
+          toast.error(`Error getting Latest Report (Code : ${resp.status})`)
+        }
       })
   }, [reportMan, setReportData])
 
@@ -44,7 +69,7 @@ function ProjectHome() {
       setReportsLists(data)
     }).catch((resp) => {
       setReportsLists([])
-      if (resp.status !== 404){
+      if (resp.status !== 404) {
         toast(`Failed to get Reports List (Code : ${resp.status})`)
       }
     })
@@ -117,160 +142,140 @@ function ProjectHome() {
   }
 
   return (
-    <div style={{
-      padding: '30px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px',
-    }}>
-      {
-        projectInfo && <h2 style={{
-          display: 'flex',
-          gap: '10px',
-          alignItems: 'center',
-          margin: '0'
-        }}>
-          <NameInitialsAvatar name={projectInfo['name']} bgColor={projectInfo['avatar_color']} textColor='white' borderStyle='none' />
-          {projectInfo['name']}
-        </h2>
-      }
-      {
-        reportData ? <React.Fragment>
-          <div className='appPanel' style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '50px',
-          }}>
-            <div style={{
-              width: '100%',
-              paddingLeft: '30px'
+    <CFPage title={`${projectInfo['name']}`}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+        gap: '20px'
+      }}>
+        {
+          reportData ? <React.Fragment>
+            <div className='appPanel' style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '50px',
             }}>
-              <h2>
-                Code Quality Score : {reportData ? (reportData['cf_code_quality_score'] * 10).toFixed(2) : 0} / 10
-              </h2>
-              <h3>
-                Issues found in {reportData ? reportData['issue_files'] : 0} file{reportData ? (reportData['issue_files'] !== 1 ? "s" : "") : "s"}.
-              </h3>
-              <LinkButton
-                to={`/projects/${pathParams.projectid}/reports/last-report`}
-                title={"View the Latest Report"}
-                content={<React.Fragment>
-                  <span style={{
-                    paddingLeft: '5px'
-                  }}>View the Latest Report</span>
-                  <GoArrowRight style={{
-                    fontSize: '1.25rem',
-                  }} />
-                </React.Fragment>} />
-            </div>
-            <div>
-              <Chart
-                width="500px"
-                type='donut'
-                series={Object.keys(issueDataDonut).map((key) => {
-                  return issueDataDonut[key]
-                })
-                }
-                options={{
-                  theme: {
-                    mode: theme,
-                    palette: 'palette1'
-                  },
-                  chart: {
-                    id: "issues-count"
-                  },
-                  labels: Object.keys(issueDataDonut),
-                  dataLabels: {
-                    enabled: true,
-                  },
-                  plotOptions: {
-                    pie: {
-                      background: 'transparent',
-                      donut: {
+              <div style={{
+                width: '100%',
+                paddingLeft: '30px'
+              }}>
+                <h2>
+                  Code Quality Score : {reportData ? (reportData['cf_code_quality_score'] * 10).toFixed(2) : 0} / 10
+                </h2>
+                <h3>
+                  Issues found in {reportData ? reportData['issue_files'] : 0} file{reportData ? (reportData['issue_files'] !== 1 ? "s" : "") : "s"}.
+                </h3>
+                <LinkButton
+                  to={`/projects/${pathParams.projectid}/reports/last-report`}
+                  title={"View the Latest Report"}
+                  content={<React.Fragment>
+                    <span style={{
+                      paddingLeft: '5px'
+                    }}>View the Latest Report</span>
+                    <GoArrowRight style={{
+                      fontSize: '1.25rem',
+                    }} />
+                  </React.Fragment>} />
+              </div>
+              <div>
+                <Chart
+                  width="500px"
+                  type='donut'
+                  series={Object.keys(issueDataDonut).map((key) => {
+                    return issueDataDonut[key]
+                  })
+                  }
+                  options={{
+                    theme: {
+                      mode: theme,
+                      palette: 'palette1'
+                    },
+                    chart: {
+                      id: "issues-count"
+                    },
+                    labels: Object.keys(issueDataDonut),
+                    dataLabels: {
+                      enabled: true,
+                    },
+                    plotOptions: {
+                      pie: {
                         background: 'transparent',
-                        labels: {
-                          show: true,
-                          total: {
+                        donut: {
+                          background: 'transparent',
+                          labels: {
                             show: true,
-                            showAlways: true,
-                            label: 'Issues Found'
+                            total: {
+                              show: true,
+                              showAlways: true,
+                              label: 'Issues Found'
+                            }
                           }
                         }
                       }
-                    }
-                  },
-                }}
-              />
-            </div>
-          </div>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px'
-          }}>
-            <div className='appPanel' style={{
-              alignSelf: 'stretch'
-            }}>
-              <h2 style={{
-                marginTop: '0'
-              }}>
-                Progression of Code Quality over Time
-              </h2>
-              <Chart
-                options={{
-                  ...chartOptions,
-                  yaxis: {
-                    ...('yaxis' in chartOptions ? chartOptions['yaxis'] : {}),
-                    labels: {
-                      formatter: function (value) {
-                        return value.toFixed(2);
-                      },
                     },
-                    min: 0
-                  }
-                }}
-                series={codeQualitySeries}
-                type="line"
-                width="100%"
-                height="400px"
-              />
+                  }}
+                />
+              </div>
             </div>
-            <div className='appPanel' style={{
-              alignSelf: 'stretch'
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
             }}>
-              <h2 style={{
-                marginTop: '0'
+              <div className='appPanel' style={{
+                alignSelf: 'stretch'
               }}>
-                Progression of Issues over Time
-              </h2>
-              <Chart
-                options={chartOptions}
-                series={issueSeries}
-                type="line"
-                width="100%"
-                height="400px"
-              />
+                <h2 style={{
+                  marginTop: '0'
+                }}>
+                  Progression of Code Quality over Time
+                </h2>
+                <Chart
+                  options={{
+                    ...chartOptions,
+                    yaxis: {
+                      ...('yaxis' in chartOptions ? chartOptions['yaxis'] : {}),
+                      labels: {
+                        formatter: function (value) {
+                          return value.toFixed(2);
+                        },
+                      },
+                      min: 0
+                    }
+                  }}
+                  series={codeQualitySeries}
+                  type="line"
+                  width="100%"
+                  height="400px"
+                />
+              </div>
+              <div className='appPanel' style={{
+                alignSelf: 'stretch'
+              }}>
+                <h2 style={{
+                  marginTop: '0'
+                }}>
+                  Progression of Issues over Time
+                </h2>
+                <Chart
+                  options={chartOptions}
+                  series={issueSeries}
+                  type="line"
+                  width="100%"
+                  height="400px"
+                />
+              </div>
             </div>
-          </div>
-        </React.Fragment>
-          :
-          <div className="appPanel" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            marginTop: '15px'
-          }}>
-            <p>
-              There are no reports found for this project. Run a CodeFree test <b>from the CLI</b>,<br />or
-            </p>
-            <LinkButton className={'themeButton'} to={`/projects/${pathParams.projectid}/reports/upload`} title={'Upload a Report'} />
-          </div>
-      }
-    </div>
+          </React.Fragment>
+            :
+            <NoReportsFound />
+        }
+      </div>
+    </CFPage>
   )
 }
 
