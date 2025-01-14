@@ -22,7 +22,7 @@
 }
 
 .tooltipPopup {
-    z-index: 15;
+    z-index: 20000;
     position: absolute;
     display: none;
     flex-direction: column;

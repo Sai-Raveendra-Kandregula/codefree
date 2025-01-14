@@ -310,7 +310,7 @@ function ReportViewer() {
                     alignItems: 'center',
                     justifyContent: 'flex-start',
                     background: 'var(--background)',
-                    zIndex: '999',
+                    // zIndex: '999',
                 }}>
                     <div style={{
                         boxSizing: 'border-box',
