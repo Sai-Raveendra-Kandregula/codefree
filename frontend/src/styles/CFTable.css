@@ -11,5 +11,5 @@ tr.clickable-row{
 }
 
 tr.clickable-row:hover{
-    background: var(--button-overlay);
+    background: var(--button-overlay-hover);
 }

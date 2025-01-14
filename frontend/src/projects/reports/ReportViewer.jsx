@@ -304,7 +304,7 @@ function ReportViewer() {
                     boxSizing: 'border-box',
                     width: '100%',
                     position: 'sticky',
-                    top: 0,
+                    top: 'calc(-1 * var(--page-padding-y))',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -393,7 +393,7 @@ function ReportViewer() {
                             <div style={{
                                 overflowY: 'auto',
                                 boxSizing: 'border-box',
-                                padding: '20px',
+                                padding: '20px 0',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'stretch',

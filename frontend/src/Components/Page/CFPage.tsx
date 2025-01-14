@@ -33,7 +33,7 @@ function CFPage({
             overflowY: 'auto',
             width: '100%',
             minHeight: '100%',
-            padding: '20px',
+            padding: 'var(--page-padding-y) var(--page-padding-x)',
             display: 'grid',
             gridTemplateColumns: '1fr',
             gridTemplateRows: `${showTitleOnPage ? 'auto ' : ''}1fr`,
