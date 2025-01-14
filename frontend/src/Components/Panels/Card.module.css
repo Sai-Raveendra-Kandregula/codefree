@@ -19,16 +19,16 @@
 }
 
 .card.sm{
-    width: 10rem;
-    height: 6.5rem;
+    width: 12.5rem;
+    min-height: 10rem;
 }
 
 .card.md {
-    width: 17.5rem;
-    height: 10rem;
+    width: 20rem;
+    min-height: 12.5rem;
 }
 
 .card.lg {
-    width: 22.5rem;
-    height: 13.5rem;
+    width: 25rem;
+    min-height: 15rem;
 }

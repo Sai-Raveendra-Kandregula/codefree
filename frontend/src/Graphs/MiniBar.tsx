@@ -1,4 +1,4 @@
-import React, { CSSProperties, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react'
 import MiniBarStyles from './MiniBar.module.css'
 
 type MiniBarDataPoint = {
@@ -16,9 +16,11 @@ type MiniBarProps = {
     xAxisLabel?: string
     yAxisLabel?: string
     showAxes?: AxesBoolean,
+    minValue?: number
     maxValue?: number
     maxEntries?: number | 'auto',
-    containerStyle?: CSSProperties,
+    containerStyle?: CSSProperties
+    tooltipContent?: (dataItem: MiniBarDataPoint) => ReactNode
     valueFormatter?: (value: number) => string
 }
 
@@ -26,7 +28,9 @@ function MiniBar({
     dataPoints,
     xAxisLabel,
     yAxisLabel,
+    minValue = 0,
     maxValue,
+    tooltipContent,
     maxEntries = 5,
     showAxes = { xAxis: true, yAxis: true },
     valueFormatter = (value) => `${value}`,
@@ -46,6 +50,10 @@ function MiniBar({
         return dataPoints
     }, [dataPoints, maxEntries])
 
+    const defaultToolTipContent = useCallback((dataItem: MiniBarDataPoint) => {
+        return <b>{yAxisLabel && `${yAxisLabel} : `}{valueFormatter(dataItem.value)}</b>
+    }, [yAxisLabel, valueFormatter])
+
     const _maxValue = useMemo(() => {
         if (maxValue) {
             return maxValue
@@ -56,18 +64,36 @@ function MiniBar({
 
     return (
         <div className={`${MiniBarStyles.container}`} style={containerStyle}>
-            {
-                yAxisLabel && yAxisLabel.length > 0 && showAxes.yAxis && 
-                <div className={`${MiniBarStyles.yAxisContainer}`}>
-                    {yAxisLabel}
+            <div className={`${MiniBarStyles.yAxisContainer}`}>
+                {
+                    yAxisLabel && yAxisLabel.length > 0 &&
+                    <span className={`${MiniBarStyles.axisLabel}`}>
+                        {yAxisLabel}
+                    </span>
+                }
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'end',
+                    justifyContent: 'space-between',
+                    height: '100%',
+                }}>
+                    <span>
+                        {_maxValue}
+                    </span>
+                    <span>
+                        {minValue}
+                    </span>
                 </div>
-            }
-            {
-                xAxisLabel && xAxisLabel.length > 0 && showAxes.xAxis &&
-                <div className={`${MiniBarStyles.xAxisContainer}`}>
-                    {xAxisLabel}
-                </div>
-            }
+            </div>
+            <div className={`${MiniBarStyles.xAxisContainer}`}>
+                {
+                    xAxisLabel && xAxisLabel.length > 0 &&
+                    <span className={`${MiniBarStyles.axisLabel}`}>
+                        {xAxisLabel}
+                    </span>
+                }
+            </div>
             <div ref={dataContainerRef} className={`${MiniBarStyles.dataContainer}`}
                 onMouseMove={(e) => {
                     const dataContainer = dataContainerRef.current;
@@ -93,11 +119,12 @@ function MiniBar({
                             padding: '10px',
                             zIndex: 1000,
                             opacity: popupData ? 1 : 0,
-                            pointerEvents: 'none'
+                            pointerEvents: 'none',
+                            width: 'max-content'
                         }}
                     >
                         <small>
-                            <b>{yAxisLabel && `${yAxisLabel} : `}{valueFormatter(popupData.value)}</b>
+                            {(tooltipContent || defaultToolTipContent)(popupData)}
                         </small>
                     </div>
                 )}

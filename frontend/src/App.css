@@ -26,6 +26,7 @@
   --overlay-background: rgba(234, 236, 241, 0.75);
   --foreground: #010101;
   --border-color: #cdcdcd;
+  --border-color-dark: #929292;
   --control-border-color: #cdcdcd;
   --nav-panel-background: #ffffff;
   --theme-color: #027577;
@@ -46,6 +47,7 @@
   --overlay-background: rgba(17, 17, 22, 0.5);
   --foreground: #FEFEFE;
   --border-color: #3939397d;
+  --border-color-dark: #7b7b7bcd;
   --control-border-color: #3b3b3b;
   --nav-panel-background: rgb(22, 22, 30);
   --theme-color: #6b61ff;
@@ -53,6 +55,7 @@
   --card-background: rgba(255, 255, 255, 0.075);
   --select-background: rgba(255, 255, 255, 0.1);
   --button-overlay: rgba(255, 255, 255, 0.075);
+  --button-overlay-hover: rgba(255, 255, 255, 0.15);
   --control-overlay-bg: rgba(255, 255, 255, 0.05);
   --control-active-overlay-bg: rgba(255, 255, 255, 0.075);
 
@@ -62,7 +65,7 @@
 }
 
 * {
-  color: var(--foreground);
+  color: inherit;
 }
 
 a {
