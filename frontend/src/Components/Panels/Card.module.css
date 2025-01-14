@@ -1,0 +1,34 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 1rem;
+
+    box-sizing: border-box;
+    border-radius: 15px;
+    padding: 15px;
+
+    box-shadow: 0 0.25rem rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    background: var(--card-background);
+}
+
+.card > .heading{
+    margin: 0;
+}
+
+.card.sm{
+    width: 10rem;
+    height: 6.5rem;
+}
+
+.card.md {
+    width: 17.5rem;
+    height: 10rem;
+}
+
+.card.lg {
+    width: 22.5rem;
+    height: 13.5rem;
+}

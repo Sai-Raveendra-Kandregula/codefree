@@ -9,6 +9,7 @@ import { StatusCodes } from 'http-status-codes';
 import { SERVER_ROOT_PATH } from '../App'
 import { getAPIURL } from '../hooks/useAPI.tsx';
 import { User } from '../models/User.tsx';
+import CFPage from '../Components/Page/CFPage.tsx';
 
 
 export const ModifyUserAction = async ({ request, params }) => {
@@ -81,26 +82,7 @@ function UserModify() {
     };
 
     return (
-        <div style={{
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            width: 'var(--centered-content-width)',
-            margin: 'var(--centered-content-margin)',
-        }}>
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%'
-            }}>
-                <h2 style={{
-                    flex: '1',
-                    margin: '0',
-                }}>
-                    {`Edit "${userData['user_name']}" user`}
-                </h2>
-            </div>
+        <CFPage title={`Edit User : ${userData['user_name']}`}>
             <Form method='POST'
                 action={`/user/${userData['user_name']}/edit`}
                 style={{
@@ -187,7 +169,7 @@ function UserModify() {
                     </tbody>
                 </table>
             </Form>
-        </div>
+        </CFPage>
     )
 }
 

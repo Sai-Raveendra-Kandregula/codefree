@@ -9,6 +9,8 @@ import { NameInitialsAvatar } from 'react-name-initials-avatar';
 import { ProjectReportManager } from '../models/Project.tsx';
 import { toast } from 'react-toastify';
 import CFPage from '../Components/Page/CFPage.tsx';
+import MiniBar from '../Graphs/MiniBar.tsx';
+import Card from '../Components/Panels/Card.tsx';
 
 export function NoReportsFound() {
   const pathParams = useParams()
@@ -41,6 +43,8 @@ function ProjectHome() {
   const themeInfo = useMemo(() => cfAppContext.themeInfo, [cfAppContext.themeInfo])
   const theme = useMemo(() => themeInfo.actualTheme, [themeInfo.actualTheme])
 
+  const scoreNormalizer = useMemo(() => 10, [])
+
   const keys_ordered = useMemo(() => ({
     "style_issues": "Style Issues",
     "minor_issues": "Minor Code Issues",
@@ -58,7 +62,7 @@ function ProjectHome() {
       .then((data) => {
         setReportData(data)
       }).catch((resp) => {
-        if (resp.status !== 404){
+        if (resp.status !== 404) {
           toast.error(`Error getting Latest Report (Code : ${resp.status})`)
         }
       })
@@ -114,6 +118,15 @@ function ProjectHome() {
         return report["cf_code_quality_score"]
       }),
     }]
+  }, [reportsList])
+
+  const codeQualityMiniBarSeries = useMemo(() => {
+    return reportsList.sort((a, b) => a['timestamp'] - b['timestamp']).map((report) => {
+      return {
+        label: new Date(report['timestamp']).toLocaleString(),
+        value: report["cf_code_quality_score"] * scoreNormalizer
+      }
+    })
   }, [reportsList])
 
   const timeline = useMemo(() => {
@@ -226,6 +239,28 @@ function ProjectHome() {
               flexDirection: 'column',
               gap: '10px'
             }}>
+              <Card title='CF Quality Score'>
+                <MiniBar
+                  xAxisLabel='Time'
+                  dataPoints={codeQualityMiniBarSeries}
+                  maxValue={scoreNormalizer}
+                  valueFormatter={(val) => `${val.toFixed(2)}`}
+                  containerStyle={{
+                    width: '100%'
+                  }}
+                />
+              </Card>
+              <div>
+                <h3>
+                  CodeFree Score
+                </h3>
+                <MiniBar
+                  dataPoints={codeQualityMiniBarSeries}
+                  maxValue={scoreNormalizer}
+                  valueFormatter={(val) => `${val.toFixed(2)}`}
+                  name='Score'
+                />
+              </div>
               <div className='appPanel' style={{
                 alignSelf: 'stretch'
               }}>

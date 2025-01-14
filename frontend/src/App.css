@@ -1,8 +1,8 @@
 /* App Styles */
 
 :root {
-  --centered-content-width: clamp(60%, 750px, 100%);
-  --centered-wide-content-width: clamp(75%, 900px, 100%);
+  --centered-content-width: min(900px, 100%);
+  --centered-wide-content-width: min(1200px, 100%);
   --centered-content-margin: 0 auto;
 
   --control-inline-height: 35px;
@@ -56,7 +56,7 @@
 }
 
 * {
-  color: inherit;
+  color: var(--foreground);
 }
 
 a {

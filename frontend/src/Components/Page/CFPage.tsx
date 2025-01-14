@@ -1,16 +1,18 @@
-import React, { useEffect } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 
 import CFPageStyles from './CFPage.module.css'
 
 export type CFPageProps = React.PropsWithChildren<{
     title: string
+    titleContentOverride ?: ReactNode
     showTitleOnPage?: boolean
-    pageToolBar?: React.ReactNode
+    pageToolBar?: ReactNode
     centered?: boolean
 }>
 
 function CFPage({
     title,
+    titleContentOverride,
     showTitleOnPage = true,
     pageToolBar,
     centered = true,
@@ -24,7 +26,6 @@ function CFPage({
             window.document.title = `Codefree`
         }
     }, [title])
-
 
     return (
         <div style={{
@@ -52,8 +53,12 @@ function CFPage({
                 }}>
                     <h2 style={{
                         margin: 0
-                    }}>{showTitleOnPage && title}</h2>
-                    <div>
+                    }}>{showTitleOnPage && (titleContentOverride || title)}</h2>
+                    <div style={{
+                        display: 'flex',
+                        gap: '5px',
+                        alignItems: 'center'
+                    }}>
                         {pageToolBar}
                     </div>
                 </div>

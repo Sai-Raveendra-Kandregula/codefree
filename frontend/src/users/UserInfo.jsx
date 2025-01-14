@@ -5,10 +5,11 @@ import { LuPencil, LuUsers2 } from 'react-icons/lu';
 import LinkButton from '../Components/LinkButton.tsx';
 import UserAvatar from '../Components/UserAvatar';
 import UserLink from '../Components/UserLink';
+import CFPage from '../Components/Page/CFPage.tsx';
 
 function UserInfo({
     currentUserInfo = false,
-    adminMode=false
+    adminMode = false
 }) {
     const cfContext = useContext(CodeFreeContext)
     const currentUserData = useMemo(() => cfContext.userInfo, [cfContext])
@@ -16,52 +17,40 @@ function UserInfo({
     const userData = currentUserInfo ? currentUserData : externalUserData
 
     return (
-        <div style={{
-            padding: '30px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            width: 'var(--centered-content-width)',
-            margin: 'var(--centered-content-margin)',
-        }}>
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
-            }}>
-                <h2 style={{
-                    flex: '1',
-                    margin: '0',
-                }}>
-                    {userData['display_name']}
-                    {
-                        adminMode ? <span style={{
-                            color: 'red',
-                        }}>
-                            {
-                                userData['is_user_admin'] && " (Admin)"
-                            }
-                        </span>
+        <CFPage
+            title={`${userData['display_name']}`}
+            titleContentOverride={<>
+                {userData['display_name']}
+                {
+                    adminMode ? <span style={{
+                        color: 'red',
+                    }}>
+                        {
+                            userData['is_user_admin'] && " (Admin)"
+                        }
+                    </span>
                         :
                         <span style={{
                             fontSize: '0.9rem',
                             opacity: '0.5',
                             marginLeft: '5px'
                         }}>(id : {userData['user_name']})</span>
-                    }
-                </h2>
+                }
+            </>}
+            pageToolBar={<>
                 {
                     userData['is_user_admin'] && !adminMode &&
-                    <IconButton 
+                    <IconButton
                         overlay={true}
                         icon={<LuUsers2 />}
-                        to={`/admin-area/users/${userData['user_name']}`} 
+                        to={`/admin-area/users/${userData['user_name']}`}
                         title={`Open User in Admin Area`} />
                 }
-                <LinkButton className={'themeButton'} icon={<LuPencil />} 
-                    to={`/user/${userData['user_name']}/edit`} 
+                <LinkButton className={'themeButton'} icon={<LuPencil />}
+                    to={`/user/${userData['user_name']}/edit`}
                     title={`Edit`} />
-            </div>
+            </>}
+        >
             <div style={{
                 display: 'flex',
                 width: '100%',
@@ -98,7 +87,7 @@ function UserInfo({
                     </tbody>
                 </table>
             </div>
-        </div>
+        </CFPage>
     )
 }
 
