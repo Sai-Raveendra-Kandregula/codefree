@@ -18,11 +18,6 @@ if __name__ == "__main__":
     progress_printer = get_progress_printer(args=args)
     error_printer = get_error_printer(args=args)
     
-    if getattr(args, 'path', None) is not None:
-        progress_printer("Path : " + args.path)
-        if args.optionsFile != None:
-            progress_printer("Using Options File from : " + args.path)
-    
     if args.transformJson is not None:
         progress_printer("Transforming JSON File : " + os.path.realpath(args.transformJson.name))
         
@@ -47,6 +42,10 @@ if __name__ == "__main__":
                 else:
                     progress_printer("Prechecks successful.")
     else:
+        if getattr(args, 'path', None) is not None:
+            progress_printer("Path : " + args.path)
+            if args.optionsFile != None:
+                progress_printer("Using Options File from : " + args.path)
         if len(args.includePaths) > 0:
             progress_printer("Include Paths : " + " : ".join(args.includePaths))
         if args.outputFile is not None:
