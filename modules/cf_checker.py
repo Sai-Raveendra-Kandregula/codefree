@@ -66,13 +66,19 @@ class CheckingModule():
 
     @classmethod
     def get_git_commit(cls, args : Namespace) -> dict | None:
+        progress_printer = get_progress_printer(args=args)
         if(os.system(f"git config --global --add safe.directory {args.path} ; cd {args.path} ; git rev-parse --is-inside-work-tree | grep true > /dev/null") == 0):
             # Is a git directory
             path : str = args.path
             path = path.removesuffix("/")
-            fmt = "--pretty=format:{\"hash\":\"%H\",\"author\":\"%an\",\"date\":\"%ad\",\"email\":\"%aE\",\"subject\":\"%s\",\"body\": \"%b\",\"notes\":\"%N\",\"commitDate\":\"%ai\",\"age\":\"%cr\"}"
+            fmt = "--pretty=format:hash:%H\nauthor:%an\ndate:%ad\nemail:%aE\nsubject:%s\nbody\": \"%b\nnotes:%N\ncommitDate:%ai\nage:%cr"
             process = subprocess.Popen(['git', '--git-dir', f"{path}/.git", 'log', '-n 1', fmt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
             stdout, stderr = process.communicate()
+            obj = {}
+            for line in stdout.strip().splitlines(): 
+                key_value = line.split(":", maxsplit=1)
+                obj[key_value[0].strip()] = key_value[1].strip() if len(key_value) == 2 else ""
+            return obj
             return json.loads(stdout, strict=False)
         return None
 

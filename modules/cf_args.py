@@ -214,4 +214,7 @@ def load_args() -> argparse.Namespace:
                 if not val.endswith("/"):
                     args.includePaths[ind] = val + "/"
 
+    if args.outputFile is not None:
+        os.chmod(args.outputFile.name, 0o755)
+
     return args

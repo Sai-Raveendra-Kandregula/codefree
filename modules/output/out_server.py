@@ -25,7 +25,7 @@ def output_server(args, output: List[CheckerOutput] = []):
     commit_info : str = None
     out_obj = {}
     out_obj['timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()*1000
-    if(args.commit):
+    if( hasattr(args, 'commit') and args.commit ) :
         out_obj['commit_info'] = args.commit
         commit_info = json.dumps(args.commit)
     out_obj['data'] = [item.dict() for item in output]

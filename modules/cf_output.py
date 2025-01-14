@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Callable, Any, TypeAlias
 import types
 import sys
@@ -96,5 +97,7 @@ class FormattingModule():
         if args.outputFile is None and not format_module.hasNoOutputFile:
             print(json.dumps([item.dict() for item in output], indent=2))
         else:
+            filename = args.outputFile.name
             format_module.formatter(args, output)
+            os.chmod(filename, 0o755)
 
