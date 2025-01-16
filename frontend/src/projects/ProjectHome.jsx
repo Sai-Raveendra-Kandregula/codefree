@@ -166,6 +166,11 @@ function ProjectHome() {
         },
         xaxis: {
             categories: timeline,
+            labels: {
+                formatter: function (value, timestamp) {
+                    return timestamp.toLocaleString(); // The formatter function overrides format property
+                },
+            },
         },
         plotOptions: {
             line: {
@@ -183,6 +188,7 @@ function ProjectHome() {
                     alignItems: 'stretch',
                     justifyContent: 'flex-start',
                     gap: '20px',
+                    filter: 'var(--panel-shadow-filter)',
                 }}
             >
                 {reportData ? (
@@ -271,50 +277,63 @@ function ProjectHome() {
                                 />
                             </div>
                         </div>
-                        <Card
-                            title="CF Quality Score"
-                            cardStyle={{
-                                width: '325px',
-                                height: '200px',
-                            }}
-                        >
-                            <MiniBar
-                                dataPoints={codeQualityMiniBarSeries}
-                                maxValue={scoreNormalizer}
-                                valueFormatter={(val) => `${val.toFixed(2)}`}
-                                containerStyle={{
-                                    height: '100%',
-                                    width: '100%',
-                                }}
-                                tooltipContent={(item) => {
-                                    return (
-                                        <span>
-                                            {item.label} : <b>{item.value.toFixed(2)}</b>
-                                        </span>
-                                    );
-                                }}
-                            />
-                        </Card>
                         <div
-                            className="appPanel"
                             style={{
-                                alignSelf: 'stretch',
+                                display: 'flex',
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                gap: '20px',
                             }}
                         >
-                            <h2
-                                style={{
-                                    marginTop: '0',
+                            <Card
+                                title="CF Quality Score"
+                                cardStyle={{
+                                    width: '325px',
+                                    height: '350px',
+                                    flex: 1,
                                 }}
                             >
-                                Progression of Issues over Time
-                            </h2>
-                            <Chart
-                                options={chartOptions}
-                                series={issueSeries}
-                                type="line"
-                                width="100%"
-                                height="400px"
-                            />
+                                <MiniBar
+                                    dataPoints={codeQualityMiniBarSeries}
+                                    maxValue={scoreNormalizer}
+                                    valueFormatter={(val) => `${val.toFixed(2)}`}
+                                    containerStyle={{
+                                        height: '100%',
+                                        width: '100%',
+                                    }}
+                                    tooltipContent={(item) => {
+                                        return (
+                                            <span>
+                                                {item.label} : <b>{item.value.toFixed(2)}</b>
+                                            </span>
+                                        );
+                                    }}
+                                />
+                            </Card>
+                            <div
+                                className="appPanel"
+                                style={{
+                                    alignSelf: 'stretch',
+                                    height: '350px',
+                                    flex: 1,
+                                }}
+                            >
+                                <h2
+                                    style={{
+                                        marginTop: '0',
+                                    }}
+                                >
+                                    Progression of Issues over Time
+                                </h2>
+                                <Chart
+                                    options={chartOptions}
+                                    series={issueSeries}
+                                    type="line"
+                                    width="100%"
+                                    height="250px"
+                                />
+                            </div>
                         </div>
                     </React.Fragment>
                 ) : (

@@ -17,7 +17,7 @@ const Card: React.FC<CardProps> = ({
     size = 'md',
 }) => {
     return (
-        <div className={`${CardStyles.card} ${CardStyles[size]}`} style={cardStyle}>
+        <div className={`appPanel ${CardStyles.card} ${CardStyles[size]}`} style={cardStyle}>
             {
                 title && (
                     <h3 className={`${CardStyles.heading}`}>{title}</h3>
