@@ -11,32 +11,41 @@ import { toast } from 'react-toastify';
 import CFPage from '../Components/Page/CFPage.tsx';
 import MiniBar from '../Graphs/MiniBar.tsx';
 import Card from '../Components/Panels/Card.tsx';
+import AppPanel from '../Components/Panels/AppPanel.tsx';
+import Statement from '../Components/Text/Statement.tsx';
+import { ReactComponent as EmptyBox } from '../assets/illustrations/EmptyBox.svg'
 
 export function NoReportsFound() {
     const pathParams = useParams();
 
     return (
-        <div
-            className="appPanel"
-            style={{
+        <AppPanel
+            variant="flat"
+            panelStyle={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 textAlign: 'center',
-                marginTop: '15px',
+                height: '100%'
             }}
         >
+            <EmptyBox style={{
+                fontSize: '10rem'
+            }} />
+            <Statement statement={`It is so quiet here.`} />
             <p>
-                There are no reports found for this project. Run a CodeFree test <b>from the CLI</b>,<br />
-                or
+                There are no reports found for this project.
+            </p>
+            <p>
+                Run a CodeFree test <b>from the CLI</b>, or
             </p>
             <LinkButton
                 className={'themeButton'}
                 to={`/projects/${pathParams.projectid}/reports/upload`}
                 title={'Upload a Report'}
             />
-        </div>
+        </AppPanel>
     );
 }
 
@@ -181,17 +190,18 @@ function ProjectHome() {
 
     return (
         <CFPage title={`${projectInfo['name']}`}>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'stretch',
-                    justifyContent: 'flex-start',
-                    gap: '20px',
-                    filter: 'var(--panel-shadow-filter)',
-                }}
-            >
-                {reportData ? (
+            {reportData ?
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                        justifyContent: 'flex-start',
+                        gap: '20px',
+                        filter: 'var(--panel-shadow-filter)',
+                    }}
+                >
+
                     <React.Fragment>
                         <div
                             className="appPanel"
@@ -336,10 +346,9 @@ function ProjectHome() {
                             </div>
                         </div>
                     </React.Fragment>
-                ) : (
-                    <NoReportsFound />
-                )}
-            </div>
+                </div>
+                : <NoReportsFound />
+            }
         </CFPage>
     );
 }

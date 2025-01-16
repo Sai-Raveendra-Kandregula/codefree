@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { IoChevronDownOutline } from "react-icons/io5";
+import DropdownButton from './Dropdown';
 
 const HEADER_BUTTON_TYPES = {
   "LINK": 0,
@@ -17,6 +18,7 @@ function HeaderButton({
   icon,
   title,
   content,
+  showOnlyIcon = false,
   anchorDropDown = "right",
   ...props
 }) {
@@ -44,47 +46,15 @@ function HeaderButton({
     }
     {
       type === HEADER_BUTTON_TYPES.DROPDOWN &&
-      <div
-        className={`headerButton buttonBase ${isDropdownOpen && 'open'} ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
+      <DropdownButton
         title={title}
+        icon={icon}
+        showOnlyIcon={showOnlyIcon}
+        showDropdownIcon={showDropdownIcon}
+        anchorDropDown={anchorDropDown}
         {...props}>
-        <div className={`headerButtonDropdownSummary`}
-          onClick={() => {
-            if (dropdownRef.current.children.length > 0) {
-              dropdownRef.current.classList.add('show')
-              setIsDropdownOpen(true)
-
-              setTimeout(() => {
-                window.addEventListener('click', function (e) {
-                  if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                    dropdownRef.current.classList.remove('show')
-                    setIsDropdownOpen(false)
-                  }
-                }, { once: true })
-              }, 10)
-            }
-          }}>
-          {icon}
-          {
-            content && <span style={{
-              flex: '1',
-              overflowX: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}>{content}</span>
-          }
-          {
-            showDropdownIcon &&
-            <IoChevronDownOutline />
-          }
-        </div>
-        <div ref={dropdownRef} className='headerButtonDropDown' style={{
-          left: anchorDropDown === "left" ? "0" : "unset",
-          right: anchorDropDown === "right" ? "0" : "unset",
-        }}>
-          {children}
-        </div>
-      </div>
+        {children}
+      </DropdownButton>
     }
   </React.Fragment>
   )

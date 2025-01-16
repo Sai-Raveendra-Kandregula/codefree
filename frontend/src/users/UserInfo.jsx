@@ -61,14 +61,19 @@ function UserInfo({
                 <table style={{
                     width: 'min-content',
                     whiteSpace: 'nowrap',
-                    flex: '1'
+                    flex: 1,
+                    borderSpacing: '0 15px',
+                    alignSelf: 'center'
                 }}>
                     <tbody>
-                        <tr>
-                            <td>Profile Page</td>
-                            <td>:</td>
-                            <td><UserLink user_data={userData} /></td>
-                        </tr>
+                        {
+                            adminMode &&
+                            <tr>
+                                <td>Profile Page</td>
+                                <td>:</td>
+                                <td><UserLink user_data={userData} /></td>
+                            </tr>
+                        }
                         <tr>
                             <td>Email</td>
                             <td>:</td>

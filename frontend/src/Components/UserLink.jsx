@@ -47,7 +47,8 @@ function UserInfoHover({
                     zIndex: '1500',
                 }}>
                     <div style={{
-                        background: 'var(--background)',
+                        background: 'var(--overlay-background)',
+                        backdropFilter: 'blur(var(--overlay-blur))',
                         borderRadius: 'var(--border-radius)',
                         padding: '15px',
                         border: '1px solid var(--border-color)',
@@ -137,11 +138,17 @@ function UserLink({
                 }
                 {
                     use_link ?
-                    <Link to={admin_url ? `/admin-area/users/${userData['user_name']}` : `/user/${userData['user_name']}`}>
+                    <Link 
+                        style={{
+                            fontWeight: 500,
+                        }}
+                        to={admin_url ? `/admin-area/users/${userData['user_name']}` : `/user/${userData['user_name']}`}>
                         {userData['display_name']}
                     </Link>
                     :
-                    <span>
+                    <span style={{
+                        fontWeight: 500,
+                    }}>
                         {'display_name' in userData ? userData['display_name'] : userData['user_name']}
                     </span>
                 }

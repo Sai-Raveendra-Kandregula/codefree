@@ -1,0 +1,22 @@
+.appPanel {
+    background: var(--card-background);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.appPanel:hover {
+    background: var(--card-background-hover);
+}
+
+.appPanel.flat {
+    border: 4px dotted var(--theme-color);
+    background: none;
+}
+
+.appPanel.minimal {
+    border: none;
+    background: none;
+}

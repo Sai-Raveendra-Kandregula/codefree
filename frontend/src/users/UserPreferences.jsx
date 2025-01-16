@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react'
 import { CodeFreeContext } from '../App'
 import { toTitleCase } from '../GlobalRoot'
+import CFPage from '../Components/Page/CFPage'
 
 function UserPreferences() {    
     const cfContext = useContext(CodeFreeContext)
@@ -8,19 +9,7 @@ function UserPreferences() {
     const themeInfo = useMemo(() => cfContext.themeInfo, [cfContext])    
 
     return (
-        <div style={{
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            width: 'var(--centered-wide-content-width)',
-            margin: 'var(--centered-content-margin)',
-        }}>
-            <h2 style={{
-                margin: '0'
-            }}>
-                Preferences for : {currentUserData['display_name']}
-            </h2>
+        <CFPage title={`Preferences for : ${currentUserData['display_name']}`}>
             <h3>
                 Theme
             </h3>
@@ -77,7 +66,7 @@ function UserPreferences() {
                     })
                 }
             </div>
-        </div>
+        </CFPage>
     )
 }
 

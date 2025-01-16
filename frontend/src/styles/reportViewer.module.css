@@ -1,6 +1,8 @@
 /* Issue Item */
 
 .issueItemAccordian{
+    width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border-color);
@@ -13,6 +15,7 @@
 }
 
 .issueItemAccordian summary{
+    width: 100%;
     position: relative;
     box-sizing: border-box;
     padding: 0 20px;

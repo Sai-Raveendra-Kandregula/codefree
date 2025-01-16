@@ -1,4 +1,3 @@
 .centeredContent {
     width: var(--centered-wide-content-width);
-    margin: var(--centered-content-margin);
 }

@@ -30,45 +30,53 @@ function CFPage({
     return (
         <div style={{
             boxSizing: 'border-box',
+            overflowX: 'hidden',
             overflowY: 'auto',
             width: '100%',
+            maxWidth: '100%',
             minHeight: '100%',
             padding: 'var(--page-padding-y) var(--page-padding-x)',
             display: 'grid',
             gridTemplateColumns: '1fr',
             gridTemplateRows: `${showTitleOnPage ? 'auto ' : ''}1fr`,
-            gap: '20px',
-            alignItems: 'stretch',
+            gap: 'var(--page-title-content-gap)',
+            alignItems: 'center',
             justifyContent: 'flex-start'
         }}>
-            {
-                (showTitleOnPage || pageToolBar) &&
-                <div className={`${centered && CFPageStyles.centeredContent || ''}`} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    alignSelf: 'stretch',
-                    boxSizing: 'border-box',
-                    zIndex: 999
-                }}>
-                    <h2 style={{
-                        margin: 0
-                    }}>{showTitleOnPage && (titleContentOverride || title)}</h2>
-                    <div style={{
-                        display: 'flex',
-                        gap: '5px',
-                        alignItems: 'center'
-                    }}>
-                        {pageToolBar}
-                    </div>
-                </div>
-            }
-            <div className={`${centered && CFPageStyles.centeredContent || ''}`} style={{
-                boxSizing: 'border-box',
-                justifySelf: 'stretch',
-                height: '100%',
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
             }}>
-                {children}
+                {
+                    (showTitleOnPage || pageToolBar) &&
+                    <div className={`${centered && CFPageStyles.centeredContent || ''}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        justifySelf: 'center',
+                        boxSizing: 'border-box',
+                        zIndex: 999
+                    }}>
+                        <h2 style={{
+                            margin: 0
+                        }}>{showTitleOnPage && (titleContentOverride || title)}</h2>
+                        <div style={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'center'
+                        }}>
+                            {pageToolBar}
+                        </div>
+                    </div>
+                }
+                <div className={`${centered && CFPageStyles.centeredContent || ''}`} style={{
+                    boxSizing: 'border-box',
+                    // justifySelf: 'center',
+                    height: '100%',
+                }}>
+                    {children}
+                </div>
             </div>
         </div>
     )

@@ -81,7 +81,7 @@ function GlobalRoot() {
     return <React.Fragment>
       {
         currentUserData ?
-          <HeaderButton type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={currentUserData} />} showDropdownIcon={false} title={currentUserData['user_name']} >
+          <HeaderButton showOnlyIcon={true} type={HEADER_BUTTON_TYPES.DROPDOWN} icon={<UserAvatar userData={currentUserData} />} showDropdownIcon={false} title={currentUserData['user_name']} >
             <SideBarLink to={`/user/${currentUserData['user_name']}`} title={"Profile"} replace={false} icon={<LuUser2 />} />
             <SideBarLink to={`/user/${currentUserData['user_name']}/preferences`} title={"Preferences"} replace={false} icon={<LuSettings />} />
             <SideBarLink to={`/sign-out`} title={"Sign Out"} replace={false} icon={<LuLogOut />} />

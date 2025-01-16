@@ -1,59 +1,63 @@
-
 .dropdownButton {
-    position: relative;
-    overflow-y: visible;
-  }
-  
-  .dropdownButtonDropdownSummary {
-    box-sizing: border-box;
-    height: var(--button-height);
-    padding: 0 10px;
-  
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  
-    border: 1px solid transparent;
-    border-radius: var(--button-border-radius);
-    color: inherit;
-    font-weight: 500;
-  
-    cursor: pointer;
-  }
-  
-  .dropdownButtonDropdownSummary:hover {
-    background: rgba(125, 125, 125, 0.2);
-    text-decoration: none;
-  }
-  
-  .dropdownButtonDropDown {
-    z-index: 15;
-    position: absolute;
-    display: none;
-    flex-direction: column;
-    box-sizing: border-box;
-    padding: 5px;
-    border-radius: calc(var(--border-radius));
-    border: 1px solid var(--border-color);
-    background: var(--overlay-background);
-    backdrop-filter: blur(var(--overlay-blur));
-  
-    top: calc(100% + 0px);
-    min-width: 100%;
-    width: min-content;
-    max-width: 300px;
-    color: var(--foreground);
+  position: relative;
+  overflow-y: visible;
+}
 
-    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.35);
-  }
-  
-  .dropdownButtonDropDown .sideBarLink {
-    height: 30px;
-    border-radius: calc(var(--border-radius) - 2.5px);
-  }
-  
-  .dropdownButtonDropDown.show {
-    display: flex;
-  }
+.dropdownButtonDropdownSummary {
+  box-sizing: border-box;
+  height: var(--button-height);
+  padding: 0 10px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--button-border-radius);
+  color: inherit;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.dropdownButtonDropdownSummary.iconOnly:not(.chevronVisible) {
+  padding: 0;
+  width: var(--button-height);
+}
+
+.dropdownButtonDropdownSummary:hover {
+  background: rgba(125, 125, 125, 0.2);
+  text-decoration: none;
+}
+
+.dropdownButtonDropDown {
+  z-index: 9999;
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 5px;
+  border-radius: calc(var(--border-radius));
+  border: 1px solid var(--border-color);
+  background: var(--overlay-background);
+  backdrop-filter: blur(var(--overlay-blur));
+
+  top: calc(100% + 0px);
+  min-width: 100%;
+  width: min-content;
+  max-width: 300px;
+  color: var(--foreground);
+
+  box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.35);
+}
+
+.dropdownButtonDropDown .sideBarLink {
+  height: 30px;
+  border-radius: calc(var(--border-radius) - 2.5px);
+}
+
+.dropdownButtonDropDown.show {
+  display: flex;
+}

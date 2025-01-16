@@ -11,33 +11,36 @@
   --header-padding: 15px;
   --border-radius: 7.5px;
   --button-border-radius: 7.5px;
-  --button-height: 32px;
+  --button-height: 35px;
   
   --overlay-blur: 5px;
 
-  --page-padding-x: 20px;
-  --page-padding-y: 20px;
+  --page-padding-x: 35px;
+  --page-padding-y: 25px;
+  --page-title-content-gap: 20px;
+
+  --theme-color: #5f3bfe;
 }
 
 :root, .light {
   --background: #edf1f5;
-  --nav-panel-background: #ffffff;
-  --overlay-background: rgb(233, 241, 234);
+  --button-overlay: rgba(255, 255, 255, 0.75);
+  --button-overlay-hover: rgba(255, 255, 255, 0.95);
+  --overlay-background: rgba(255, 255, 255, 0.75);
+  --nav-panel-background: var(--overlay-background);
   --foreground: #010101;
   --border-color: #dddddd;
   --border-color-dark: #929292;
   --control-border-color: #cdcdcd;
-  --theme-color: #8337ff;
-  
-  --button-overlay: rgba(255, 255, 255, 0.75);
-  --button-overlay-hover: rgba(255, 255, 255, 0.95);
 
   --card-background: var(--button-overlay);
   --card-background-hover: var(--button-overlay-hover);
   --select-background: rgba(255, 255, 255, 0.5);
-  --control-overlay-bg: rgba(255, 255, 255, 0.25);
+  --control-overlay-bg: rgba(181, 181, 181, 0.15);
   --control-active-overlay-bg: rgba(255, 255, 255, 0.5);
-  --link-color: #8337ff;
+  --text-highlight-color: rgb(255, 255, 0);
+
+  --link-color: var(--theme-color);
   
   --icon-shadow: drop-shadow(0px 2px 10px rgba(0, 0, 0, 0.5));
   
@@ -46,13 +49,12 @@
 
 :root.dark, .dark {
   --background: rgb(12, 12, 18);
-  --overlay-background: rgba(17, 17, 22, 0.5);
+  --overlay-background: rgba(17, 17, 22, 0.75);
   --foreground: #FEFEFE;
   --border-color: #3939397d;
   --border-color-dark: #7b7b7bcd;
   --control-border-color: #3b3b3b;
   --nav-panel-background: rgb(22, 22, 30);
-  --theme-color: #6b61ff;
 
   --card-background: rgba(255, 255, 255, 0.075);
   --select-background: rgba(255, 255, 255, 0.1);
@@ -60,6 +62,7 @@
   --button-overlay-hover: rgba(255, 255, 255, 0.15);
   --control-overlay-bg: rgba(255, 255, 255, 0.05);
   --control-active-overlay-bg: rgba(255, 255, 255, 0.075);
+  --text-highlight-color: rgba(255, 255, 0, 0.5);
 
   --link-color: var(--theme-color);
   
@@ -70,6 +73,11 @@
 
 * {
   color: inherit;
+}
+
+p{
+  margin-block-start: 0.5em;
+  margin-block-end: 0.5em;
 }
 
 a {
@@ -105,12 +113,13 @@ input[type=password]:read-only {
 }
 
 button,
+.linkButton,
 input[type=submit],
 input[type=reset] {
   box-sizing: border-box;
   font-family: inherit;
   height: var(--button-height);
-  padding: 5px 10px;
+  padding: 0px 20px;
 
   display: flex;
   flex-direction: row;
@@ -165,17 +174,19 @@ hr {
   width: 100%;
 }
 
+.monospace {
+  font-family: 'Roboto Mono', monospace;
+}
+
 pre,
 code,
 div.preBlock {
-  /* width: 100%; */
+  box-sizing: border-box;
   background: var(--control-overlay-bg);
   padding: 5px;
-  margin: 5px;
-  overflow-x: auto;
+  overflow: auto;
   border-radius: var(--border-radius);
   font-family: 'Roboto Mono', monospace;
-  white-space: pre;
   font-weight: 400;
 }
 
@@ -184,11 +195,19 @@ div.preBlock * {
 }
 
 div.preBlock {
-  display: flex;
+  display: inline-flex;
   gap: 10px;
 }
 
+.codeHighlight{
+  position: relative;
+  display: inline-block;
+  text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
+  background: var(--text-highlight-color);
+}
+
 span.preBlockLineNumber {
+  box-sizing: border-box;
   opacity: 0.75;
   /* padding: 0 10px; */
   padding-left: 5px;
@@ -200,16 +219,12 @@ span.letter-avatar{
   flex-shrink: 0;
 }
 
-*:is(h1, h2, h3, h4, h5, h6) {
-  font-weight: 600 !important;
-}
-
 .App {
   height: 100vh;
   max-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 1rem;
 
   transition: all linear 0.1s;
 }
@@ -277,17 +292,6 @@ span.letter-avatar{
 }
 
 .linkButton {
-  box-sizing: border-box;
-  height: var(--button-height);
-  width: min-content;
-  padding: 5px 10px;
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-
   border: 1px solid transparent;
   border-radius: var(--button-border-radius);
   color: var(--foreground);
@@ -302,6 +306,7 @@ span.letter-avatar{
 }
 
 .buttonBase {
+  box-sizing: border-box;
   border-radius: var(--button-border-radius);
   border: none;
   height: var(--button-height);

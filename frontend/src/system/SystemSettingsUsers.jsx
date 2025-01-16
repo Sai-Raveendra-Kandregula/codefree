@@ -294,8 +294,9 @@ function SystemSettingsUsers({ pendingUsers = false }) {
                 {userList && userList.length > 0 && (
                     <div
                         style={{
-                            width: 'var(--centered-wide-content-width)',
-                            margin: 'var(--centered-content-margin)',
+                            // width: 'var(--centered-wide-content-width)',
+                            // margin: 'var(--centered-content-margin)',
+                            width: '100%',
                             height: '100%',
                             maxHeight: '100%',
                             overflowY: 'auto',

@@ -19,7 +19,7 @@ function useTheme() {
     const [themePreference, setThemePreference] = useState<CFTheme>(window.localStorage.getItem("app-theme") as CFTheme || "system");
     const [displayedTheme, setDisplayedTheme] = useState<CFDisplayTheme>("light");
 
-    const listenThemeChanges = useCallback((event) => {
+    const listenThemeChanges = useCallback((event : Event) => {
         setThemePreference("light")
         setTimeout(() => {
             setThemePreference("system")

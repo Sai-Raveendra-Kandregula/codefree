@@ -294,6 +294,7 @@ function ReportViewer() {
         >
             <div style={{
                 width: '100%',
+                maxWidth: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -310,7 +311,7 @@ function ReportViewer() {
                     alignItems: 'center',
                     justifyContent: 'flex-start',
                     background: 'var(--background)',
-                    // zIndex: '999',
+                    zIndex: 150,
                 }}>
                     <div style={{
                         boxSizing: 'border-box',
@@ -383,99 +384,90 @@ function ReportViewer() {
                 {
                     reportData ?
                         <div style={{
+                            width: '100%',
+                            boxSizing: 'border-box',
+                            padding: '20px 0',
                             display: 'flex',
                             flexDirection: 'column',
-                            height: '100%',
-                            width: '100%',
-                            // maxHeight: '100%',
-                            overflow: 'auto'
+                            alignItems: 'stretch',
+                            justifyContent: 'flex-start',
+                            gap: '5px',
+                            marginBottom: '60px'
                         }}>
-                            <div style={{
-                                overflowY: 'auto',
-                                boxSizing: 'border-box',
-                                padding: '20px 0',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'stretch',
-                                justifyContent: 'flex-start',
-                                gap: '5px',
-                                marginBottom: '60px'
-                            }}>
-                                {
-                                    viewType && !(["revision info"].includes(viewType)) &&
-                                    <IssuesList issuesData={transformedReportData} issueType={viewType} groupBy={groupBy} />
-                                }
-                                {
-                                    viewType && viewType === "revision info" &&
-                                    <div>
-                                        {
-                                            reportData['commit_info'] && reportData['commit_info'].map((commit_obj) => {
-                                                return <React.Fragment>
-                                                    <table>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    Commit
-                                                                </td>
-                                                                <td>:</td>
-                                                                <td>
-                                                                    {commit_obj['subject']} (<a
-                                                                        target='_blank'
-                                                                        rel='noreferrer'
-                                                                        href={
-                                                                            projectInfo['git_remote_commit_url'] ?
-                                                                                projectInfo['git_remote_commit_url'].replace(/\/+$/, '') + "/" + commit_obj['hash']
-                                                                                :
-                                                                                null
-                                                                        }  >
-                                                                        {commit_obj['hash']}
-                                                                    </a>)
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    Authored by
-                                                                </td>
-                                                                <td>:</td>
-                                                                <td>{commit_obj['author']} ({commit_obj['email']})</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    Commited on
-                                                                </td>
-                                                                <td>:</td>
-                                                                <td>{commit_obj['age']}, on {commit_obj['date']}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    {
-                                                        commit_obj['body'].length > 0 &&
-                                                        <>
-                                                            <h4>
-                                                                Commit Message
-                                                            </h4>
-                                                            <code>
-                                                                {commit_obj['body']}
-                                                            </code>
-                                                        </>
-                                                    }
-                                                    {
-                                                        commit_obj['notes'].length > 0 &&
-                                                        <>
-                                                            <h4>
-                                                                Commit Notes
-                                                            </h4>
-                                                            <code>
-                                                                {commit_obj['notes']}
-                                                            </code>
-                                                        </>
-                                                    }
-                                                </React.Fragment>
-                                            })
-                                        }
-                                    </div>
-                                }
-                            </div>
+                            {
+                                viewType && !(["revision info"].includes(viewType)) &&
+                                <IssuesList issuesData={transformedReportData} issueType={viewType} groupBy={groupBy} />
+                            }
+                            {
+                                viewType && viewType === "revision info" &&
+                                <div>
+                                    {
+                                        reportData['commit_info'] && reportData['commit_info'].map((commit_obj) => {
+                                            return <React.Fragment>
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                Commit
+                                                            </td>
+                                                            <td>:</td>
+                                                            <td>
+                                                                {commit_obj['subject']} (<a
+                                                                    target='_blank'
+                                                                    rel='noreferrer'
+                                                                    href={
+                                                                        projectInfo['git_remote_commit_url'] ?
+                                                                            projectInfo['git_remote_commit_url'].replace(/\/+$/, '') + "/" + commit_obj['hash']
+                                                                            :
+                                                                            null
+                                                                    }  >
+                                                                    {commit_obj['hash']}
+                                                                </a>)
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Authored by
+                                                            </td>
+                                                            <td>:</td>
+                                                            <td>{commit_obj['author']} ({commit_obj['email']})</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Commited on
+                                                            </td>
+                                                            <td>:</td>
+                                                            <td>{commit_obj['age']}, on {commit_obj['date']}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                {
+                                                    commit_obj['body'].length > 0 &&
+                                                    <>
+                                                        <h4>
+                                                            Commit Message
+                                                        </h4>
+                                                        <code>
+                                                            {commit_obj['body']}
+                                                        </code>
+                                                    </>
+                                                }
+                                                {
+                                                    commit_obj['notes'].length > 0 &&
+                                                    <>
+                                                        <h4>
+                                                            Commit Notes
+                                                        </h4>
+                                                        <code>
+                                                            {commit_obj['notes']}
+                                                        </code>
+                                                    </>
+                                                }
+                                            </React.Fragment>
+                                        })
+                                    }
+                                </div>
+                            }
                         </div>
                         :
                         <span>

@@ -1,134 +1,127 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import issueItemStyles from '../../styles/reportViewer.module.css'
+import { splitAtIndex } from '../../Helpers'
 
 function CodeIssueItem({
     issue = {},
     groupedBy = "",
 }) {
+
+    const codeContext = useMemo(() => {
+        if(issue["Symbol"]){
+            const [pre, rest] = splitAtIndex(issue["Context"], issue["Column"] - 1)
+            const [symbol, post] = splitAtIndex(rest, issue["Symbol"].length)
+
+            return <>{pre}<span className='codeHighlight'>{symbol}</span>{post}</>
+        }
+        return issue["Context"].trimEnd()
+    }, [issue])
+
     return (
         <div style={{
+            width: '100%',
             boxSizing: 'border-box',
-            margin: '0 20px',
-            paddingBottom: '20px',
+            padding: '20px',
             borderBottom: '1px solid var(--border-color)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            justifyContent: 'flex-start',
+            gap: '10px'
         }}>
             {
                 groupedBy !== "File Name" &&
                 issue["File Name"] &&
                 <React.Fragment>
-                    <h4>File : <span style={{
+                    <b>File : <span style={{
                         fontWeight: '400'
-                    }}>{issue["File Name"]}</span></h4>
+                    }}>{issue["File Name"]}</span></b>
                 </React.Fragment>
             }
             {
                 groupedBy !== "Compliance Standard" &&
                 issue["Compliance Standard"] &&
-                <h4>
+                <b>
                     Issue :&nbsp;
                     <span style={{
                         fontWeight: 400
-                    }}>{(issue["Compliance Standard"] === 'NONE' ? "Generic" : issue["Compliance Standard"])} Violation</span>
-                </h4>
+                    }}>{(issue["Compliance Standard"] === 'NONE' ? "Generic" : issue["Compliance Standard"])} Violation{
+                            issue["Compliance Standard"] === "MISRA" && issue["MISRA Rule Number"] &&
+                            ` (Rule number : ${issue["MISRA Rule Number"]})`
+                    }{
+                        issue["Compliance Standard"] === "CWE" && issue["CWE List"] &&
+                            ` (CWE${issue["CWE List"].toString().includes(",") ? 's' : ''} : ${issue["CWE List"]})`
+                    }</span>
+                </b>
             }
             {
                 groupedBy !== "Module Name" &&
                 issue["Module Name"] &&
-                <h4>
+                <b>
                     Reported By :&nbsp;
                     <span style={{
                         fontWeight: 400
                     }}>{issue["Module Name"]}</span>
-                </h4>
+                </b>
             }
             {
                 groupedBy !== "Severity" &&
-                <h4>
+                <b>
                     Severity :&nbsp;
                     <span className={`${issueItemStyles.severitySpan} ${issueItemStyles[issue["Severity"]]}`}>{issue["Severity"]}</span>
-                </h4>
-            }
-            {
-                issue["Compliance Standard"] === "CWE" && issue["CWE List"] &&
-                <h4>
-                    Violated CWE{issue["CWE List"].toString().includes(",") && "s"} :&nbsp;
-                    <span style={{
-                        fontWeight: 400
-                    }}>{issue["CWE List"]}</span>
-                </h4>
-            }
-            {
-                issue["Compliance Standard"] === "MISRA" && issue["MISRA Rule Number"] &&
-                <h4>
-                    Violated MISRA Rule :&nbsp;
-                    <span style={{
-                        fontWeight: 400
-                    }}>{issue["MISRA Rule Number"]}</span>
-                </h4>
-            }
-             {
-                issue["Symbol"] &&
-                <React.Fragment>
-                    <h4>
-                        Symbol : 
-                    </h4>
-                    <code>
-                        {issue["Symbol"]}
-                    </code>
-                </React.Fragment>
+                </b>
             }
             {
                 issue["Context"] &&
                 <React.Fragment>
-                    <h4>
-                        Context : 
-                    </h4>
-                    <div className='preBlock'>
-                        <span className='preBlockLineNumber'>{issue["Line"].toString()}</span>
-                        <div>
-                            {issue["Context"].trimEnd()}{"\n"}
-                            {
-                                Number.parseInt(issue["Column"]) > 0 &&
-                                (" ").repeat(Number.parseInt(issue["Column"]) - 1) + "^"
-                            }
-                        </div>
-                    </div>
+                    <b>
+                        Context :
+                    </b>
+                    <code style={{
+                        display: 'block',
+                        width: '100%',
+                        maxWidth: '100%',
+                        overflowX: 'auto',
+                    }}>
+                        <span className='preBlockLineNumber'>{issue["Line"].toString()}</span>&nbsp;
+                        {codeContext}
+                    </code>
                 </React.Fragment>
             }
             {
                 issue["Description"] &&
                 <React.Fragment>
-                    <h4>Issue Description :</h4>
-                    {issue["Description"]}
+                    <b>Issue Description :</b>
+                    <span>{issue["Description"]}</span>
                 </React.Fragment>
             }
             {
                 issue["Suggestion"] && issue["Suggestion"].length > 0 &&
                 <React.Fragment>
-                    <h4>Suggested Fix :</h4>
+                    <b>Suggested Fix :</b>
                     {issue["Suggestion"]}
                 </React.Fragment>
             }
             {
                 issue["Additional Info"] &&
                 <React.Fragment>
-                    <h4>
-                        More Info : 
-                    </h4>
+                    <b>
+                        More Info :
+                    </b>
                     {
                         issue["CWE List"].toString().includes(",") ?
-                        issue["CWE List"].toString().split(",").map((cwe)=>{
-                            const url = `https://cwe.mitre.org/data/definitions/${cwe.trim()}.html`
-                            return <React.Fragment key={cwe}><a target='_blank' href={url} rel="noreferrer">
-                                {url}
-                            </a><br/>
-                            </React.Fragment>
-                        })
-                        :
-                        <a target='_blank' href={issue["Additional Info"]} rel="noreferrer">
-                            {issue["Additional Info"]}
-                        </a>
+                            issue["CWE List"].toString().split(",").map((cwe) => {
+                                const url = `https://cwe.mitre.org/data/definitions/${cwe.trim()}.html`
+                                return <React.Fragment key={cwe}><a target='_blank' href={url} rel="noreferrer">
+                                    {url}
+                                </a><br />
+                                </React.Fragment>
+                            })
+                            :
+                            <a target='_blank' href={issue["Additional Info"]} rel="noreferrer">
+                                {issue["Additional Info"]}
+                            </a>
                     }
                 </React.Fragment>
             }

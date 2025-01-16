@@ -8,7 +8,9 @@ function DropdownButton({
   to,
   icon,
   title,
+  content = undefined,
   showOnlyIcon = false,
+  showDropdownIcon = true,
   anchorDropDown = "right",
   ...props
 }) {
@@ -25,10 +27,11 @@ function DropdownButton({
   }
 
   useEffect(() => {
-    if (isDropdownOpen) {
-      window.addEventListener('click', clickedOutsideDropdown, { once: true })
+    window.addEventListener('click', clickedOutsideDropdown)
+    return () => {
+      window.removeEventListener('click', clickedOutsideDropdown)
     }
-  }, [isDropdownOpen])
+  }, [])
 
   const openDropdown = () => {
     dropdownRef.current.classList.add('show')
@@ -37,7 +40,6 @@ function DropdownButton({
 
   const closeDropdown = () => {
     dropdownRef.current.classList.remove('show')
-    window.removeEventListener('click', clickedOutsideDropdown, { once: true })
     setIsDropdownOpen(false)
   }
 
@@ -46,15 +48,22 @@ function DropdownButton({
     <div
       className={`dropdownButton ${window.location.pathname.startsWith(to) ? "active" : ""} ${className ? className : ""}`}
       title={title}
-      {...props}>
-      <div className={`dropdownButtonDropdownSummary ${isDropdownOpen && 'open'}`}
+      {...props}
+    >
+      <div className={`dropdownButtonDropdownSummary ${
+        isDropdownOpen ? 'open' : ''
+      } ${
+        showOnlyIcon ? "iconOnly" : ""
+      } ${
+        showDropdownIcon ? 'chevronVisible' : ''  
+      }`}
         onClick={(e) => {
           e.stopPropagation()
           if (dropdownRef.current.children.length > 0) {
-            if(isDropdownOpen){
+            if (isDropdownOpen) {
               closeDropdown()
             }
-            else{
+            else {
               openDropdown()
             }
           }
@@ -62,18 +71,23 @@ function DropdownButton({
         {icon}
         {
           !showOnlyIcon &&
-          <span style={{
+          (content || <span style={{
             flex: '1',
             overflowX: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-          }}>{title}</span>
+          }}>{title}</span>)
         }
-        <IoChevronDownOutline />
+        {showDropdownIcon &&
+          <IoChevronDownOutline />
+        }
       </div>
       <div ref={dropdownRef} className='dropdownButtonDropDown' style={{
         left: anchorDropDown === "left" ? "0" : "unset",
         right: anchorDropDown === "right" ? "0" : "unset",
+      }} onClick={(e) => {
+        e.stopPropagation()
+        closeDropdown()
       }}>
         {typeof children === 'function' ? children({ open: openDropdown, close: closeDropdown, isOpen: isDropdownOpen }) : children}
       </div>
